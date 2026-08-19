@@ -659,14 +659,35 @@ a{ color: inherit; }
 }
 
 .tur-kart{
+  position: relative;
   background: var(--beyaz);
   border: 0.5px solid var(--cizgi);
   border-radius: var(--r-kart);
   overflow: hidden;
   transition: border-color .2s ease;
   display: flex; flex-direction: column;
+  cursor: pointer;
 }
 .tur-kart:hover{ border-color: var(--cizgi-koyu); }
+
+/* Kartın tamamı tıklanabilir: başlık linki görünmez şekilde tüm kartı kaplar
+   (stretched-link deseni). ::after'ın konum referansı .tur-kart (position: relative)
+   olsun diye linkin kendisine position verilmez — verilirse örtü yalnızca link
+   kutusunu kaplar, tüm kartı değil. z-index rozet(2)/renk katmanı(1)'nin üstünde
+   olmalı, yoksa görsel alanındaki tıklamayı onlar yakalar. WhatsApp butonu ise
+   en üstte kalır ki kendi hedefine gitsin. */
+.tur-kart__baslik a::after{
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+}
+/* Yalnız WhatsApp linki örtünün üstünde kalır — fiyat metni kartın geri
+   kalanı gibi tur sayfasına gider. */
+.tur-kart__alt .wa-buton{
+  position: relative;
+  z-index: 4;
+}
 
 .tur-kart__gorsel{
   position: relative;

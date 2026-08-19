@@ -173,8 +173,10 @@ const jsonLd = [{
         {galeri.length === 0 && <h1>{tur.baslik[dil]}</h1>}
         {galeri.length === 0 && tur.ozet[dil] && <p class="ikincil">{tur.ozet[dil]}</p>}
         <div class="tur-meta">
-          {sureMetni && <span>{sureMetni}</span>}
-          {gunMetni && <span>{gunMetni}</span>}
+          {/* Süre ve gün bilgisi galeri olduğunda hero rozetlerinde zaten gösteriliyor —
+              burada yalnız orada yer almayan bilgi (kalkış bölgeleri) tekrar edilir. */}
+          {galeri.length === 0 && sureMetni && <span>{sureMetni}</span>}
+          {galeri.length === 0 && gunMetni && <span>{gunMetni}</span>}
           {kalkisAdlari && <span>{s.k_kalkis}: {kalkisAdlari}</span>}
         </div>
       </div>
