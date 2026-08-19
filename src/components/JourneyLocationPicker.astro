@@ -69,7 +69,7 @@ const zoneLabels = zones.map((zone) => ({ code: zone.code, label: zone.label[dil
   }
   .journey-location__eyebrow{
     margin: 0;
-    color: var(--action);
+    color: var(--accent-hover); /* 12px'de düz pirinç 4.5:1'i geçmiyordu */
     font-size: 12px;
     font-weight: 700;
     letter-spacing: .08em;
@@ -91,7 +91,7 @@ const zoneLabels = zones.map((zone) => ({ code: zone.code, label: zone.label[dil
     line-height: 1.55;
   }
   .journey-location__durum{
-    color: var(--action) !important;
+    color: var(--accent-hover) !important; /* 15px'de düz pirinç 4.5:1'i geçmiyordu */
     font-weight: 600;
   }
   .journey-location__form,
@@ -149,7 +149,7 @@ const zoneLabels = zones.map((zone) => ({ code: zone.code, label: zone.label[dil
     color: var(--text-muted) !important;
     font-size: 13px !important;
   }
-  .journey-location__ikincil:hover{ color: var(--action) !important; }
+  .journey-location__ikincil:hover{ color: var(--accent-hover) !important; }
   .journey-location__kayitli{
     align-self: center;
     justify-items: start;
@@ -184,6 +184,14 @@ const zoneLabels = zones.map((zone) => ({ code: zone.code, label: zone.label[dil
 
   @media (prefers-reduced-motion: reduce){
     .journey-location button{ transition: none; }
+  }
+
+  /* Dokunma hedefi düzeltmesi — bkz. global.css §"Dokunma hedefi düzeltmesi".
+     Bu iki buton metin-stili olduğu için görsel boyu küçük kalır, gerçek
+     dokunma alanı pointer:coarse'da 44px'e çıkar. */
+  @media (pointer: coarse){
+    .journey-location__ikincil{ min-height: 44px !important; }
+    .journey-location__kayitli button{ min-height: 44px; }
   }
 </style>
 

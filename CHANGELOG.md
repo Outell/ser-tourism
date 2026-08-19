@@ -86,3 +86,59 @@ güncellemesi) tarihli olarak kaydeder. Şartname dosyaları değişmez; burası
   kalan alanı kaplıyor (`flex: 1 1 auto`), döviz seçici içeriğine göre
   sağda oturuyor (~92px), ikisi aynı satırda ve aynı yükseklikte (46px).
   `src/styles/global.css`
+
+### Erişilebilirlik — aydınlık ve koyu tema kontrast/dokunma denetimi
+
+Tarayıcıda canlı DOM üzerinde WCAG luminance/kontrast hesabı yapan bir
+denetim betiğiyle (varsayım değil, gerçek ölçüm) ana sayfa, tur detay ve
+plan sayfaları hem aydınlık hem koyu temada tarandı.
+
+**Aydınlık tema**
+1. **Hero'daki birincil "Turlar" butonu** — beyaz metin pirinç (`--accent`)
+   zeminde 3.36:1 veriyordu (WCAG AA 4.5:1 altı), ayrıca kod tabanının
+   kendi kuralı olan "pirinç asla buton dolgusu olmaz"a da aykırıydı.
+   Koyu dolgu + pirinç kenarlık düzenine çevrildi. `src/styles/global.css`
+2. **Küçük/orta boy metinde düz pirinç rengi** — takvimde seçili gün,
+   WhatsApp asistanı fiyat/etiketleri, tur kartı fiyatı, mobil sabit CTA
+   fiyatı, karakter sayacı uyarısı, "Interactive Journey" bölümlerindeki
+   (harita, zaman çizelgesi, konum seçici) küçük etiketler ve Plan sonuç
+   kartları — hepsi 20px altında 3.1-3.4:1 civarındaydı. Var olan koyu
+   varyanta (`--accent-hover`, 5.6:1) çevrildi; 32px'lik büyük fiyat
+   rakamları (3:1 eşiği yeterli) dokunulmadan bırakıldı.
+   `src/styles/global.css`, `src/components/JourneyExperience.astro`,
+   `src/components/JourneyLiveMap.astro`, `src/components/JourneyLocationPicker.astro`,
+   `src/components/JourneyMapPreview.astro`, `src/components/JourneyTimeline.astro`,
+   `src/sablonlar/Plan.astro`
+3. **Dokunma hedefleri 44×44px altında kalmıştı** — dil seçici, her tur
+   kartındaki WhatsApp butonu (en sık tıklanan dönüşüm elemanı) ve konum
+   seçici karttaki "Не сейчас"/"Değiştir" butonları var olan
+   `@media (pointer: coarse)` düzeltmesine dahil edilmemişti. Asistan
+   widget'ındaki iki küçük kapatma düğmesi görsel boyu korunarak görünmez
+   `::before` ile 44px'e genişletildi. `src/styles/global.css`,
+   `src/components/JourneyLocationPicker.astro`
+4. **WhatsApp formu inputları 15px'ti** — iOS Safari'de odaklanınca sayfayı
+   otomatik yakınlaştırıyordu. 16px'e çıkarıldı. `src/styles/global.css`
+
+**Koyu tema**
+5. **Takvim ay ileri/geri okları görünmüyordu (kritik).** `--murekkep`
+   sabit rengi koyu temada uyarlanmıyordu, koyu takvim zemininde ~1.3:1
+   kontrastla neredeyse görünmez haldeydi. Hafta günü başlıkları
+   (Pzt/Sal/...) da aynı nedenle 3.08:1'deydi. Temaya uyarlanan
+   `--text-secondary`/`--text-muted` token'larına çevrildi.
+   `src/styles/global.css`
+6. **WhatsApp CTA butonu 4.39:1 veriyordu** (AA eşiği 4.5:1'in az altında).
+   Koyu temadaki yeşil biraz koyultuldu, hover da (ışık temasındaki gibi)
+   koyulaşacak şekilde ayarlandı — şimdi 4.9:1. `src/styles/global.css`
+7. **`--duman` (ikincil metin) koyu temada uyarlanmıyordu** — kod
+   tabanında bu amaçla zaten var olan `--text-muted` yerine ham marka
+   sabiti kullanılan 9 canlı yer bulundu: dil seçici "seçili dil"
+   göstergesi, hava durumu widget'ındaki iptal politikası linki, filtre
+   etiketleri, "sonuç yok" mesajı, tur meta satırı, rezervasyon paneli alt
+   başlığı, fiyat katmanı detay metni, koşullar listesi, breadcrumb
+   linkleri, mobil sabit CTA'nın alt etiketi. Hepsi `--text-muted`'a
+   çevrildi. `src/styles/global.css`
+
+İkon/glif renkleri ve kenarlıklar dokunulmadı (WCAG 1.4.11 non-text eşiği
+3:1, zaten geçiyordu). Doğrulama: her düzeltme sonrası aynı canlı betikle
+ana sayfa/tur detay/plan sayfaları yeniden tarandı, `npm run dev` HMR
+hatasız derlendi, yatay kaydırma yok.

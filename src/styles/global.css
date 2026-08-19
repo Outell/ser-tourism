@@ -96,8 +96,11 @@
   --action-hover: #F0A252;
   --action-contrast: #10131F;
   --focus-ring: #F0A252;
-  --whatsapp: #12824C;
-  --whatsapp-hover: #159454;
+  /* #12824C beyaz metinle 4.39:1 veriyordu (WCAG AA 4.5:1 altı) — biraz
+     koyultulup ışık temasındaki gibi hover'da da koyulaşacak şekilde
+     düzenlendi (4.9:1). */
+  --whatsapp: #0E7A46;
+  --whatsapp-hover: #0C6B3C;
   --whatsapp-contrast: #F7F3EC;
   --nav-surface: #080B16;
   --nav-text: #F7F3EC;
@@ -369,7 +372,7 @@ a{ color: inherit; }
   border-radius: 4px;
 }
 .dil-sec__liste a:hover{ background: var(--kagit); }
-.dil-sec__liste a[aria-current="true"]{ color: var(--duman); }
+.dil-sec__liste a[aria-current="true"]{ color: var(--text-muted); } /* --duman koyu temada uyarlanmıyordu, 3.08:1 */
 
 /* Döviz seçici — native select */
 .para-sec{
@@ -839,7 +842,7 @@ a{ color: inherit; }
   margin: 0; padding-top: 8px;
   border-top: 1px solid var(--cizgi);
 }
-.hava__guvence a{ color: var(--duman); }
+.hava__guvence a{ color: var(--text-muted); } /* --duman koyu temada uyarlanmıyordu, 3.08:1 */
 
 /* Mesafe haritası kendi stilini taşır — src/components/MesafeHaritasi.astro */
 
@@ -859,7 +862,7 @@ a{ color: inherit; }
 }
 .filtreler label{
   display: flex; flex-direction: column; gap: 4px;
-  font-size: 12px; color: var(--duman);
+  font-size: 12px; color: var(--text-muted);
 }
 .filtreler select{
   font-family: var(--font-govde);
@@ -871,7 +874,7 @@ a{ color: inherit; }
   padding: 8px 12px;
   min-width: 140px;
 }
-.sonuc-yok{ color: var(--duman); padding: 24px 0; }
+.sonuc-yok{ color: var(--text-muted); padding: 24px 0; }
 
 /* --- Tur sayfası ---------------------------------------------- */
 
@@ -909,7 +912,7 @@ a{ color: inherit; }
 
 .tur-meta{
   display: flex; flex-wrap: wrap; gap: 8px 16px;
-  font-size: 14px; color: var(--duman);
+  font-size: 14px; color: var(--text-muted);
   margin-bottom: 24px;
 }
 
@@ -931,7 +934,7 @@ a{ color: inherit; }
 }
 .rez-panel__ust p{
   margin: 6px 0 0;
-  color: var(--duman);
+  color: var(--text-muted);
   font-size: 14px;
   line-height: 1.5;
 }
@@ -992,7 +995,7 @@ a{ color: inherit; }
 }
 .fiyat-katmanlari--liste .fiyat-katmani small{
   grid-column: 1 / -1;
-  color: var(--duman);
+  color: var(--text-muted);
   font-size: 13px;
   line-height: 1.45;
   margin-top: 4px;
@@ -1020,7 +1023,7 @@ a{ color: inherit; }
   font-size: 15px;
   margin: 0;
 }
-.kosullar dt{ color: var(--duman); }
+.kosullar dt{ color: var(--text-muted); }
 .kosullar dd{ margin: 0; }
 
 .tur-bolum{ padding: 24px 0; border-top: 1px solid var(--cizgi); }
@@ -1068,7 +1071,8 @@ a{ color: inherit; }
 
 .wa-form input, .wa-form select, .wa-form textarea{
   font-family: var(--font-govde);
-  font-size: 15px;
+  /* 16px altı iOS Safari'de odakta sayfayı otomatik yakınlaştırır. */
+  font-size: 16px;
   color: var(--gece);
   background: var(--beyaz);
   border: 1px solid var(--cizgi);
@@ -1158,7 +1162,7 @@ a{ color: inherit; }
   display: grid; place-items: center;
   background: transparent; border: 0;
   border-radius: var(--r-buton);
-  color: var(--murekkep); cursor: pointer;
+  color: var(--text-secondary); cursor: pointer; /* --murekkep koyu temada uyarlanmıyordu, ~1.3:1 */
   transition: background 120ms ease-out;
 }
 .takvim__ok:hover{ background: var(--kagit); }
@@ -1168,7 +1172,7 @@ a{ color: inherit; }
 }
 .takvim__gunadlari span{
   text-align: center;
-  font-size: 11px; color: var(--duman);
+  font-size: 11px; color: var(--text-muted); /* --duman koyu temada uyarlanmıyordu, 3.08:1 */
   letter-spacing: .06em;
   padding-bottom: 4px;
 }
@@ -1263,7 +1267,7 @@ a{ color: inherit; }
   color: var(--duman);
   font-variant-numeric: tabular-nums;
 }
-.sayac--dolu{ color: var(--pirinc); }
+.sayac--dolu{ color: var(--accent-hover); } /* 12px'de düz pirinç 4.5:1'i geçmiyordu */
 
 /* Yer tutucu etiketin yerine geçmez — soluk durması bilinçli (EK-4 §7) */
 ::placeholder{ color: var(--duman); opacity: .7; }
@@ -1379,13 +1383,13 @@ a{ color: inherit; }
   font-family: var(--font-baslik);
   font-weight: 500;
   font-size: 20px;
-  color: var(--pirinc);
+  color: var(--accent-hover); /* 20px'de düz pirinç 4.5:1'i geçmiyordu */
   line-height: 1.1;
 }
 .mobil-cta__fiyat small{
   display: block;
   font-family: var(--font-govde);
-  font-size: 11px; color: var(--duman);
+  font-size: 11px; color: var(--text-muted);
 }
 @media (min-width: 960px){ .mobil-cta{ display: none; } }
 @media (max-width: 959px){ .mobil-cta-bosluk{ height: 80px; } }
@@ -1443,12 +1447,12 @@ a{ color: inherit; }
 /* --- Breadcrumb ----------------------------------------------- */
 
 .kirinti{
-  font-size: 13px; color: var(--duman);
+  font-size: 13px; color: var(--text-muted);
   padding: 16px 0 0;
 }
 .kirinti ol{ list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 4px; }
 .kirinti li + li::before{ content: "·"; margin-right: 4px; }
-.kirinti a{ color: var(--duman); }
+.kirinti a{ color: var(--text-muted); }
 
 /* ============================================================
    Design System V2 — global polish, dark mode, navigation
@@ -1723,11 +1727,12 @@ body{
   box-shadow: none;
 }
 .buton-govde:hover{ background: var(--text-secondary); }
+/* Pirinç burada da dolgu olmaz (bkz. satır 1298) — sadece ince kenarlık.
+   Beyaz üstünde pirinç dolgu 3.36:1 veriyordu, WCAG AA 4.5:1'i geçmiyordu. */
 .buton-govde--acik{
-  background: var(--accent);
-  color: var(--accent-contrast);
+  border: 1.5px solid var(--accent);
 }
-.buton-govde--acik:hover{ background: var(--accent-hover); }
+.buton-govde--acik:hover{ background: var(--text-secondary); border-color: var(--accent-hover); }
 .buton-sade--hero{
   color: rgba(255,255,255,.86);
   text-decoration: none;
@@ -1815,7 +1820,10 @@ body{
 ::placeholder{
   color: var(--text-muted);
 }
-.tur-kart__fiyat,
+/* 20px'de pirinç 3.36:1 veriyor (WCAG AA 4.5:1 altı) — koyu varyant
+   (--accent-hover) 5.6:1 veriyor. 32px rakam büyük metin sayılır (3:1
+   yeter), o yüzden orada düz --action kalabilir. */
+.tur-kart__fiyat{ color: var(--accent-hover); }
 .fiyat-blok__rakam{ color: var(--action); }
 :root[data-theme="dark"] .tur-kart__rozet{
   background: rgba(244,239,230,.10);
@@ -1907,9 +1915,11 @@ body{
 }
 .takvim{ box-shadow: var(--shadow-md); }
 .takvim__gun--bugun{ box-shadow: inset 0 0 0 1px var(--action); }
+/* Pirinç dolgu + beyaz metin 3.36:1 veriyordu (WCAG AA 4.5:1 altı) —
+   koyu dolgu + beyaz metin her iki temada da güvenli kontrast verir. */
 .takvim__gun--secili{
-  background: var(--action);
-  color: var(--action-contrast);
+  background: var(--surface-strong);
+  color: var(--text-inverse);
 }
 .sayi:focus-within{
   border-color: var(--action);
@@ -2124,7 +2134,9 @@ body{
   font: 400 15px/1 system-ui; cursor: pointer;
   box-shadow: var(--shadow-sm);
 }
-.assistant__teaser-close:hover{ background: var(--action); border-color: var(--action); color: var(--action-contrast); }
+/* Pirinç dolgu + beyaz metin hover'da da 3.36:1 veriyordu — koyu dolguyu
+   koruyup pirinç halkayla vurgulamak her iki temada güvenli kalıyor. */
+.assistant__teaser-close:hover{ background: var(--text-secondary); border-color: var(--accent); }
 .assistant__panel{
   position: absolute; right: 0; bottom: 66px; width: min(390px, calc(100vw - 32px)); height: min(610px, calc(100svh - 110px));
   overflow: hidden; border: 1px solid color-mix(in srgb, var(--accent) 26%, var(--border)); border-radius: 22px;
@@ -2151,21 +2163,21 @@ body{
 .assistant__typing em{ margin-left:4px; font-style:normal; font-size:10px; }
 .assistant__choices{ display:flex; flex-wrap:wrap; gap:7px; margin:4px 0 15px; animation: assistant-message .24s ease both; }
 .assistant__choices button,.assistant__choice-link{ appearance:none; padding:8px 10px; border:1px solid color-mix(in srgb,var(--action) 30%,var(--border)); border-radius:999px; background:var(--surface-elevated); color:var(--text-primary); font:500 11.5px/1.2 "Golos Text",sans-serif; text-decoration:none; cursor:pointer; transition:.18s ease; }
-.assistant__choices button:hover,.assistant__choice-link:hover{ border-color:var(--action); color:var(--action); background:color-mix(in srgb,var(--action) 7%,var(--surface-elevated)); }
+.assistant__choices button:hover,.assistant__choice-link:hover{ border-color:var(--action); color:var(--accent-hover); background:color-mix(in srgb,var(--action) 7%,var(--surface-elevated)); }
 .assistant__choices button:disabled{ opacity:.45; cursor:default; }
 .assistant__cards{ display:grid; gap:9px; margin:4px 0 15px; animation: assistant-message .24s ease both; }
 .assistant__card{ padding:12px; border:1px solid var(--border); border-radius:15px; background:var(--surface-elevated); box-shadow:0 6px 18px rgba(20,20,35,.05); }
 .assistant__card-top{ display:grid; grid-template-columns:1fr auto; gap:10px; align-items:start; }
 .assistant__card-top strong{ color:var(--text-primary); font-size:12.5px; line-height:1.35; }
-.assistant__card-top b{ color:var(--action); font-size:15px; white-space:nowrap; }
+.assistant__card-top b{ color:var(--accent-hover); font-size:15px; white-space:nowrap; }
 .assistant__meta{ display:flex; flex-wrap:wrap; gap:8px 12px; margin-top:7px; color:var(--text-muted); font-size:10.5px; }
 .assistant__card-actions{ display:grid; grid-template-columns:1fr 1fr; gap:7px; margin-top:10px; }
 .assistant__card-actions a{ min-height:32px; display:grid; place-items:center; padding:6px 8px; border:1px solid var(--border); border-radius:9px; color:var(--text-primary); text-decoration:none; font-size:10.5px; font-weight:500; }
-.assistant__card-actions a:hover{ border-color:var(--action); color:var(--action); }
+.assistant__card-actions a:hover{ border-color:var(--action); color:var(--accent-hover); }
 .assistant__card-actions .assistant__wa{ border-color:color-mix(in srgb,var(--whatsapp) 45%,var(--border)); background:color-mix(in srgb,var(--whatsapp) 9%,var(--surface-elevated)); color:color-mix(in srgb,var(--whatsapp) 78%,var(--text-primary)); }
 .assistant__footer{ height:42px; display:flex; align-items:center; justify-content:space-between; padding:0 14px; border-top:1px solid var(--border); background:var(--surface-elevated); }
 .assistant__footer button{ border:0;background:none;color:var(--text-muted);font:500 10.5px "Golos Text",sans-serif;cursor:pointer; }
-.assistant__footer button:hover{color:var(--action)}
+.assistant__footer button:hover{color:var(--accent-hover)}
 .assistant__footer span{ color:var(--text-muted); font-size:9px; letter-spacing:.08em; text-transform:uppercase; }
 :root[data-theme="dark"] .assistant__panel{ background:rgba(13,16,32,.97); box-shadow:0 30px 80px rgba(0,0,0,.55); }
 :root[data-theme="dark"] .assistant__msg > div,:root[data-theme="dark"] .assistant__typing{ background:#151c31; }
@@ -2209,6 +2221,21 @@ body{
   }
   .sayi{ grid-template-columns: 44px 1fr 44px; }
   .sayi__btn{ width: 44px; height: 44px; }
+  .wa-buton{ min-height: 44px; }
   .wa-buton--genis{ min-height: 44px; }
+  .dil-sec summary{ min-height: 44px; }
   .filtreler select{ min-height: 44px; }
+  /* 26px ve 36px kapatma daireleri — görsel boyu korunur, dokunma
+     alanı görünmez bir ::before ile 44×44'e genişler. */
+  .assistant__teaser-close,
+  .assistant__close{ position: relative; }
+  .assistant__teaser-close::before,
+  .assistant__close::before{
+    content: "";
+    position: absolute;
+    inset: 50%;
+    width: 44px;
+    height: 44px;
+    transform: translate(-50%, -50%);
+  }
 }
