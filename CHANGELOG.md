@@ -59,3 +59,20 @@ güncellemesi) tarihli olarak kaydeder. Şartname dosyaları değişmez; burası
 ### Doğrulama
 - `npm run build` — 200 sayfa, hatasız.
 - Mobil (375×812) ve masaüstü (1280×800) görünümlerde manuel test edildi.
+
+### Mobil UX — dil seçici ve hava rozeti top-bar'a taşındı
+- Mobilde dil seçici artık hamburger menünün arkasında değil, doğrudan
+  top-bar'da, hamburger düğmesinin yanında (masaüstündeki gibi bayrak +
+  dil kodu rozeti). Aynı seçici hem masaüstü hem mobil için tek örnek;
+  drawer menüdeki yinelenen dil seçici kaldırıldı. `src/components/Baslik.astro`
+- Hava durumu rozeti (`HavaRozeti.astro`) artık mobilde de top-bar'da
+  görünür (önceden `max-width: 767px` altında tamamen gizleniyordu),
+  hamburger'in bir yanında kompakt bir rozet olarak. Açılır panel genişliği
+  dar ekranlarda `calc(100vw - 32px)` ile sınırlandı, taşma olmuyor.
+  `src/components/HavaRozeti.astro`
+- 900px altı breakpoint'te artık tüm nav gizlenmiyor; yalnızca Turlar/Plan
+  yap linkleri, döviz seçici, Instagram ikonu ve tema düğmesi hamburger
+  menüsünde kalıyor. Logo genişliği mobilde 128px'e düşürüldü, 375px
+  genişlikte tüm öğeler (logo + dil + hava + hamburger) taşmadan sığıyor
+  (doğrulandı: `preview_eval` ile bounding rect ölçümü, sağda 16px boşluk
+  kalıyor). `src/styles/global.css`

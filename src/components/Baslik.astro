@@ -32,9 +32,7 @@ const waLink = `https://wa.me/${WA_NUMBERS[dil]}`;
       <a class="ustbar__link" href={turlarUrl(dil)}>{s.nav_turlar}</a>
       <a class="ustbar__link" href={planUrl(dil)}>{s.plan_nav}</a>
 
-      {/* Hava rozeti — dil seçicinin solunda (EK-2 §B) */}
-      <HavaRozeti dil={dil} />
-
+      {/* Dil seçici — mobilde top-bar'da hamburger'in yanında kalır, EK-2 §B */}
       <details class="dil-sec">
         <summary aria-label={s.dil_secici_etiket}>
           <span aria-hidden="true">{DIL_BAYRAKLARI[dil]}</span> {dil.toUpperCase()}
@@ -54,6 +52,9 @@ const waLink = `https://wa.me/${WA_NUMBERS[dil]}`;
           ))}
         </ul>
       </details>
+
+      {/* Hava rozeti — mobilde de top-bar'da, hamburger'in bir yanında (EK-2 §B) */}
+      <HavaRozeti dil={dil} />
 
       <Secim sinif="secim--dar secim--acik">
         <select class="para-sec" data-para-sec aria-label={s.para_secici_etiket}>
@@ -116,21 +117,6 @@ const waLink = `https://wa.me/${WA_NUMBERS[dil]}`;
           </svg>
           <span>{s.tema_degistir}</span>
         </button>
-
-        <details class="dil-sec dil-sec--mobil">
-          <summary aria-label={s.dil_secici_etiket}>
-            <span aria-hidden="true">{DIL_BAYRAKLARI[dil]}</span> {DIL_ADLARI[dil]}
-          </summary>
-          <ul class="dil-sec__liste">
-            {DILLER.map((d) => (
-              <li>
-                <a href={alt[d]} lang={d} aria-label={DIL_ADLARI[d]} aria-current={d === dil ? 'true' : undefined}>
-                  <span aria-hidden="true">{DIL_BAYRAKLARI[d]}</span> {DIL_ADLARI[d]}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </details>
 
         <Secim>
           <select class="para-sec para-sec--mobil" data-para-sec aria-label={s.para_secici_etiket}>

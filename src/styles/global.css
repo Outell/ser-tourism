@@ -2009,9 +2009,24 @@ body{
 .altbilgi a:hover{ color: var(--text-inverse); text-decoration: none; }
 
 @media (max-width: 900px){
-  .ustbar__nav{ display: none; }
+  /* Nav tamamen gizlenmez — dil seçici ve hava rozeti hamburger'in
+     yanında top-bar'da kalır, geri kalanı (Turlar, Plan yap, döviz,
+     instagram, tema) menüde. */
+  .ustbar__nav{ gap: 6px; }
+  .ustbar__nav .ustbar__link,
+  .ustbar__nav .secim,
+  .ustbar__nav .ikon-link,
+  .ustbar__nav > .tema-toggle{ display: none; }
+  .dil-sec summary{
+    min-height: 38px;
+    padding: 0 9px;
+    border: 1px solid var(--nav-border);
+    border-radius: var(--r-control);
+    background: color-mix(in srgb, var(--nav-text) 7%, transparent);
+  }
   .menu-btn{ display: inline-grid; }
-  .ustbar__ic{ min-height: 64px; }
+  .ustbar__ic{ min-height: 64px; gap: 12px; }
+  .marka .ser-logo{ width: 128px; }
   .bolum-baslik{
     display: grid;
     align-items: start;

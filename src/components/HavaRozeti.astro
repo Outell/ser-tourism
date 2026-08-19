@@ -154,9 +154,16 @@ const LOCALE: Record<Dil, string> = {
     border-top: 1px solid var(--border);
   }
 
-  /* Mobilde üst barda yer yok — hava yalnızca ana sayfadaki kutuda (EK-2 §B5) */
-  @media (max-width: 767px){
-    .hava-rozet{ display: none; }
+  /* Mobilde de top-bar'da kalır — hamburger'in yanında, kompakt rozet halinde. */
+  @media (max-width: 900px){
+    .hava-rozet__ozet{
+      min-height: 38px;
+      padding: 0 8px;
+      border: 1px solid var(--nav-border);
+      border-radius: var(--r-control);
+      background: color-mix(in srgb, var(--nav-text) 7%, transparent);
+    }
+    .hava-rozet__panel{ width: min(248px, calc(100vw - 32px)); }
   }
 
   @media (prefers-reduced-motion: reduce){
