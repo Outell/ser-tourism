@@ -144,7 +144,10 @@ const turlar = listelenebilirTurlar().map(t => ({
 ---
 
 <div class="assistant" data-assistant-root aria-label={ui.aria}>
-  <button class="assistant__teaser" type="button" data-assistant-teaser hidden>{ui.teaser}</button>
+  <div class="assistant__teaser-wrap" data-assistant-teaser-wrap hidden>
+    <button class="assistant__teaser" type="button" data-assistant-teaser>{ui.teaser}</button>
+    <button class="assistant__teaser-close" type="button" data-assistant-teaser-close aria-label={ui.close}>×</button>
+  </div>
   <button class="assistant__launcher" type="button" data-assistant-open aria-expanded="false" aria-controls="limyra-assistant-panel">
     <span class="assistant__spark" aria-hidden="true">✦</span>
     <span class="assistant__launcher-text">{ui.badge}</span>
@@ -179,9 +182,12 @@ const turlar = listelenebilirTurlar().map(t => ({
   var openBtn = root.querySelector('[data-assistant-open]');
   var closeBtn = root.querySelector('[data-assistant-close]');
   var restartBtn = root.querySelector('[data-assistant-restart]');
+  var teaserWrap = root.querySelector('[data-assistant-teaser-wrap]');
   var teaser = root.querySelector('[data-assistant-teaser]');
+  var teaserClose = root.querySelector('[data-assistant-teaser-close]');
   var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var sessionOpenKey = 'limyra-assistant-opened';
+  var sessionTeaserDismissedKey = 'limyra-assistant-teaser-dismissed';
 
   function esc(value) {
     return String(value).replace(/[&<>'"]/g, function (c) { return ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'})[c]; });
@@ -294,13 +300,22 @@ const turlar = listelenebilirTurlar().map(t => ({
     mainChoices();
   }
   function reset() { body.innerHTML=''; msg(ui.hello,false); wait(260, mainMenu); }
-  function open() { panel.hidden=false; openBtn.setAttribute('aria-expanded','true'); root.classList.add('assistant--open'); teaser.hidden=true; try{sessionStorage.setItem(sessionOpenKey,'1');}catch(e){} if(!body.children.length) reset(); wait(20,function(){closeBtn.focus();}); }
+  function open() { panel.hidden=false; openBtn.setAttribute('aria-expanded','true'); root.classList.add('assistant--open'); teaserWrap.hidden=true; try{sessionStorage.setItem(sessionOpenKey,'1');}catch(e){} if(!body.children.length) reset(); wait(20,function(){closeBtn.focus();}); }
   function close() { panel.hidden=true; openBtn.setAttribute('aria-expanded','false'); root.classList.remove('assistant--open'); openBtn.focus(); }
+  function dismissTeaser() { teaserWrap.hidden=true; try{sessionStorage.setItem(sessionTeaserDismissedKey,'1');}catch(e){} }
   openBtn.addEventListener('click', function(){ panel.hidden ? open() : close(); });
   closeBtn.addEventListener('click', close);
   restartBtn.addEventListener('click', reset);
-  document.addEventListener('keydown', function(e){if(e.key==='Escape'&&!panel.hidden)close();});
-  wait(15000, function(){ try{ if(!sessionStorage.getItem(sessionOpenKey) && panel.hidden) teaser.hidden=false; }catch(e){} });
+  document.addEventListener('keydown', function(e){
+    if (e.key==='Escape' && !panel.hidden) close();
+    else if (e.key==='Escape' && !teaserWrap.hidden) dismissTeaser();
+  });
+  wait(15000, function(){
+    try{
+      if(!sessionStorage.getItem(sessionOpenKey) && !sessionStorage.getItem(sessionTeaserDismissedKey) && panel.hidden) teaserWrap.hidden=false;
+    }catch(e){}
+  });
   teaser.addEventListener('click', open);
+  teaserClose.addEventListener('click', function(e){ e.stopPropagation(); dismissTeaser(); });
 })();
 </script>
