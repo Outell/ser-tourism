@@ -1,0 +1,153 @@
+---
+import type { Dil } from '../lib/tipler';
+import TemelSayfa from '../layouts/TemelSayfa.astro';
+import TurKart from '../components/TurKart.astro';
+import HavaDurumu from '../components/HavaDurumu.astro';
+import MesafeHaritasi from '../components/MesafeHaritasi.astro';
+import { MARKA } from '../config/marka';
+import { sozluk } from '../i18n/sozluk';
+import { KATEGORILER, BOLGELER } from '../data/taksonomi';
+import {
+  listelenebilirTurlar, kategorininTurlari, bolgeninTurlari,
+  kategoriUrl, bolgeUrl, turlarUrl, planUrl, rehberUrl,
+} from '../lib/rotalar';
+
+interface Props {
+  dil: Dil;
+  alternatifler: Record<Dil, string>;
+}
+
+const { dil, alternatifler: alt } = Astro.props;
+const s = sozluk[dil];
+
+// Öne çıkanlar: one_cikan=true + sezonda olanlar, 6 kart (MASTER-PROMPT §5.1)
+const oneCikanlar = listelenebilirTurlar().filter((t) => t.one_cikan).slice(0, 6);
+
+const baslik = `${MARKA} · ${s.meta_ana_baslik}`;
+---
+<TemelSayfa dil={dil} baslik={baslik} aciklama={s.meta_ana_aciklama} alternatifler={alt}>
+  <!-- 1. Hero: tek fotoğraf, video yok (alan hazır, boş — §4.5) -->
+  <section class="hero hero--v2">
+    <picture>
+      <source media="(max-width: 767px)" srcset="/hero-antalya-sunset-mobil.webp" width="1080" height="1350" />
+      <img
+        class="hero__gorsel"
+        src="/hero-antalya-sunset-2400.webp"
+        alt=""
+        width="2400"
+        height="1350"
+        fetchpriority="high"
+        decoding="async"
+      />
+    </picture>
+    <div class="hero__icerik">
+      <p class="hero__eyebrow">{MARKA} · {s.nav_turlar}</p>
+      <h1>{s.hero_h1}</h1>
+      <p class="hero__alt">{s.hero_alt}</p>
+      <div class="hero__aksiyonlar">
+        <a class="buton-govde buton-govde--acik" href={turlarUrl(dil)}>{s.nav_turlar}</a>
+        <a class="buton-sade buton-sade--hero" href={planUrl(dil)}>{s.plan_nav}</a>
+      </div>
+      <form class="hero__arama" action={turlarUrl(dil)} method="get" role="search">
+        <input type="search" name="q" placeholder={s.hero_arama} aria-label={s.hero_arama} />
+        <button type="submit">{s.hero_arama_buton}</button>
+      </form>
+      <ul class="hero__guvence" aria-label={s.hero_alt}>
+        <li>{s.rozet_odeme}</li>
+        <li>{s.rozet_transfer}</li>
+        <li>{s.rozet_iptal}</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 3. Öne çıkan turlar — 6 kart -->
+  <section class="kap bolum ana-bolum ana-bolum--one">
+    <div class="bolum-baslik">
+      <h2>{s.b_one_cikan}</h2>
+      <a class="metin-link" href={turlarUrl(dil)}>{s.tum_turlar}</a>
+    </div>
+    <div class="grid">
+      {oneCikanlar.map((t, i) => <TurKart dil={dil} tur={t} oncelikli={i < 3} />)}
+    </div>
+  </section>
+
+  <!-- Mesafe haritası — öne çıkan turların altında (EK-1 §3) -->
+  <MesafeHaritasi lang={dil} />
+
+  <!-- 4. Kategoriler — 6 kart -->
+  <section class="bolum ana-bant">
+    <div class="kap">
+    <div class="bolum-baslik">
+      <h2>{s.b_kategoriler}</h2>
+    </div>
+    <div class="grid">
+      {KATEGORILER.map((k) => (
+        <a class="kat-kart" href={kategoriUrl(dil, k)}>
+          <h3>{k.ad[dil]}</h3>
+          <span>({kategorininTurlari(k.kod).length})</span>
+        </a>
+      ))}
+    </div>
+    </div>
+  </section>
+
+  <!-- 5. Neden biz — 5 madde (§9) -->
+  <section class="kap bolum ana-bolum ana-bolum--trust">
+    <div class="bolum-baslik">
+      <h2>{s.b_neden}</h2>
+    </div>
+    <div class="neden">
+      {s.neden.map((n) => (
+        <article>
+          <h3>{n.baslik}</h3>
+          <p>{n.metin}</p>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <!-- Hava durumu — Neden biz'in altında (EK-1 §2) -->
+  <HavaDurumu dil={dil} />
+
+  <!-- Tatil planlayıcı çağrısı (EK-1 §4) — JS yok, /plan/ sayfasına götürür -->
+  <section class="kap bolum--dar ana-bolum">
+    <div class="plan-cagri">
+      <div>
+        <h2>{s.plan_baslik}</h2>
+        <p class="ikincil">{s.plan_ozet}</p>
+      </div>
+      <a class="buton-govde" href={planUrl(dil)}>{s.plan_nav}</a>
+    </div>
+  </section>
+
+  <!-- 6. Nereden kalkıyorsunuz? — 8 bölge, metin bağlantı listesi -->
+  <section class="kap bolum ana-bolum ana-bolum--bolgeler">
+    <div class="bolum-baslik">
+      <h2>{s.b_bolgeler}</h2>
+    </div>
+    <ul class="bolge-liste">
+      {BOLGELER.map((b) => (
+        <li>
+          <a href={bolgeUrl(dil, b)}>{b.ad[dil]}</a>
+          <span class="ikincil"> ({bolgeninTurlari(b.kod).length})</span>
+        </li>
+      ))}
+    </ul>
+  </section>
+
+  <!-- Antalya rehberi bloğu (EK-1 menü). Faz 1'de 2 kart;
+       aylık rehber ve hazır planlar yayınlanınca 4'e çıkar. -->
+  <section class="kap bolum ana-bolum">
+    <div class="bolum-baslik">
+      <h2>{s.rehber_grup}</h2>
+    </div>
+    <div class="grid">
+      <a class="kat-kart" href={rehberUrl(dil, 'pratik')}>
+        <h3>{s.rehber_pratik_baslik}</h3>
+      </a>
+      <a class="kat-kart" href={rehberUrl(dil, 'ucretsiz')}>
+        <h3>{s.rehber_ucretsiz_baslik}</h3>
+      </a>
+    </div>
+  </section>
+</TemelSayfa>

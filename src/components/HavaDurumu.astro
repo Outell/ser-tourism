@@ -1,0 +1,100 @@
+---
+import type { Dil } from '../lib/tipler';
+import { sozluk } from '../i18n/sozluk';
+import { metinUrl } from '../lib/rotalar';
+
+interface Props { dil: Dil }
+
+// Hava durumu — EK-1 §2.
+// Open-Meteo, API anahtarı yok. İstek client'ta, sayfa YÜKLENDİKTEN SONRA
+// (load olayı) — LCP'ye dokunmaz. Kutu sabit yükseklikte durur (CLS 0);
+// istek başarısız olursa bölüm tamamen gizlenir, hata mesajı gösterilmez.
+const { dil } = Astro.props;
+const s = sozluk[dil];
+
+const LOCALE: Record<Dil, string> = { tr: 'tr-TR', en: 'en-GB', ru: 'ru-RU', de: 'de-DE', pl: 'pl-PL', ro: 'ro-RO' };
+---
+<!-- Kutu baştan görünür (yer tutucu, sabit yükseklik) — başarıda dolar (CLS 0),
+     yalnızca istek başarısız olursa gizlenir. -->
+<section class="kap bolum--dar" id="hava">
+  <div class="hava">
+    <span class="hava__etiket">{s.hava_etiket}</span>
+    <div class="hava__gunler" data-hava-gunler>
+      {[0, 1, 2, 3].map(() => (
+        <span class="hava__gun" aria-hidden="true"></span>
+      ))}
+    </div>
+    <p class="hava__guvence">
+      <a href={metinUrl(dil, 'iptal')}>{s.hava_guvence}</a>
+    </p>
+  </div>
+</section>
+
+<script is:inline define:vars={{ locale: LOCALE[dil] }}>
+  window.addEventListener('load', function () {
+    var bolum = document.getElementById('hava');
+    if (!bolum) return;
+
+    // WMO hava kodu → emoji
+    function ikon(kod) {
+      if (kod === 0) return '☀️';
+      if (kod <= 2) return '🌤️';
+      if (kod === 3) return '☁️';
+      if (kod <= 48) return '🌫️';
+      if (kod <= 57) return '🌦️';
+      if (kod <= 67) return '🌧️';
+      if (kod <= 77) return '🌨️';
+      if (kod <= 82) return '🌦️';
+      if (kod <= 86) return '🌨️';
+      return '⛈️';
+    }
+
+    // Üst bar rozetiyle aynı veriyi paylaşır — oturumda tek istek (EK-2 §B4).
+    // Rozet script'i her sayfada ve bundan önce çalışır; yine de yedeği duruyor.
+    function havaVerisi() {
+      if (window.__limyraHava) return window.__limyraHava;
+
+      var ANAHTAR = 'limyra-hava';
+      var onbellek = null;
+      try { onbellek = sessionStorage.getItem(ANAHTAR); } catch (e) {}
+      if (onbellek) {
+        try {
+          window.__limyraHava = Promise.resolve(JSON.parse(onbellek));
+          return window.__limyraHava;
+        } catch (e) {}
+      }
+
+      window.__limyraHava = fetch('https://api.open-meteo.com/v1/forecast'
+        + '?latitude=36.8969&longitude=30.7133'
+        + '&current=temperature_2m,weather_code'
+        + '&daily=temperature_2m_max,temperature_2m_min,weather_code'
+        + '&timezone=Europe/Istanbul&forecast_days=4')
+        .then(function (r) { if (!r.ok) throw new Error('hava'); return r.json(); })
+        .then(function (veri) {
+          try { sessionStorage.setItem(ANAHTAR, JSON.stringify(veri)); } catch (e) {}
+          return veri;
+        });
+      return window.__limyraHava;
+    }
+
+    havaVerisi()
+      .then(function (veri) {
+        var g = veri.daily;
+        if (!g || !g.time || g.time.length < 1) throw new Error('hava');
+        var kutular = bolum.querySelectorAll('.hava__gun');
+        var gunAdi = new Intl.DateTimeFormat(locale, { weekday: 'short' });
+        for (var i = 0; i < kutular.length && i < g.time.length; i++) {
+          var ad = gunAdi.format(new Date(g.time[i] + 'T12:00:00'));
+          kutular[i].textContent = '';
+          var em = document.createElement('span');
+          em.textContent = ikon(g.weather_code[i]) + ' ';
+          var metin = document.createElement('span');
+          metin.textContent = ad + ' ' + Math.round(g.temperature_2m_max[i]) + '° / ' + Math.round(g.temperature_2m_min[i]) + '°';
+          kutular[i].appendChild(em);
+          kutular[i].appendChild(metin);
+          kutular[i].removeAttribute('aria-hidden');
+        }
+      })
+      .catch(function () { bolum.hidden = true; });
+  });
+</script>

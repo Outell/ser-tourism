@@ -1,0 +1,537 @@
+---
+import 'leaflet/dist/leaflet.css';
+import type { Dil, JourneyMapData, JourneyStage } from '../lib/tipler';
+
+interface Props {
+  dil: Dil;
+  title: string;
+  mapData: JourneyMapData;
+  stages: JourneyStage[];
+  pickupLabels: Record<string, string>;
+  selectedLocationKey: string;
+  startingAreaTemplate: string;
+  noStartingAreaText: string;
+  modeLabel: string;
+  referencePointLabel: string;
+}
+
+const {
+  dil,
+  title,
+  mapData,
+  stages,
+  pickupLabels,
+  selectedLocationKey,
+  startingAreaTemplate,
+  noStartingAreaText,
+  modeLabel,
+  referencePointLabel,
+} = Astro.props;
+
+const payload = {
+  coordinateStatus: mapData.coordinateStatus,
+  pickupReferencePoints: mapData.pickupReferencePoints,
+  points: mapData.points.map((point) => ({
+    id: point.id,
+    label: point.label[dil],
+    coordinates: point.coordinates,
+    stageIds: point.stageIds,
+    kind: point.kind,
+    referencePoint: point.referencePoint ?? point.kind === 'pickup-reference',
+    coordinateStatus: point.coordinateStatus,
+  })),
+  routeWaypoints: mapData.routeWaypoints.map((waypoint) => waypoint.coordinates),
+  routeLabel: mapData.routeLabel[dil],
+  stageIds: stages.map((stage) => stage.id),
+  pickupLabels,
+  selectedLocationKey,
+  startingAreaTemplate,
+  noStartingAreaText,
+  referencePointLabel,
+};
+---
+
+<div
+  class="journey-live-map"
+  data-journey-live-map
+  data-map-payload={JSON.stringify(payload)}
+  aria-label={title}
+>
+  <div class="journey-live-map__frame">
+    <div class="journey-live-map__overlay">
+      <div>
+        <span class="journey-live-map__eyebrow">{mapData.routeLabel[dil]}</span>
+        <strong data-live-map-location>{noStartingAreaText}</strong>
+      </div>
+      <span class="journey-live-map__mode">{modeLabel}</span>
+    </div>
+
+    <div class="journey-live-map__canvas" data-live-map-canvas aria-label={title}></div>
+  </div>
+
+  <p class="journey-live-map__disclosure">{mapData.disclosure[dil]}</p>
+</div>
+
+<style>
+  .journey-live-map{
+    min-width: 0;
+    display: grid;
+    gap: 10px;
+    overflow: hidden;
+  }
+  .journey-live-map__frame{
+    position: relative;
+    min-width: 0;
+    border: 1px solid var(--border);
+    border-radius: var(--r-kart);
+    background: var(--bg-soft);
+    box-shadow: 0 24px 62px rgba(20, 18, 36, .13);
+    overflow: hidden;
+  }
+  .journey-live-map__overlay{
+    position: absolute;
+    z-index: 500;
+    left: 16px;
+    right: 16px;
+    top: 16px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    pointer-events: none;
+  }
+  .journey-live-map__overlay > div{
+    min-width: 0;
+    display: grid;
+    gap: 3px;
+    max-width: min(560px, 70%);
+    border: 1px solid color-mix(in srgb, var(--border) 78%, transparent);
+    border-radius: var(--r-buton);
+    padding: 9px 11px;
+    background: color-mix(in srgb, var(--surface-elevated) 88%, transparent);
+    backdrop-filter: blur(10px);
+  }
+  .journey-live-map__eyebrow,
+  .journey-live-map__mode{
+    color: var(--action);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    line-height: 1.2;
+    text-transform: uppercase;
+  }
+  .journey-live-map__overlay strong{
+    min-width: 0;
+    color: var(--text-primary);
+    font-size: 14px;
+    line-height: 1.25;
+    overflow-wrap: normal;
+    word-break: normal;
+  }
+  .journey-live-map__mode{
+    flex: 0 0 auto;
+    border: 1px solid color-mix(in srgb, var(--action) 34%, var(--border));
+    border-radius: var(--r-rozet);
+    padding: 6px 8px;
+    background: color-mix(in srgb, var(--action) 9%, var(--surface-elevated));
+    backdrop-filter: blur(10px);
+  }
+  .journey-live-map__canvas{
+    position: relative;
+    z-index: 0;
+    height: clamp(520px, 43vw, 620px);
+    background: var(--bg-soft);
+    overflow: hidden;
+  }
+  .journey-live-map__disclosure{
+    margin: 0 2px;
+    color: var(--text-muted);
+    font-size: 11px;
+    line-height: 1.45;
+  }
+  .journey-live-map :global(.leaflet-container){
+    width: 100%;
+    background: var(--bg-soft);
+    color: var(--text-primary);
+    font-family: var(--font-govde);
+  }
+  .journey-live-map :global(.leaflet-control-attribution){
+    background: color-mix(in srgb, var(--surface-elevated) 88%, transparent);
+    color: var(--text-muted);
+    font-size: 10px;
+  }
+  .journey-live-map :global(.leaflet-control-zoom){
+    border: 1px solid var(--border);
+    border-radius: var(--r-buton);
+    overflow: hidden;
+    box-shadow: 0 12px 28px rgba(20, 18, 36, .12);
+  }
+  .journey-live-map :global(.leaflet-control-zoom a){
+    width: 32px;
+    height: 32px;
+    border: 0;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface-elevated);
+    color: var(--text-primary);
+    line-height: 32px;
+  }
+  .journey-live-map :global(.leaflet-control-zoom a:last-child){
+    border-bottom: 0;
+  }
+  .journey-live-map :global(.journey-live-map__marker){
+    width: 22px;
+    height: 22px;
+    display: grid;
+    place-items: center;
+    border: 1px solid var(--border-strong);
+    border-radius: 999px;
+    background: var(--surface-elevated);
+    box-shadow: 0 10px 24px rgba(20, 18, 36, .18);
+  }
+  .journey-live-map :global(.journey-live-map__marker::after){
+    content: "";
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    background: var(--text-muted);
+  }
+  .journey-live-map :global(.journey-live-map__marker[data-active="true"]){
+    border-color: var(--action);
+    background: color-mix(in srgb, var(--action) 14%, var(--surface-elevated));
+    transform: scale(1.08);
+  }
+  .journey-live-map :global(.journey-live-map__marker[data-active="true"]::after),
+  .journey-live-map :global(.journey-live-map__marker--pickup::after){
+    background: var(--action);
+  }
+  .journey-live-map :global(.journey-live-map__vehicle){
+    width: 34px;
+    height: 34px;
+    display: grid;
+    place-items: center;
+    border: 1px solid color-mix(in srgb, var(--action) 44%, var(--border));
+    border-radius: 999px;
+    background: var(--surface-strong);
+    color: var(--text-inverse);
+    box-shadow: 0 14px 30px rgba(20, 18, 36, .24);
+  }
+  .journey-live-map :global(.journey-live-map__vehicle svg){
+    width: 20px;
+    height: 20px;
+    display: block;
+  }
+
+  @media (max-width: 760px){
+    .journey-live-map__canvas{
+      height: 360px;
+    }
+    .journey-live-map__overlay{
+      left: 12px;
+      right: 12px;
+      top: 12px;
+    }
+    .journey-live-map__overlay > div{
+      max-width: 100%;
+    }
+  }
+  @media (max-width: 430px){
+    .journey-live-map__overlay{
+      display: grid;
+      justify-items: start;
+    }
+    .journey-live-map__mode{
+      justify-self: start;
+    }
+    .journey-live-map__canvas{
+      height: 335px;
+    }
+  }
+  @media (max-width: 340px){
+    .journey-live-map__canvas{
+      height: 315px;
+    }
+  }
+</style>
+
+<script>
+  import L from 'leaflet';
+
+  const vehicleSvg = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 16V8.5A2.5 2.5 0 0 1 7.5 6h5.9c.9 0 1.7.5 2.1 1.3L17 10h1.2c.7 0 1.3.4 1.6 1l1.2 2.3V16"/><path d="M7 16h10"/><path d="M8 18.5a2 2 0 1 0 0-4 2 2 0 0 0 0 4ZM17 18.5a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"/><path d="M7 10h8"/></svg>';
+
+  document.querySelectorAll('[data-journey-live-map]').forEach((root) => {
+    const canvas = root.querySelector('[data-live-map-canvas]');
+    const locationText = root.querySelector('[data-live-map-location]');
+    const payloadRaw = root.getAttribute('data-map-payload');
+    if (!(canvas instanceof HTMLElement) || !payloadRaw) return;
+
+    let payload;
+    try {
+      payload = JSON.parse(payloadRaw);
+    } catch (error) {
+      return;
+    }
+
+    const reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const stageIds = payload.stageIds || [];
+    let activeIndex = 0;
+    let animationFrame = 0;
+    let currentVehiclePosition = null;
+    let routeLine = null;
+    let progressLine = null;
+    let returnLine = null;
+    let pickupMarker = null;
+    let vehicleMarker = null;
+    let userMovedMap = false;
+    const stageMarkers = new Map();
+
+    function latLng(point) {
+      return L.latLng(point.lat, point.lng);
+    }
+
+    function selectedLocationCode() {
+      try {
+        const raw = window.localStorage.getItem(payload.selectedLocationKey);
+        if (!raw) return null;
+        const parsed = JSON.parse(raw);
+        if (!parsed || parsed.type !== 'pickup-zone' || !payload.pickupReferencePoints[parsed.code]) return null;
+        return parsed.code;
+      } catch (error) {
+        return null;
+      }
+    }
+
+    function startCode() {
+      return selectedLocationCode() || Object.keys(payload.pickupReferencePoints)[0];
+    }
+
+    function startPoint() {
+      return payload.pickupReferencePoints[startCode()];
+    }
+
+    function routePoints() {
+      const outbound = [startPoint(), ...(payload.routeWaypoints || [])];
+      const adventure = payload.points.find((point) => point.id === 'demo-adventure-area');
+      if (adventure) outbound.push(adventure.coordinates);
+      return outbound.map(latLng);
+    }
+
+    function markerHtml(className, active) {
+      return `<span class="${className}" data-active="${active ? 'true' : 'false'}"></span>`;
+    }
+
+    function markerIcon(className, active) {
+      return L.divIcon({
+        className: '',
+        html: markerHtml(className, active),
+        iconSize: [22, 22],
+        iconAnchor: [11, 11],
+      });
+    }
+
+    function vehicleIcon() {
+      return L.divIcon({
+        className: '',
+        html: `<span class="journey-live-map__vehicle">${vehicleSvg}</span>`,
+        iconSize: [34, 34],
+        iconAnchor: [17, 17],
+      });
+    }
+
+    const map = L.map(canvas, {
+      zoomControl: true,
+      scrollWheelZoom: false,
+      attributionControl: true,
+    });
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 18,
+      attribution: '&copy; OpenStreetMap',
+    }).addTo(map);
+
+    payload.points.forEach((point) => {
+      const marker = L.marker(latLng(point.coordinates), {
+        icon: markerIcon('journey-live-map__marker', false),
+        keyboard: false,
+        title: `${point.label} - ${payload.routeLabel}`,
+      }).bindTooltip(`${point.label} · ${payload.routeLabel}`, {
+        direction: 'top',
+        opacity: 0.92,
+      }).addTo(map);
+      stageMarkers.set(point.id, { point, marker });
+    });
+
+    function setLocationText() {
+      if (!locationText) return;
+      const code = selectedLocationCode();
+      locationText.textContent = code
+        ? payload.startingAreaTemplate.replace('{location}', payload.pickupLabels[code])
+        : payload.noStartingAreaText;
+    }
+
+    function drawRoute() {
+      const outbound = routePoints();
+      const returning = [...outbound].reverse();
+      if (routeLine) routeLine.remove();
+      if (progressLine) progressLine.remove();
+      if (returnLine) returnLine.remove();
+      routeLine = L.polyline(outbound, {
+        color: getComputedStyle(root).getPropertyValue('--text-muted').trim() || '#756f66',
+        weight: 3,
+        opacity: 0.34,
+        dashArray: '4 9',
+        lineCap: 'round',
+      }).addTo(map);
+      progressLine = L.polyline([outbound[0]], {
+        color: getComputedStyle(root).getPropertyValue('--action').trim() || '#b9853f',
+        weight: 4,
+        opacity: 0.86,
+        lineCap: 'round',
+      }).addTo(map);
+      returnLine = L.polyline(returning, {
+        color: getComputedStyle(root).getPropertyValue('--text-muted').trim() || '#756f66',
+        weight: 2,
+        opacity: 0.42,
+        dashArray: '3 10',
+        lineCap: 'round',
+      }).addTo(map);
+      const start = latLng(startPoint());
+      if (!pickupMarker) {
+        pickupMarker = L.marker(start, {
+          icon: markerIcon('journey-live-map__marker journey-live-map__marker--pickup', true),
+          keyboard: false,
+          title: payload.referencePointLabel,
+        }).addTo(map);
+      } else {
+        pickupMarker.setLatLng(start);
+      }
+      const label = payload.pickupLabels[startCode()] || startCode();
+      pickupMarker.bindTooltip(`${payload.startingAreaTemplate.replace('{location}', label)} · ${payload.referencePointLabel}`, {
+        direction: 'top',
+        opacity: 0.92,
+      });
+      if (!vehicleMarker) {
+        vehicleMarker = L.marker(start, { icon: vehicleIcon(), keyboard: false, zIndexOffset: 500 }).addTo(map);
+      }
+      if (!currentVehiclePosition) {
+        currentVehiclePosition = start;
+        vehicleMarker.setLatLng(start);
+      }
+      const bounds = L.latLngBounds(outbound);
+      map.fitBounds(bounds.pad(0.18), { animate: false });
+    }
+
+    function progressPointsTo(target) {
+      const outbound = routePoints();
+      const stageId = stageIds[activeIndex] || stageIds[0];
+      if (stageId === 'return-transfer') {
+        return [...outbound, target];
+      }
+      const targetPoint = latLng(target);
+      let closestIndex = 0;
+      let closestDistance = Infinity;
+      outbound.forEach((point, index) => {
+        const distance = Math.abs(point.lat - targetPoint.lat) + Math.abs(point.lng - targetPoint.lng);
+        if (distance < closestDistance) {
+          closestDistance = distance;
+          closestIndex = index;
+        }
+      });
+      return outbound.slice(0, closestIndex + 1);
+    }
+
+    function targetForStage(index) {
+      const stageId = stageIds[index] || stageIds[0];
+      if (stageId === 'hotel-transfer') return latLng(startPoint());
+      if (stageId === 'return-transfer') return latLng(startPoint());
+      const point = payload.points.find((item) => item.stageIds.includes(stageId))
+        || payload.points.find((item) => item.id === 'demo-adventure-area');
+      return latLng(point.coordinates);
+    }
+
+    function setActiveMarkers(index) {
+      const stageId = stageIds[index] || stageIds[0];
+      stageMarkers.forEach(({ point, marker }) => {
+        marker.setIcon(markerIcon('journey-live-map__marker', point.stageIds.includes(stageId)));
+      });
+    }
+
+    function cancelVehicleAnimation() {
+      if (animationFrame) window.cancelAnimationFrame(animationFrame);
+      animationFrame = 0;
+    }
+
+    function moveVehicleTo(target) {
+      if (!vehicleMarker) return;
+      cancelVehicleAnimation();
+      const from = currentVehiclePosition || vehicleMarker.getLatLng();
+      const to = target;
+      if (reduced) {
+        vehicleMarker.setLatLng(to);
+        currentVehiclePosition = to;
+        return;
+      }
+      const duration = 1300;
+      const started = performance.now();
+      const ease = (t) => 1 - Math.pow(1 - t, 3);
+      const tick = (now) => {
+        const progress = Math.min(1, (now - started) / duration);
+        const eased = ease(progress);
+        const next = L.latLng(
+          from.lat + (to.lat - from.lat) * eased,
+          from.lng + (to.lng - from.lng) * eased,
+        );
+        vehicleMarker.setLatLng(next);
+        if (progress < 1) {
+          animationFrame = window.requestAnimationFrame(tick);
+        } else {
+          currentVehiclePosition = to;
+          animationFrame = 0;
+        }
+      };
+      animationFrame = window.requestAnimationFrame(tick);
+    }
+
+    function renderStage(index) {
+      activeIndex = Math.max(0, Math.min(stageIds.length - 1, index));
+      const target = targetForStage(activeIndex);
+      setActiveMarkers(activeIndex);
+      if (progressLine) progressLine.setLatLngs(progressPointsTo(target));
+      if (!userMovedMap && !reduced) map.panTo(target, { animate: true, duration: 0.75 });
+      moveVehicleTo(target);
+    }
+
+    function refreshLocation() {
+      const previousTarget = targetForStage(activeIndex);
+      setLocationText();
+      drawRoute();
+      const nextTarget = targetForStage(activeIndex);
+      if (previousTarget.lat !== nextTarget.lat || previousTarget.lng !== nextTarget.lng) {
+        currentVehiclePosition = nextTarget;
+        if (vehicleMarker) vehicleMarker.setLatLng(nextTarget);
+      }
+      renderStage(activeIndex);
+    }
+
+    drawRoute();
+    setLocationText();
+    renderStage(0);
+
+    map.on('dragstart zoomstart', () => {
+      userMovedMap = true;
+    });
+
+    root.addEventListener('limyra:journey-stage-change', (event) => {
+      renderStage(event.detail && Number.isFinite(event.detail.stageIndex) ? event.detail.stageIndex : 0);
+    });
+    root.addEventListener('limyra:journey-playback', (event) => {
+      if (event.detail && event.detail.running === false) cancelVehicleAnimation();
+    });
+    root.addEventListener('limyra:journey-expanded', () => {
+      map.invalidateSize(false);
+      renderStage(activeIndex);
+    });
+    window.addEventListener('limyra:journey-location-change', refreshLocation);
+    window.addEventListener('storage', refreshLocation);
+    window.addEventListener('focus', refreshLocation);
+  });
+</script>

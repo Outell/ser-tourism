@@ -1,0 +1,306 @@
+---
+import type { Dil } from '../lib/tipler';
+import { listelenebilirTurlar, turUrl } from '../lib/rotalar';
+import { WA_NUMBERS } from '../config/marka';
+import SerLogo from './SerLogo.astro';
+
+interface Props { dil: Dil }
+const { dil } = Astro.props;
+
+const metin = {
+  tr: {
+    aria: 'SER Tourism & Travel seyahat asistanı', badge: 'Seyahat Asistanı', online: 'Çevrimiçi',
+    hello: 'Merhaba 👋 Antalya tatilini kolaylaştıralım. Sana uygun turu birkaç soruda bulabilirim.',
+    intro: 'Ne yapmak istersin?', recommend: 'Bana tur öner', prices: 'Tur fiyatları', nearest: 'Bana en yakın turlar',
+    family: 'Aile için tur', transfer: 'Transfer var mı?', booking: 'Rezervasyon yapmak istiyorum',
+    vibe: 'Nasıl bir deneyim arıyorsun?', sea: 'Deniz & tekne', adventure: 'Macera', culture: 'Tarih & kültür', relax: 'Rahat bir gün',
+    region: 'Hangi bölgede konaklıyorsun?', regionHint: 'Bölgeni seçersen transfer açısından daha uygun seçenekleri öne çıkarırım.',
+    found: 'Sana uygun seçenekleri buldum:', priceIntro: 'Başlangıç fiyatlarına göre öne çıkan turlar:',
+    nearestIntro: 'Bu bölgeden transfer sunan seçenekler içinde öne çıkanlar:', familyIntro: 'Aileler için daha rahat seçeneklerden birkaçını seçtim:',
+    transferIntro: 'Transfer durumunu kontrol etmek için konakladığın bölgeyi seç.', transferYes: 'Evet — bu turlar seçtiğin bölgeden transfer sunuyor:',
+    noResult: 'Bu seçim için net bir eşleşme bulamadım. WhatsApp ekibimiz sana en doğru seçeneği önerebilir.',
+    from: 'başlayan', hours: 'saat', days: 'gün', transferIncluded: 'Transfer dahil', details: 'Detayları gör', reserve: 'WhatsApp’tan sor',
+    restart: 'Başa dön', close: 'Kapat', typing: 'SER Tourism & Travel yazıyor…', teaser: 'Kararsız mı kaldın? Sana uygun turu bulabilirim ✨',
+    reservePrompt: 'Hangi tur için rezervasyon düşünüyorsun?', waGeneric: 'Merhaba, Antalya turları hakkında bilgi ve rezervasyon desteği almak istiyorum.',
+    waTour: 'Merhaba, {tour} için rezervasyon yapmak istiyorum. Müsaitlik ve detayları paylaşabilir misiniz?',
+    other: 'Diğer bölgeler / Emin değilim', otherWa: 'Merhaba, konakladığım bölge için uygun transferli turları öğrenmek istiyorum.',
+    followUp: 'Başka neye bakmak istersin?'
+  },
+  en: {
+    aria: 'SER Tourism & Travel assistant', badge: 'Travel Assistant', online: 'Online',
+    hello: 'Hi 👋 Let’s make your Antalya holiday easier. I can find a suitable tour in a few questions.',
+    intro: 'What would you like to do?', recommend: 'Recommend a tour', prices: 'Tour prices', nearest: 'Tours near me',
+    family: 'Family-friendly tours', transfer: 'Is transfer included?', booking: 'I want to book',
+    vibe: 'What kind of experience are you looking for?', sea: 'Sea & boat', adventure: 'Adventure', culture: 'History & culture', relax: 'Relaxing day',
+    region: 'Where are you staying?', regionHint: 'Choose your area and I’ll prioritise tours with convenient transfers.',
+    found: 'I found these options for you:', priceIntro: 'Popular tours by starting price:',
+    nearestIntro: 'Top options offering transfer from this area:', familyIntro: 'Here are some easier family-friendly options:',
+    transferIntro: 'Choose where you are staying so I can check transfer coverage.', transferYes: 'Yes — these tours offer transfer from your selected area:',
+    noResult: 'I couldn’t find a clear match for that selection. Our WhatsApp team can suggest the best option.',
+    from: 'from', hours: 'hours', days: 'days', transferIncluded: 'Transfer included', details: 'View details', reserve: 'Ask on WhatsApp',
+    restart: 'Start over', close: 'Close', typing: 'SER Tourism & Travel is typing…', teaser: 'Not sure which tour? I can help you choose ✨',
+    reservePrompt: 'Which tour would you like to book?', waGeneric: 'Hello, I would like information and booking support for Antalya tours.',
+    waTour: 'Hello, I would like to book {tour}. Could you share availability and details?',
+    other: 'Other area / Not sure', otherWa: 'Hello, I would like to know which tours include transfer from my accommodation area.',
+    followUp: 'What else would you like to check?'
+  },
+  ru: {
+    aria: 'Туристический ассистент SER Tourism & Travel', badge: 'Туристический ассистент', online: 'Онлайн',
+    hello: 'Здравствуйте 👋 Я помогу сделать отдых в Анталье проще и подобрать экскурсию за несколько вопросов.',
+    intro: 'Что вас интересует?', recommend: 'Подобрать экскурсию', prices: 'Цены на экскурсии', nearest: 'Экскурсии рядом',
+    family: 'Для семьи с детьми', transfer: 'Есть трансфер?', booking: 'Хочу забронировать',
+    vibe: 'Какой отдых вы предпочитаете?', sea: 'Море и яхты', adventure: 'Приключения', culture: 'История и культура', relax: 'Спокойный отдых',
+    region: 'В каком районе вы остановились?', regionHint: 'Выберите район — я покажу варианты с более удобным трансфером.',
+    found: 'Подходящие варианты:', priceIntro: 'Популярные экскурсии по стартовой цене:',
+    nearestIntro: 'Лучшие варианты с трансфером из этого района:', familyIntro: 'Несколько комфортных вариантов для семей:',
+    transferIntro: 'Выберите район проживания, чтобы проверить трансфер.', transferYes: 'Да — эти экскурсии предлагают трансфер из выбранного района:',
+    noResult: 'Точного совпадения не нашлось. Наша команда в WhatsApp поможет подобрать лучший вариант.',
+    from: 'от', hours: 'ч', days: 'дн.', transferIncluded: 'Трансфер включён', details: 'Подробнее', reserve: 'Спросить в WhatsApp',
+    restart: 'Сначала', close: 'Закрыть', typing: 'SER Tourism & Travel печатает…', teaser: 'Не знаете, что выбрать? Я помогу ✨',
+    reservePrompt: 'Какую экскурсию хотите забронировать?', waGeneric: 'Здравствуйте, хочу получить информацию и помощь с бронированием экскурсий в Анталье.',
+    waTour: 'Здравствуйте, хочу забронировать {tour}. Подскажите, пожалуйста, наличие мест и детали.',
+    other: 'Другой район / Не знаю', otherWa: 'Здравствуйте, хочу узнать, какие экскурсии включают трансфер из района моего отеля.',
+    followUp: 'Что еще хотите посмотреть?'
+  },
+  de: {
+    aria: 'SER Tourism & Travel Reiseassistent', badge: 'Reiseassistent', online: 'Online',
+    hello: 'Hallo 👋 Ich helfe dir, deinen Antalya-Urlaub einfacher zu planen und in wenigen Fragen die passende Tour zu finden.',
+    intro: 'Was möchtest du machen?', recommend: 'Tour empfehlen', prices: 'Tourpreise', nearest: 'Touren in meiner Nähe',
+    family: 'Familientouren', transfer: 'Transfer inklusive?', booking: 'Ich möchte buchen',
+    vibe: 'Welche Art Erlebnis suchst du?', sea: 'Meer & Boot', adventure: 'Abenteuer', culture: 'Geschichte & Kultur', relax: 'Entspannter Tag',
+    region: 'In welcher Region übernachtest du?', regionHint: 'Wähle deine Region und ich priorisiere Touren mit passendem Transfer.',
+    found: 'Diese Optionen passen gut:', priceIntro: 'Beliebte Touren nach Startpreis:',
+    nearestIntro: 'Top-Optionen mit Transfer aus dieser Region:', familyIntro: 'Einige entspanntere Optionen für Familien:',
+    transferIntro: 'Wähle deine Urlaubsregion, damit ich den Transfer prüfen kann.', transferYes: 'Ja — diese Touren bieten Transfer aus der gewählten Region:',
+    noResult: 'Keine eindeutige Übereinstimmung gefunden. Unser WhatsApp-Team kann dir die beste Option empfehlen.',
+    from: 'ab', hours: 'Std.', days: 'Tage', transferIncluded: 'Transfer inklusive', details: 'Details ansehen', reserve: 'Per WhatsApp fragen',
+    restart: 'Neu starten', close: 'Schließen', typing: 'SER Tourism & Travel schreibt…', teaser: 'Noch unsicher? Ich finde die passende Tour für dich ✨',
+    reservePrompt: 'Welche Tour möchtest du buchen?', waGeneric: 'Hallo, ich möchte Informationen und Buchungshilfe für Antalya-Touren.',
+    waTour: 'Hallo, ich möchte {tour} buchen. Könnt ihr Verfügbarkeit und Details senden?',
+    other: 'Andere Region / Nicht sicher', otherWa: 'Hallo, ich möchte wissen, welche Touren Transfer aus meiner Unterkunftsregion anbieten.',
+    followUp: 'Was möchtest du noch ansehen?'
+  },
+  pl: {
+    aria: 'Asystent podróży SER Tourism & Travel', badge: 'Asystent podróży', online: 'Online',
+    hello: 'Cześć 👋 Pomogę Ci łatwiej zaplanować pobyt w Antalyi i znaleźć odpowiednią wycieczkę w kilku krokach.',
+    intro: 'Czego szukasz?', recommend: 'Poleć mi wycieczkę', prices: 'Ceny wycieczek', nearest: 'Wycieczki blisko mnie',
+    family: 'Dla rodziny', transfer: 'Czy jest transfer?', booking: 'Chcę zarezerwować',
+    vibe: 'Jakiego rodzaju atrakcji szukasz?', sea: 'Morze i rejs', adventure: 'Przygoda', culture: 'Historia i kultura', relax: 'Spokojny dzień',
+    region: 'W jakim regionie mieszkasz?', regionHint: 'Wybierz region, a pokażę najwygodniejsze opcje transferu.',
+    found: 'Znalazłem dla Ciebie:', priceIntro: 'Popularne wycieczki według ceny od:',
+    nearestIntro: 'Najlepsze opcje z transferem z tego regionu:', familyIntro: 'Kilka spokojniejszych propozycji dla rodzin:',
+    transferIntro: 'Wybierz region zakwaterowania, aby sprawdzić transfer.', transferYes: 'Tak — te wycieczki oferują transfer z wybranego regionu:',
+    noResult: 'Nie znalazłem dokładnego dopasowania. Nasz zespół WhatsApp pomoże wybrać najlepszą opcję.',
+    from: 'od', hours: 'godz.', days: 'dni', transferIncluded: 'Transfer w cenie', details: 'Zobacz szczegóły', reserve: 'Zapytaj na WhatsApp',
+    restart: 'Od początku', close: 'Zamknij', typing: 'SER Tourism & Travel pisze…', teaser: 'Nie wiesz, co wybrać? Pomogę Ci ✨',
+    reservePrompt: 'Którą wycieczkę chcesz zarezerwować?', waGeneric: 'Dzień dobry, proszę o informacje i pomoc w rezerwacji wycieczek w Antalyi.',
+    waTour: 'Dzień dobry, chcę zarezerwować {tour}. Proszę o dostępność i szczegóły.',
+    other: 'Inny region / Nie wiem', otherWa: 'Dzień dobry, chcę sprawdzić wycieczki z transferem z regionu mojego hotelu.',
+    followUp: 'Co jeszcze chcesz sprawdzić?'
+  },
+  ro: {
+    aria: 'Asistent de călătorie SER Tourism & Travel', badge: 'Asistent de călătorie', online: 'Online',
+    hello: 'Salut 👋 Te ajut să-ți planifici mai ușor vacanța în Antalya și să găsești turul potrivit în câteva întrebări.',
+    intro: 'Ce ai vrea să faci?', recommend: 'Recomandă-mi un tur', prices: 'Prețuri tururi', nearest: 'Tururi aproape de mine',
+    family: 'Tururi pentru familie', transfer: 'Este inclus transferul?', booking: 'Vreau să rezerv',
+    vibe: 'Ce fel de experiență cauți?', sea: 'Mare & barcă', adventure: 'Aventură', culture: 'Istorie & cultură', relax: 'O zi relaxantă',
+    region: 'În ce zonă ești cazat?', regionHint: 'Alege zona și voi prioritiza tururile cu transfer convenabil.',
+    found: 'Am găsit aceste opțiuni:', priceIntro: 'Tururi populare după prețul de pornire:',
+    nearestIntro: 'Cele mai bune opțiuni cu transfer din această zonă:', familyIntro: 'Câteva opțiuni mai relaxate pentru familii:',
+    transferIntro: 'Alege zona de cazare pentru a verifica transferul.', transferYes: 'Da — aceste tururi oferă transfer din zona aleasă:',
+    noResult: 'Nu am găsit o potrivire clară. Echipa noastră WhatsApp te poate ajuta cu cea mai bună opțiune.',
+    from: 'de la', hours: 'ore', days: 'zile', transferIncluded: 'Transfer inclus', details: 'Vezi detalii', reserve: 'Întreabă pe WhatsApp',
+    restart: 'De la început', close: 'Închide', typing: 'SER Tourism & Travel scrie…', teaser: 'Nu știi ce să alegi? Te pot ajuta ✨',
+    reservePrompt: 'Ce tur ai vrea să rezervi?', waGeneric: 'Bună, doresc informații și ajutor pentru rezervarea tururilor din Antalya.',
+    waTour: 'Bună, doresc să rezerv {tour}. Îmi puteți trimite disponibilitatea și detaliile?',
+    other: 'Altă zonă / Nu sunt sigur', otherWa: 'Bună, vreau să aflu ce tururi includ transfer din zona hotelului meu.',
+    followUp: 'Ce altceva ai vrea să verifici?'
+  }
+} as const;
+
+const ui = metin[dil];
+const bolgeAdlari: Record<string, string> = {
+  kemer: 'Kemer', beldibi: 'Beldibi', goynuk: 'Göynük', konyaalti: 'Konyaaltı',
+  lara: 'Lara', kundu: 'Kundu', belek: 'Belek', kadriye: 'Kadriye', side: 'Side',
+  alanya: 'Alanya', manavgat: 'Manavgat', antalya: 'Antalya'
+};
+const bolgeler = [...new Set(listelenebilirTurlar().flatMap(t => t.kalkis_bolgeleri))]
+  .map(kod => ({ kod, ad: bolgeAdlari[kod] || kod.charAt(0).toUpperCase() + kod.slice(1) }));
+
+const turlar = listelenebilirTurlar().map(t => ({
+  id: t.id,
+  title: t.baslik[dil],
+  price: t.fiyat_eur,
+  tags: t.etiketler,
+  regions: t.kalkis_bolgeleri,
+  difficulty: t.zorluk,
+  transfer: t.transfer_dahil,
+  durationHours: t.sure_saat,
+  durationDays: t.sure_gun,
+  travelHours: t.ulasim_suresi_saat,
+  featured: t.one_cikan,
+  url: turUrl(dil, t)
+}));
+---
+
+<div class="assistant" data-assistant-root aria-label={ui.aria}>
+  <button class="assistant__teaser" type="button" data-assistant-teaser hidden>{ui.teaser}</button>
+  <button class="assistant__launcher" type="button" data-assistant-open aria-expanded="false" aria-controls="limyra-assistant-panel">
+    <span class="assistant__spark" aria-hidden="true">✦</span>
+    <span class="assistant__launcher-text">{ui.badge}</span>
+    <span class="assistant__pulse" aria-hidden="true"></span>
+  </button>
+
+  <section class="assistant__panel" id="limyra-assistant-panel" data-assistant-panel hidden aria-live="polite">
+    <header class="assistant__header">
+      <div class="assistant__avatar" aria-hidden="true">
+        <SerLogo variant="monogram" decorative />
+      </div>
+      <div>
+        <strong>{ui.badge}</strong>
+        <span><i></i>{ui.online}</span>
+      </div>
+      <button class="assistant__close" type="button" data-assistant-close aria-label={ui.close}>×</button>
+    </header>
+    <div class="assistant__body" data-assistant-body></div>
+    <footer class="assistant__footer">
+      <button type="button" data-assistant-restart>↻ {ui.restart}</button>
+      <span>SER Tourism & Travel Concierge</span>
+    </footer>
+  </section>
+</div>
+
+<script is:inline define:vars={{ ui, turlar, bolgeler, waNumber: WA_NUMBERS[dil] }}>
+(function () {
+  var root = document.querySelector('[data-assistant-root]');
+  if (!root) return;
+  var panel = root.querySelector('[data-assistant-panel]');
+  var body = root.querySelector('[data-assistant-body]');
+  var openBtn = root.querySelector('[data-assistant-open]');
+  var closeBtn = root.querySelector('[data-assistant-close]');
+  var restartBtn = root.querySelector('[data-assistant-restart]');
+  var teaser = root.querySelector('[data-assistant-teaser]');
+  var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var sessionOpenKey = 'limyra-assistant-opened';
+
+  function esc(value) {
+    return String(value).replace(/[&<>'"]/g, function (c) { return ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'})[c]; });
+  }
+  function scrollEnd() { requestAnimationFrame(function () { body.scrollTop = body.scrollHeight; }); }
+  function wait(ms, fn) { if (reduced) fn(); else window.setTimeout(fn, ms); }
+  function msg(text, mine) {
+    var el = document.createElement('div');
+    el.className = 'assistant__msg' + (mine ? ' assistant__msg--user' : '');
+    el.innerHTML = '<div>' + esc(text) + '</div>';
+    body.appendChild(el); scrollEnd(); return el;
+  }
+  function typing(done) {
+    var el = document.createElement('div');
+    el.className = 'assistant__typing';
+    el.innerHTML = '<span></span><span></span><span></span><em>' + esc(ui.typing) + '</em>';
+    body.appendChild(el); scrollEnd();
+    wait(520, function () { el.remove(); done(); });
+  }
+  function choices(items) {
+    var wrap = document.createElement('div'); wrap.className = 'assistant__choices';
+    items.forEach(function (it) {
+      var b = document.createElement('button'); b.type = 'button'; b.textContent = it.label;
+      b.addEventListener('click', function () { wrap.querySelectorAll('button').forEach(function(x){x.disabled=true;}); msg(it.label, true); typing(it.action); });
+      wrap.appendChild(b);
+    }); body.appendChild(wrap); scrollEnd();
+  }
+  function duration(t) {
+    if (t.durationDays) return t.durationDays + ' ' + ui.days;
+    if (t.durationHours) return t.durationHours + ' ' + ui.hours;
+    return '';
+  }
+  function wa(text) { return 'https://wa.me/' + waNumber + '?text=' + encodeURIComponent(text); }
+  function cards(list, withFollowUp) {
+    var wrap = document.createElement('div'); wrap.className = 'assistant__cards';
+    list.slice(0, 4).forEach(function (t) {
+      var c = document.createElement('article'); c.className = 'assistant__card';
+      var d = duration(t);
+      c.innerHTML = '<div class="assistant__card-top"><strong>' + esc(t.title) + '</strong><b>€' + esc(t.price) + '</b></div>' +
+        '<div class="assistant__meta">' + (d ? '<span>◷ ' + esc(d) + '</span>' : '') + (t.transfer ? '<span>✓ ' + esc(ui.transferIncluded) + '</span>' : '') + '</div>' +
+        '<div class="assistant__card-actions"><a href="' + esc(t.url) + '">' + esc(ui.details) + '</a><a class="assistant__wa" target="_blank" rel="noopener" href="' + esc(wa(ui.waTour.replace('{tour}', t.title))) + '">' + esc(ui.reserve) + '</a></div>';
+      wrap.appendChild(c);
+    }); body.appendChild(wrap); scrollEnd();
+    if (withFollowUp !== false) followUp();
+  }
+  function noResult(withFollowUp) {
+    msg(ui.noResult, false);
+    var wrap = document.createElement('div'); wrap.className = 'assistant__choices';
+    var a = document.createElement('a'); a.className = 'assistant__choice-link'; a.target='_blank'; a.rel='noopener'; a.href=wa(ui.waGeneric); a.textContent=ui.reserve;
+    wrap.appendChild(a); body.appendChild(wrap); scrollEnd();
+    if (withFollowUp !== false) followUp();
+  }
+  function score(t, tags, region) {
+    var s = t.featured ? 2 : 0;
+    tags.forEach(function(tag){ if (t.tags.indexOf(tag) !== -1) s += 4; });
+    if (region && t.regions.indexOf(region) !== -1) s += 5;
+    if (t.transfer) s += 1;
+    return s;
+  }
+  function recommend(tags, region) {
+    var list = turlar.slice().map(function(t){return {t:t,s:score(t,tags,region)}}).filter(function(x){return x.s>0;}).sort(function(a,b){return b.s-a.s || a.t.price-b.t.price;}).map(function(x){return x.t;});
+    msg(ui.found, false); if (list.length) cards(list); else noResult();
+  }
+  function regionFlow(mode, tags) {
+    msg(ui.region, false); msg(ui.regionHint, false);
+    var items = bolgeler.map(function (b) { return { label: b.ad, action: function () {
+      var list = turlar.filter(function(t){return t.regions.indexOf(b.kod)!==-1;});
+      if (mode === 'recommend') return recommend(tags || [], b.kod);
+      if (mode === 'transfer') { msg(ui.transferYes, false); return list.length ? cards(list.sort(function(a,b){return a.price-b.price;})) : noResult(); }
+      if (mode === 'nearest') { msg(ui.nearestIntro, false); list.sort(function(a,b){return (a.travelHours||99)-(b.travelHours||99) || a.price-b.price;}); return list.length ? cards(list) : noResult(); }
+    }}; });
+    items.push({label: ui.other, action: function(){ window.open(wa(ui.otherWa), '_blank', 'noopener'); }});
+    choices(items);
+  }
+  function vibeFlow() {
+    msg(ui.vibe, false);
+    choices([
+      {label: ui.sea, action:function(){regionFlow('recommend',['deniz','rahatlama']);}},
+      {label: ui.adventure, action:function(){regionFlow('recommend',['macera']);}},
+      {label: ui.culture, action:function(){regionFlow('recommend',['kultur']);}},
+      {label: ui.relax, action:function(){regionFlow('recommend',['rahatlama']);}}
+    ]);
+  }
+  function bookingFlow() {
+    msg(ui.reservePrompt, false);
+    var list=turlar.slice().sort(function(a,b){return (b.featured?1:0)-(a.featured?1:0)||a.price-b.price;}); cards(list, false);
+    var wrap=document.createElement('div');wrap.className='assistant__choices';var a=document.createElement('a');a.className='assistant__choice-link';a.target='_blank';a.rel='noopener';a.href=wa(ui.waGeneric);a.textContent=ui.reserve;wrap.appendChild(a);body.appendChild(wrap);scrollEnd();
+    followUp();
+  }
+  function mainChoices() {
+    choices([
+      {label: ui.recommend, action: vibeFlow},
+      {label: ui.prices, action:function(){msg(ui.priceIntro,false);cards(turlar.slice().sort(function(a,b){return a.price-b.price;}));}},
+      {label: ui.nearest, action:function(){regionFlow('nearest',[]);}},
+      {label: ui.family, action:function(){msg(ui.familyIntro,false);var l=turlar.filter(function(t){return t.tags.indexOf('cocuk_dostu')!==-1 || (t.difficulty==='kolay' && t.tags.indexOf('macera')===-1);}).sort(function(a,b){return (b.featured?1:0)-(a.featured?1:0)||a.price-b.price;});cards(l);}},
+      {label: ui.transfer, action:function(){msg(ui.transferIntro,false);regionFlow('transfer',[]);}},
+      {label: ui.booking, action:bookingFlow}
+    ]);
+  }
+  function followUp() {
+    wait(320, function () {
+      typing(function () {
+        msg(ui.followUp, false);
+        mainChoices();
+      });
+    });
+  }
+  function mainMenu() {
+    msg(ui.intro, false);
+    mainChoices();
+  }
+  function reset() { body.innerHTML=''; msg(ui.hello,false); wait(260, mainMenu); }
+  function open() { panel.hidden=false; openBtn.setAttribute('aria-expanded','true'); root.classList.add('assistant--open'); teaser.hidden=true; try{sessionStorage.setItem(sessionOpenKey,'1');}catch(e){} if(!body.children.length) reset(); wait(20,function(){closeBtn.focus();}); }
+  function close() { panel.hidden=true; openBtn.setAttribute('aria-expanded','false'); root.classList.remove('assistant--open'); openBtn.focus(); }
+  openBtn.addEventListener('click', function(){ panel.hidden ? open() : close(); });
+  closeBtn.addEventListener('click', close);
+  restartBtn.addEventListener('click', reset);
+  document.addEventListener('keydown', function(e){if(e.key==='Escape'&&!panel.hidden)close();});
+  wait(15000, function(){ try{ if(!sessionStorage.getItem(sessionOpenKey) && panel.hidden) teaser.hidden=false; }catch(e){} });
+  teaser.addEventListener('click', open);
+})();
+</script>

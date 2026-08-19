@@ -1,0 +1,42 @@
+---
+// Kök sayfa: tarayıcı diline göre yönlendirir, bulunamazsa /en/ (url-semasi §6.5).
+// Gerçek 302 sunucu işidir — paylaşımlı hosting'de .htaccess lansman listesinde.
+// Statik yedek: JS yönlendirme + JS kapalıysa meta refresh → /en/.
+import { DILLER } from '../lib/tipler';
+import { DIL_ADLARI } from '../i18n/sozluk';
+import { MARKA } from '../config/marka';
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{MARKA}</title>
+    <meta name="robots" content="noindex" />
+    <script is:inline>
+      (function () {
+        var diller = ['tr', 'en', 'ru', 'de', 'pl', 'ro'];
+        var tercih = (navigator.languages || [navigator.language || 'en'])
+          .map(function (d) { return d.slice(0, 2).toLowerCase(); })
+          .find(function (d) { return diller.indexOf(d) >= 0; });
+        location.replace('/' + (tercih || 'en') + '/');
+      })();
+    </script>
+    <noscript><meta http-equiv="refresh" content="0;url=/en/" /></noscript>
+    <style>
+      body{ font-family: Georgia, serif; background:#F7F3EC; color:#16122B;
+            display:grid; place-items:center; min-height:100vh; margin:0; }
+      main{ text-align:center; }
+      h1{ font-weight:500; letter-spacing:.14em; }
+      ul{ list-style:none; padding:0; display:flex; gap:16px; justify-content:center; flex-wrap:wrap; }
+      a{ color:#16122B; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>{MARKA}</h1>
+      <ul>
+        {DILLER.map((d) => <li><a href={`/${d}/`} lang={d}>{DIL_ADLARI[d]}</a></li>)}
+      </ul>
+    </main>
+  </body>
+</html>

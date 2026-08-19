@@ -1,0 +1,180 @@
+---
+import type { Dil } from '../lib/tipler';
+import TemelSayfa from '../layouts/TemelSayfa.astro';
+import TurKart from '../components/TurKart.astro';
+import Secim from '../components/Secim.astro';
+import { MARKA } from '../config/marka';
+import { sozluk, yerlestir } from '../i18n/sozluk';
+import { KATEGORILER, SEHIRLER, BOLGELER, TUM_KALKIS_NOKTALARI } from '../data/taksonomi';
+import {
+  listelenebilirTurlar, kategorininTurlari, sehrinTurlari, bolgeninTurlari,
+  anaUrl, turlarUrl, mutlak,
+} from '../lib/rotalar';
+
+interface Props {
+  dil: Dil;
+  alternatifler: Record<Dil, string>;
+  listeTipi: 'turlar' | 'kategori' | 'sehir' | 'bolge';
+  anahtar: string | null;
+}
+
+const { dil, alternatifler: alt, listeTipi, anahtar } = Astro.props;
+const s = sozluk[dil];
+
+// Sayfa başlığı ve tur seti — sezon dışı turlar hiç görünmez (§5.2)
+let baslik = s.tum_turlar;
+if (listeTipi === 'kategori') {
+  const k = KATEGORILER.find((x) => x.kod === anahtar)!;
+  baslik = k.ad[dil];
+} else if (listeTipi === 'sehir') {
+  const se = SEHIRLER.find((x) => x.kod === anahtar)!;
+  baslik = yerlestir(s.sehir_baslik, { b: se.ad[dil] });
+} else if (listeTipi === 'bolge') {
+  const b = BOLGELER.find((x) => x.kod === anahtar)!;
+  baslik = yerlestir(s.bolge_baslik, { b: b.ad[dil] });
+}
+
+const turSeti =
+  listeTipi === 'kategori' ? kategorininTurlari(anahtar!)
+  : listeTipi === 'sehir' ? sehrinTurlari(anahtar!)
+  : listeTipi === 'bolge' ? bolgeninTurlari(anahtar!)
+  : listelenebilirTurlar();
+
+// Kategori/şehir/bölge sayfalarında BreadcrumbList (MASTER-PROMPT §13)
+const jsonLd =
+  listeTipi === 'turlar'
+    ? []
+    : [{
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: s.ana_sayfa, item: mutlak(anaUrl(dil)) },
+          { '@type': 'ListItem', position: 2, name: s.tum_turlar, item: mutlak(turlarUrl(dil)) },
+          { '@type': 'ListItem', position: 3, name: baslik, item: mutlak(alt[dil]) },
+        ],
+      }];
+
+const sayfaBaslik = `${baslik} | ${MARKA}`;
+const aciklama = s.meta_ana_aciklama; // yer tutucu — sayfa başına özgün metin sonra yazılacak
+---
+<TemelSayfa dil={dil} baslik={sayfaBaslik} aciklama={aciklama} alternatifler={alt} jsonLd={jsonLd}>
+  <div class="kap">
+    <nav class="kirinti" aria-label="breadcrumb">
+      <ol>
+        <li><a href={anaUrl(dil)}>{s.ana_sayfa}</a></li>
+        {listeTipi !== 'turlar'
+          ? <li><a href={turlarUrl(dil)}>{s.tum_turlar}</a></li>
+          : <li>{s.tum_turlar}</li>}
+        {listeTipi !== 'turlar' && <li>{baslik}</li>}
+      </ol>
+    </nav>
+
+    <section class="bolum--dar">
+      <h1>{baslik}</h1>
+      <p class="ikincil">{s.liste_giris_yt}</p>
+
+      <!-- Filtreler URL'ye yansır (?bolge=kemer) ama noindex (§5.2 — layout ekler) -->
+      <form class="filtreler" id="filtreler">
+        <label>
+          {s.filtre_kategori}
+          <Secim>
+            <select name="kategori">
+              <option value="">{s.tumu}</option>
+              {KATEGORILER.map((k) => <option value={k.kod}>{k.ad[dil]}</option>)}
+            </select>
+          </Secim>
+        </label>
+        <label>
+          {s.filtre_bolge}
+          <Secim>
+            <select name="bolge">
+              <option value="">{s.tumu}</option>
+              {TUM_KALKIS_NOKTALARI.map((b) => <option value={b.kod}>{b.ad[dil]}</option>)}
+            </select>
+          </Secim>
+        </label>
+        <label>
+          {s.filtre_sure}
+          <Secim>
+            <select name="sure">
+              <option value="">{s.tumu}</option>
+              <option value="yarim">{s.yarim_gun}</option>
+              <option value="tam">{s.tam_gun}</option>
+              <option value="cok">{s.cok_gunlu}</option>
+            </select>
+          </Secim>
+        </label>
+        <label>
+          {s.filtre_fiyat}
+          <Secim>
+            <select name="fiyat">
+              <option value="">{s.tumu}</option>
+              <option value="0-25">≤ 25 €</option>
+              <option value="25-50">25 – 50 €</option>
+              <option value="50-9999">50 € +</option>
+            </select>
+          </Secim>
+        </label>
+      </form>
+
+      <div class="grid" id="tur-grid">
+        {turSeti.map((t, i) => <TurKart dil={dil} tur={t} oncelikli={i < 3} />)}
+      </div>
+      <p class="sonuc-yok" id="sonuc-yok" hidden>{s.sonuc_yok}</p>
+    </section>
+  </div>
+</TemelSayfa>
+
+<script is:inline>
+  // Client tarafı filtreleme: kartlar data-* öznitelikleriyle işaretli.
+  // Seçim URL'ye yazılır (paylaşılabilir), URL'den okunur (?bolge=kemer, ?q=arama).
+  (function () {
+    var form = document.getElementById('filtreler');
+    var grid = document.getElementById('tur-grid');
+    var bos = document.getElementById('sonuc-yok');
+    if (!form || !grid) return;
+
+    var params = new URLSearchParams(location.search);
+    ['kategori', 'bolge', 'sure', 'fiyat'].forEach(function (ad) {
+      var deger = params.get(ad);
+      if (deger && form.elements[ad]) form.elements[ad].value = deger;
+    });
+    var arama = (params.get('q') || '').toLowerCase().trim();
+
+    function uygula() {
+      var kategori = form.elements.kategori.value;
+      var bolge = form.elements.bolge.value;
+      var sure = form.elements.sure.value;
+      var fiyat = form.elements.fiyat.value;
+      var gorunen = 0;
+
+      grid.querySelectorAll('.tur-kart').forEach(function (kart) {
+        var goster = true;
+        if (kategori && (kart.dataset.kategoriler || '').split(' ').indexOf(kategori) < 0) goster = false;
+        if (bolge && (kart.dataset.bolgeler || '').split(' ').indexOf(bolge) < 0) goster = false;
+        if (sure && kart.dataset.sure !== sure) goster = false;
+        if (fiyat) {
+          var aralik = fiyat.split('-');
+          var f = parseFloat(kart.dataset.fiyat) || 0;
+          if (f < parseFloat(aralik[0]) || f > parseFloat(aralik[1])) goster = false;
+        }
+        if (arama && (kart.dataset.ad || '').indexOf(arama) < 0) goster = false;
+        kart.hidden = !goster;
+        if (goster) gorunen++;
+      });
+
+      if (bos) bos.hidden = gorunen > 0;
+
+      var yeni = new URLSearchParams();
+      if (arama) yeni.set('q', arama);
+      ['kategori', 'bolge', 'sure', 'fiyat'].forEach(function (ad) {
+        if (form.elements[ad].value) yeni.set(ad, form.elements[ad].value);
+      });
+      var sorgu = yeni.toString();
+      history.replaceState(null, '', location.pathname + (sorgu ? '?' + sorgu : ''));
+    }
+
+    form.addEventListener('change', uygula);
+    if (params.toString()) uygula();
+  })();
+</script>

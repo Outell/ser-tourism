@@ -1,0 +1,288 @@
+---
+import type { Dil } from '../lib/tipler';
+import { sozluk } from '../i18n/sozluk';
+import { SEHIRLER } from '../data/taksonomi';
+import { metinUrl } from '../lib/rotalar';
+
+interface Props { dil: Dil }
+
+// Üst bar hava rozeti — EK-2 §B.
+// Sabit rozet + istendiğinde açılan panel. Sürekli hareket eden öge YOK
+// (MASTER-PROMPT §15). Rozet yalnızca ilk gelişinde bir kez belirir.
+// Veri gelmezse rozet hiç görünmez; yer tutucu da yok, CLS oluşmaz.
+const { dil } = Astro.props;
+const s = sozluk[dil];
+const antalya = SEHIRLER.find((x) => x.kod === 'antalya')!.ad[dil];
+
+const LOCALE: Record<Dil, string> = {
+  tr: 'tr-TR', en: 'en-GB', ru: 'ru-RU', de: 'de-DE', pl: 'pl-PL', ro: 'ro-RO',
+};
+---
+<details class="hava-rozet" hidden>
+  <summary class="hava-rozet__ozet" aria-label={s.hava_etiket}>
+    <span class="hava-rozet__ikon" data-rozet-ikon aria-hidden="true"></span>
+    <span class="hava-rozet__derece" data-rozet-derece></span>
+  </summary>
+
+  <div class="hava-rozet__panel">
+    <p class="hava-rozet__sehir">{antalya}</p>
+
+    <p class="hava-rozet__simdi">
+      <span class="hava-rozet__simdiIkon" data-panel-ikon aria-hidden="true"></span>
+      <span class="hava-rozet__simdiDerece" data-panel-derece></span>
+    </p>
+
+    <p class="hava-rozet__bugun">
+      <span>{s.hava_bugun}</span>
+      <span data-panel-bugun></span>
+    </p>
+
+    {/* Satırlar sunucuda üretilir — JS ile oluşturulan elemanlara Astro'nun
+        scoped-CSS damgası düşmez, stil uygulanmazdı. forecast_days=4 olduğu
+        için bugün dışında hep 3 satır olur; veri gelmezse gizli kalırlar. */}
+    <ul class="hava-rozet__gunler">
+      {[0, 1, 2].map(() => (
+        <li hidden>
+          <span class="hava-rozet__gunAd" data-gun-ad></span>
+          <span class="hava-rozet__gunIkon" data-gun-ikon aria-hidden="true"></span>
+          <span class="hava-rozet__gunDerece" data-gun-derece></span>
+        </li>
+      ))}
+    </ul>
+
+    <a class="hava-rozet__guvence" href={metinUrl(dil, 'iptal')}>{s.hava_guvence}</a>
+  </div>
+</details>
+
+<style>
+  .hava-rozet{ position: relative; }
+
+  .hava-rozet__ozet{
+    list-style: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 4px;          /* dil seçiciyle aynı yükseklik */
+    font-size: 14px;
+    color: var(--nav-muted);
+    animation: rozetBelir .3s ease-out;   /* bir kez, sonra hiç hareket yok */
+  }
+  .hava-rozet__ozet::-webkit-details-marker{ display: none; }
+
+  .hava-rozet__ikon{
+    color: var(--action);
+    display: inline-flex;
+  }
+
+  @keyframes rozetBelir{ from{ opacity: 0 } to{ opacity: 1 } }
+
+  /* Panel */
+  .hava-rozet__panel{
+    position: absolute;
+    right: 0;
+    top: 100%;
+    z-index: 30;
+    margin-top: 4px;
+    width: 248px;
+    padding: 16px;
+    background: var(--surface-elevated);
+    color: var(--text-primary);
+    border: 0.5px solid var(--border-strong);
+    border-radius: var(--r-buton);
+    box-shadow: var(--shadow-md);
+  }
+  .hava-rozet[open] .hava-rozet__panel{
+    animation: panelAc .2s ease-out;
+  }
+  @keyframes panelAc{
+    from{ opacity: 0; transform: translateY(-6px) }
+    to  { opacity: 1; transform: none }
+  }
+
+  .hava-rozet__sehir{
+    font-family: var(--font-baslik);
+    font-size: 15px;
+    margin: 0 0 8px;
+  }
+
+  .hava-rozet__simdi{
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+  }
+  .hava-rozet__simdiIkon{ color: var(--action); display: inline-flex; }
+  .hava-rozet__simdiDerece{
+    font-family: var(--font-baslik);
+    font-size: 26px;
+    line-height: 1;
+  }
+
+  .hava-rozet__bugun{
+    font-size: 13px;
+    color: var(--text-muted);
+    margin: 4px 0 12px;
+    display: flex;
+    gap: 6px;
+  }
+
+  .hava-rozet__gunler{
+    list-style: none;
+    margin: 0 0 12px;
+    padding: 0;
+    border-top: 1px solid var(--border);
+  }
+  .hava-rozet__gunler li{
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 0;
+    font-size: 13px;
+  }
+  .hava-rozet__gunAd{ color: var(--text-primary); }
+  .hava-rozet__gunIkon{ color: var(--action); display: inline-flex; }
+  .hava-rozet__gunDerece{ color: var(--text-muted); white-space: nowrap; }
+
+  .hava-rozet__guvence{
+    display: block;
+    font-size: 12px;
+    line-height: 1.45;
+    color: var(--text-muted);
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+  }
+
+  /* Mobilde üst barda yer yok — hava yalnızca ana sayfadaki kutuda (EK-2 §B5) */
+  @media (max-width: 767px){
+    .hava-rozet{ display: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .hava-rozet__ozet,
+    .hava-rozet[open] .hava-rozet__panel{ animation: none; }
+  }
+</style>
+
+<script is:inline define:vars={{ locale: LOCALE[dil] }}>
+  (function () {
+    var rozet = document.querySelector('.hava-rozet');
+    if (!rozet) return;
+
+    var ANAHTAR = 'limyra-hava';
+    var ADRES = 'https://api.open-meteo.com/v1/forecast'
+      + '?latitude=36.8969&longitude=30.7133'
+      + '&current=temperature_2m,weather_code'
+      + '&daily=temperature_2m_max,temperature_2m_min,weather_code'
+      + '&timezone=Europe/Istanbul&forecast_days=4';
+
+    // Çizgi ikonlar — currentColor kullanır, böylece --pirinc uygulanır.
+    // Emoji renk almadığı için tercih edilmedi. İkon kütüphanesi yüklenmez.
+    var SEKIL = {
+      gunes: '<circle cx="12" cy="12" r="4.5"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.2 5.2l1.4 1.4M17.4 17.4l1.4 1.4M18.8 5.2l-1.4 1.4M6.6 17.4l-1.4 1.4"/>',
+      parcali: '<circle cx="8.5" cy="8.5" r="3"/><path d="M8.5 3.2v1.4M3.2 8.5h1.4M4.8 4.8l1 1M12.2 4.8l-1 1"/><path d="M7.5 18h8.7a3.3 3.3 0 0 0 0-6.6 4.8 4.8 0 0 0-9-1.2A2.9 2.9 0 0 0 7.5 18z"/>',
+      bulut: '<path d="M7 17.5h9.4a3.5 3.5 0 0 0 0-7 5.1 5.1 0 0 0-9.6-1.3A3 3 0 0 0 7 17.5z"/>',
+      sis: '<path d="M4 8.5h16M4 12.5h16M6.5 16.5h11"/>',
+      yagmur: '<path d="M7 14.5h9.4a3.5 3.5 0 0 0 0-7 5.1 5.1 0 0 0-9.6-1.3A3 3 0 0 0 7 14.5z"/><path d="M8.5 17.5l-1 3M12 17.5l-1 3M15.5 17.5l-1 3"/>',
+      kar: '<path d="M7 14.5h9.4a3.5 3.5 0 0 0 0-7 5.1 5.1 0 0 0-9.6-1.3A3 3 0 0 0 7 14.5z"/><path d="M9 18.5h.01M12 20.5h.01M15 18.5h.01"/>',
+      firtina: '<path d="M7 13.5h9.4a3.5 3.5 0 0 0 0-7 5.1 5.1 0 0 0-9.6-1.3A3 3 0 0 0 7 13.5z"/><path d="M13.5 16l-3 4h3.2l-2.2 3.5"/>'
+    };
+
+    function sekilAdi(kod) {
+      if (kod === 0) return 'gunes';
+      if (kod <= 2) return 'parcali';
+      if (kod === 3) return 'bulut';
+      if (kod <= 48) return 'sis';
+      if (kod <= 67) return 'yagmur';
+      if (kod <= 77) return 'kar';
+      if (kod <= 82) return 'yagmur';
+      if (kod <= 86) return 'kar';
+      return 'firtina';
+    }
+
+    function ikon(kod, boyut) {
+      return '<svg width="' + boyut + '" height="' + boyut + '" viewBox="0 0 24 24"'
+        + ' fill="none" stroke="currentColor" stroke-width="1.5"'
+        + ' stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
+        + SEKIL[sekilAdi(kod)] + '</svg>';
+    }
+
+    var derece = function (v) { return Math.round(v) + '°'; };
+
+    function doldur(veri) {
+      var g = veri.daily, simdi = veri.current;
+      if (!g || !g.time || !g.time.length || !simdi) throw new Error('hava');
+
+      rozet.querySelector('[data-rozet-ikon]').innerHTML = ikon(simdi.weather_code, 16);
+      rozet.querySelector('[data-rozet-derece]').textContent = derece(simdi.temperature_2m);
+
+      rozet.querySelector('[data-panel-ikon]').innerHTML = ikon(simdi.weather_code, 30);
+      rozet.querySelector('[data-panel-derece]').textContent = derece(simdi.temperature_2m);
+      rozet.querySelector('[data-panel-bugun]').textContent =
+        derece(g.temperature_2m_max[0]) + ' / ' + derece(g.temperature_2m_min[0]);
+
+      var gunAdi = new Intl.DateTimeFormat(locale, { weekday: 'short' });
+      var satirlar = rozet.querySelectorAll('.hava-rozet__gunler li');
+
+      for (var i = 0; i < satirlar.length; i++) {
+        var gun = i + 1;                       // 0. gün "Bugün" satırında
+        if (gun >= g.time.length) break;
+        var satir = satirlar[i];
+        satir.querySelector('[data-gun-ad]').textContent =
+          gunAdi.format(new Date(g.time[gun] + 'T12:00:00'));
+        satir.querySelector('[data-gun-ikon]').innerHTML = ikon(g.weather_code[gun], 16);
+        satir.querySelector('[data-gun-derece]').textContent =
+          derece(g.temperature_2m_max[gun]) + ' / ' + derece(g.temperature_2m_min[gun]);
+        satir.hidden = false;
+      }
+
+      rozet.hidden = false;   // ancak veri geldiğinde görünür
+    }
+
+    // Tek veri kaynağı: rozet ve ana sayfadaki hava kutusu aynı isteği paylaşır,
+    // oturumda tek kez sorulur (EK-2 §B4). window.__limyraHava ilk çağıranda kurulur.
+    function havaVerisi() {
+      if (window.__limyraHava) return window.__limyraHava;
+
+      var onbellek = null;
+      try { onbellek = sessionStorage.getItem(ANAHTAR); } catch (e) {}
+      if (onbellek) {
+        try {
+          window.__limyraHava = Promise.resolve(JSON.parse(onbellek));
+          return window.__limyraHava;
+        } catch (e) {}
+      }
+
+      window.__limyraHava = fetch(ADRES)
+        .then(function (y) { if (!y.ok) throw new Error('hava'); return y.json(); })
+        .then(function (veri) {
+          try { sessionStorage.setItem(ANAHTAR, JSON.stringify(veri)); } catch (e) {}
+          return veri;
+        });
+      return window.__limyraHava;
+    }
+
+    function getir() {
+      havaVerisi()
+        .then(doldur)
+        .catch(function () { /* sessizce: rozet hiç görünmez */ });
+    }
+
+    // İstek sayfa yüklendikten SONRA — LCP'yi etkilemez
+    if (document.readyState === 'complete') getir();
+    else window.addEventListener('load', getir);
+
+    // Kapanma: dışarı tıklama, Esc, rozete tekrar tıklama (details native)
+    document.addEventListener('click', function (e) {
+      if (rozet.open && !rozet.contains(e.target)) rozet.open = false;
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && rozet.open) {
+        rozet.open = false;
+        var ozet = rozet.querySelector('summary');
+        if (ozet) ozet.focus();
+      }
+    });
+  })();
+</script>

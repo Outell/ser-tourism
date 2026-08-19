@@ -1,0 +1,69 @@
+---
+import type { Dil, Tur } from '../lib/tipler';
+import { turUrl } from '../lib/rotalar';
+import { sozluk, yerlestir } from '../i18n/sozluk';
+import { WA_NUMBERS } from '../config/marka';
+import { euroTutar } from '../lib/fiyat';
+import WaIkon from './WaIkon.astro';
+
+interface Props {
+  dil: Dil;
+  tur: Tur;
+  oncelikli?: boolean;  // ekranın üstündeki kartlarda lazy kapatılır
+}
+
+const { dil, tur, oncelikli = false } = Astro.props;
+const s = sozluk[dil];
+
+const sureMetni = tur.sure_gun
+  ? `${tur.sure_gun} ${s.gun_kisa}`
+  : tur.sure_saat
+    ? `${tur.sure_saat} ${s.saat_kisa}`
+    : null;
+
+const sureTipi = tur.sure_gun && tur.sure_gun >= 2 ? 'cok' : (tur.sure_saat ?? 8) <= 6 ? 'yarim' : 'tam';
+const fiyatMetni = euroTutar(tur.fiyat_eur, dil);
+
+// Kartta küçük WhatsApp butonu — tur adı önceden dolu (MASTER-PROMPT §7.5)
+const kartMesaj = `${s.m_selamlama}\n\n${s.m_tur}: ${tur.baslik[dil]}\n\n${s.m_kapanis}`;
+const waLink = `https://wa.me/${WA_NUMBERS[dil]}?text=${encodeURIComponent(kartMesaj)}`;
+---
+<article
+  class="tur-kart"
+  data-kategoriler={tur.kategoriler.join(' ')}
+  data-bolgeler={tur.kalkis_bolgeleri.join(' ')}
+  data-sure={sureTipi}
+  data-fiyat={tur.fiyat_eur}
+  data-ad={tur.baslik[dil].toLowerCase()}
+>
+  <div class="tur-kart__gorsel">
+    <span class="tur-kart__rozet">{tur.transfer_dahil ? s.transfer_dahil : s.transfer_haric}</span>
+    {tur.kapak && (
+      <img
+        src={tur.kapak}
+        alt={tur.alt_metin?.[dil] ?? tur.baslik[dil]}
+        width="1200"
+        height="900"
+        loading={oncelikli ? 'eager' : 'lazy'}
+        decoding="async"
+      />
+    )}
+  </div>
+  <div class="tur-kart__govde">
+    <h3 class="tur-kart__baslik">
+      <a href={turUrl(dil, tur)}>{tur.baslik[dil]}</a>
+    </h3>
+    {tur.ozet[dil] && <p class="tur-kart__ozet">{tur.ozet[dil]}</p>}
+    {sureMetni && <div class="tur-kart__meta"><span>{sureMetni}</span></div>}
+    <div class="tur-kart__alt">
+      <div class="tur-kart__fiyat">
+        {yerlestir(s.fiyat_baslayan, { f: fiyatMetni })}
+        <small data-eur={tur.fiyat_eur}></small>
+      </div>
+      <a class="wa-buton wa-buton--kucuk" href={waLink} target="_blank" rel="noopener">
+        <WaIkon boyut={14} />
+        WhatsApp
+      </a>
+    </div>
+  </div>
+</article>

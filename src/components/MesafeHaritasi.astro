@@ -1,0 +1,500 @@
+---
+// src/components/MesafeHaritasi.astro
+//
+// Antalya zaman halkaları haritası.
+// Saf SVG + CSS. JS yalnızca açılış animasyonu için (~20 satır, EK-2 §A5).
+//
+// KULLANIM:
+//   <MesafeHaritasi lang={dil} />
+//
+// Destinasyon verisi src/data/destinasyonlar.ts dosyasından gelir.
+// Tur sayıları turlardan otomatik sayılır, elle yazılmaz.
+
+import type { Dil, Tur } from '../lib/tipler';
+import { destinasyonlar } from '../data/destinasyonlar';
+import { sozluk as ceviri } from '../i18n/sozluk';
+import { aktifTurlar, sezonda, turUrl } from '../lib/rotalar';
+
+interface Props { lang: Dil; }
+const { lang } = Astro.props;
+const t = ceviri[lang];
+
+// Sayılar dilin biçimiyle yazılır: TR/RU/DE/PL/RO'da ondalık ayracı virgül (1,5 sa),
+// tur sayısı da dilin çokluk kuralına göre çekimlenir (1 Tour / 3 Touren).
+const LOCALE: Record<Props['lang'], string> = {
+  tr: 'tr-TR', en: 'en-GB', ru: 'ru-RU', de: 'de-DE', pl: 'pl-PL', ro: 'ro-RO',
+};
+const sayiBicimi = new Intl.NumberFormat(LOCALE[lang], { maximumFractionDigits: 1 });
+const cokluk = new Intl.PluralRules(LOCALE[lang]);
+
+const sureMetni = (saat: number) => `${sayiBicimi.format(saat)} ${t.kisaltma.saat}`;
+const turMetni = (adet: number) => {
+  const bicimler = t.kisaltma.turAdet as Record<string, string | undefined>;
+  return `${adet} ${bicimler[cokluk.select(adet)] ?? t.kisaltma.turAdet.other}`;
+};
+
+const DESTINASYON_TERIMLERI: Record<string, string[]> = {
+  kas: ['kaş', 'kas'],
+  demre: ['demre'],
+  kumluca: ['kumluca'],
+  kemer: ['kemer'],
+  konyaalti: ['konyaaltı', 'konyaalti'],
+  muratpasa: ['muratpaşa', 'muratpasa'],
+  aksu: ['aksu'],
+  serik: ['serik'],
+  manavgat: ['manavgat'],
+  alanya: ['alanya'],
+};
+
+const normalize = (metin: string) =>
+  metin
+    .toLocaleLowerCase('tr-TR')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/ı/g, 'i');
+
+function turMetinAlani(tur: Tur) {
+  return [
+    tur.sehir,
+    tur.ozet?.tr,
+    tur.aciklama?.tr,
+    tur.program?.tr?.join(' '),
+    tur.dahil_olanlar?.tr?.join(' '),
+    tur.onemli_notlar?.tr?.join(' '),
+  ].filter(Boolean).join(' ');
+}
+
+function destinasyonTurlari(destinasyonId: string) {
+  const terimler = (DESTINASYON_TERIMLERI[destinasyonId] ?? [destinasyonId]).map(normalize);
+  return aktifTurlar.filter((tur) => {
+    if (!sezonda(tur)) return false;
+    if (tur.sehir === destinasyonId) return true;
+    const metin = normalize(turMetinAlani(tur));
+    return terimler.some((terim) => metin.includes(terim));
+  });
+}
+
+// Her destinasyon için aktif tur sayısını hesapla.
+const dugumler = destinasyonlar
+  .filter(d => d.haritadaGoster)
+  .map(d => {
+    const turlar = destinasyonTurlari(d.id);
+    const href = turlar.length === 1 ? turUrl(lang, turlar[0]) : '';
+    const detayMetni = turlar.length > 0 ? turMetni(turlar.length) : t.mesafe.aktifTurYok;
+    return {
+      ...d,
+      turSayisi: turlar.length,
+      ad: d.ad[lang],
+      href,
+      sureMetni: sureMetni(d.sure),
+      turMetni: detayMetni,
+    };
+  });
+
+const listeSirali = [...dugumler].sort((a, b) => a.sure - b.sure);
+
+// Deniz dalgası — ayrı katmanda tam genişlik olduğu için yeterince uzun üretilir
+const dalga = (y: number) => `M0 ${y} q22 -5 44 0 ` + 't44 0 '.repeat(33);
+---
+
+<section class="mesafe" aria-labelledby="mesafe-baslik" data-destinasyon-adet={dugumler.length}>
+  <h2 id="mesafe-baslik" class="mesafe__baslik">{t.mesafe.baslik}</h2>
+  <p class="mesafe__alt">{t.mesafe.altBaslik}</p>
+
+  <div class="mesafe__sahne">
+    {/* Deniz — SVG'nin dışında ayrı katman, soldan sağa tam kenara uzanır */}
+    <div class="mesafe__deniz" aria-hidden="true">
+      <svg viewBox="0 0 1440 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="mhDeniz" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%"   stop-color="var(--murekkep)" stop-opacity=".16" />
+            <stop offset="100%" stop-color="var(--murekkep)" stop-opacity="0" />
+          </linearGradient>
+        </defs>
+        <rect x="0" y="0" width="1440" height="60" fill="url(#mhDeniz)" />
+        <path d={dalga(10)} fill="none" stroke="var(--murekkep)" stroke-opacity=".20" stroke-width="1" />
+        <path d={dalga(22)} fill="none" stroke="var(--murekkep)" stroke-opacity=".12" stroke-width="1" />
+      </svg>
+    </div>
+
+    <svg
+      class="mesafe__svg"
+      viewBox="0 0 700 452"
+      role="img"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <title>{t.mesafe.svgBaslik}</title>
+      <desc>{t.mesafe.svgAciklama}</desc>
+
+      <defs>
+        <radialGradient id="mhMerkez">
+          <stop offset="0%"   stop-color="var(--pirinc)" stop-opacity=".22" />
+          <stop offset="100%" stop-color="var(--pirinc)" stop-opacity="0" />
+        </radialGradient>
+      </defs>
+
+      {/* Zaman halkaları */}
+      <g fill="none" stroke="var(--pirinc)">
+        <path d="M235 390 A115 115 0 0 1 465 390" stroke-opacity=".34" />
+        <path d="M195 390 A155 155 0 0 1 505 390" stroke-opacity=".26" />
+        <path d="M135 390 A215 215 0 0 1 565 390" stroke-opacity=".18" stroke-dasharray="2 6" />
+      </g>
+
+      <line x1="55" y1="390" x2="645" y2="390" stroke="var(--gece)" stroke-opacity=".22" />
+
+      {/* Halka etiketleri — baseline'ın ALTINDA, deniz şeridinin içinde.
+          Düğüm yazıları hep baseline'ın üstünde kaldığı için çakışma olamaz. */}
+      <g class="mesafe__halkaEtiket">
+        <text x="235" y="406" text-anchor="middle">1 {t.kisaltma.saatTekil ?? t.kisaltma.saat}</text>
+        <text x="195" y="406" text-anchor="middle">3 {t.kisaltma.saat}</text>
+        <text x="135" y="406" text-anchor="middle">8 {t.kisaltma.saat}</text>
+      </g>
+
+      <text class="mesafe__pusula" x="350" y="152" text-anchor="middle">{t.mesafe.kuzey}</text>
+
+      {/* Merkez */}
+      <circle cx="350" cy="390" r="34" fill="url(#mhMerkez)" />
+      <circle cx="350" cy="390" r="8"  fill="var(--gece)" />
+      <circle cx="350" cy="390" r="14" fill="none" stroke="var(--gece)" stroke-opacity=".28" />
+      <text class="mesafe__merkezAd" x="350" y="426" text-anchor="middle">ANTALYA</text>
+
+      {/* Destinasyonlar */}
+      <g>
+        {dugumler.map((d, i) => {
+          const icerik = (
+            <>
+              <line
+                class="mesafe__cizgi"
+                x1="350" y1="390" x2={d.x} y2={d.y}
+                stroke-dasharray={d.konaklamali ? '3 4' : undefined}
+              />
+              <g class="mesafe__dugumIc">
+                {/* Hover halesi — normalde görünmez, üstüne gelince %18'e çıkar */}
+                <circle class="mesafe__hale" cx={d.x} cy={d.y} r="14" fill="var(--pirinc)" />
+                {d.konaklamali && (
+                  <circle cx={d.x} cy={d.y} r="11" fill="var(--pirinc)" fill-opacity=".16" />
+                )}
+                <circle class="mesafe__nokta" cx={d.x} cy={d.y} r={d.konaklamali ? 6 : 5} />
+                <text
+                  class="mesafe__ad"
+                  x={d.saga ? d.x + 15 : d.x - 15}
+                  y={d.y - 2}
+                  text-anchor={d.saga ? 'start' : 'end'}
+                >{d.ad}</text>
+              </g>
+            </>
+          );
+
+          return d.href ? (
+            <a
+              class:list={['mesafe__dugum', d.konaklamali && 'mesafe__dugum--konaklamali']}
+              href={d.href}
+              style={`--sira:${i}`}
+              aria-label={`${d.ad}, ${d.sureMetni}, ${d.turMetni}`}
+            >
+              {icerik}
+            </a>
+          ) : (
+            <g
+              class:list={['mesafe__dugum', d.konaklamali && 'mesafe__dugum--konaklamali']}
+              style={`--sira:${i}`}
+              aria-label={`${d.ad}, ${d.sureMetni}, ${d.turMetni}`}
+            >
+              {icerik}
+            </g>
+          );
+        })}
+      </g>
+
+      <text class="mesafe__dipnot" x="350" y="447" text-anchor="middle">{t.mesafe.dipnot}</text>
+    </svg>
+  </div>
+
+  {/* Mobil: SVG gizlenir, liste görünür */}
+  <ul class="mesafe__liste">
+    {listeSirali.map(d => (
+      <li>
+        {d.href ? (
+          <a href={d.href}>
+            <span class="mesafe__listeAd">{d.ad}</span>
+          </a>
+        ) : (
+          <span class="mesafe__listeSatir">
+            <span class="mesafe__listeAd">{d.ad}</span>
+          </span>
+        )}
+      </li>
+    ))}
+  </ul>
+</section>
+
+<style>
+  /* Tam genişlik — deniz kenarlara uzanır, içerik ortada kalır (EK-2 §A2) */
+  .mesafe{
+    width: 100%;
+    padding: 48px 0 32px;
+    background: var(--kagit);
+  }
+
+  .mesafe__baslik{
+    font-family: var(--font-baslik);
+    font-size: clamp(20px, 3vw, 24px);
+    font-weight: 500;
+    color: var(--gece);
+    text-align: center;
+    margin: 0 0 4px;
+    padding-inline: 16px;
+  }
+
+  .mesafe__alt{
+    font-size: 13px;
+    color: var(--duman);
+    text-align: center;
+    margin: 0 0 8px;
+    padding-inline: 16px;
+  }
+
+  .mesafe__sahne{
+    position: relative;
+    width: 100%;
+    height: clamp(420px, 46vw, 560px);
+  }
+
+  /* Deniz katmanı: sahnenin alt %13,27'si — SVG'deki baseline ile aynı hizada
+     (viewBox'ta deniz 392→452, yani 60/452). Kenarlardan taşar, kıyı hissi verir. */
+  .mesafe__deniz{
+    position: absolute;
+    left: 0; right: 0; bottom: 0;
+    height: 13.27%;
+    z-index: 0;
+  }
+  .mesafe__deniz svg{ display: block; width: 100%; height: 100%; }
+
+  .mesafe__svg{
+    position: relative;
+    z-index: 1;
+    display: block;
+    width: 100%;
+    max-width: 900px;
+    height: 100%;
+    margin-inline: auto;
+    font-family: var(--font-govde);
+  }
+
+  .mesafe__halkaEtiket{
+    font-family: ui-monospace, monospace;
+    font-size: 9.5px;
+    letter-spacing: .1em;
+    fill: var(--pirinc);
+  }
+
+  .mesafe__pusula{
+    font-family: ui-monospace, monospace;
+    font-size: 10px;
+    letter-spacing: .14em;
+    fill: var(--duman);
+  }
+
+  .mesafe__merkezAd{
+    font-family: var(--font-baslik);
+    font-size: 12.5px;
+    font-weight: 600;
+    letter-spacing: .1em;
+    fill: var(--gece);
+  }
+
+  .mesafe__cizgi{
+    stroke: var(--gece);
+    stroke-opacity: .20;
+    stroke-width: 1;
+    transition: stroke .18s ease-out, stroke-width .18s ease-out, stroke-opacity .18s ease-out;
+  }
+
+  .mesafe__nokta{
+    fill: var(--murekkep);
+    transition: r .18s ease-out, fill .18s ease-out;
+  }
+
+  .mesafe__hale{
+    opacity: 0;
+    transition: opacity .18s ease-out;
+    pointer-events: none;
+  }
+
+  .mesafe__ad{
+    font-size: 13px;
+    fill: var(--gece);
+    transition: fill .18s ease-out;
+  }
+
+  .mesafe__detay{
+    font-size: 10.5px;
+    fill: var(--duman);
+  }
+
+  /* Konaklamalı destinasyon: baştan pirinç */
+  .mesafe__dugum--konaklamali .mesafe__cizgi{
+    stroke: var(--pirinc);
+    stroke-opacity: .45;
+  }
+  .mesafe__dugum--konaklamali .mesafe__nokta{ fill: var(--pirinc); }
+  .mesafe__dugum--konaklamali .mesafe__ad{ font-weight: 500; font-size: 13.5px; }
+
+  /* Etkileşim — çizgi ve düğüm birlikte parlar (EK-2 §A3) */
+  .mesafe__dugum{
+    cursor: default;
+    transition: opacity .18s ease-out;
+  }
+  a.mesafe__dugum{ cursor: pointer; }
+  .mesafe__dugum:hover .mesafe__nokta,
+  .mesafe__dugum:focus-visible .mesafe__nokta{
+    r: 7.5;
+    fill: var(--pirinc);
+  }
+  .mesafe__dugum:hover .mesafe__cizgi,
+  .mesafe__dugum:focus-visible .mesafe__cizgi{
+    stroke: var(--pirinc);
+    stroke-opacity: 1;
+    stroke-width: 1.8;
+  }
+  .mesafe__dugum:hover .mesafe__ad,
+  .mesafe__dugum:focus-visible .mesafe__ad{ fill: var(--pirinc-koyu); }
+  .mesafe__dugum:hover .mesafe__hale,
+  .mesafe__dugum:focus-visible .mesafe__hale{ opacity: .18; }
+
+  /* Tıklama onayı — SVG'de transform düğümü kaydırır, o yüzden r kullanılır */
+  .mesafe__dugum:active .mesafe__nokta{ r: 9; }
+
+  /* Seçilen öne çıkar, diğerleri sönümlenir. Klavye için de aynı davranış. */
+  .mesafe__svg:has(.mesafe__dugum:hover) .mesafe__dugum:not(:hover),
+  .mesafe__svg:has(.mesafe__dugum:focus-visible) .mesafe__dugum:not(:focus-visible){
+    opacity: .45;
+  }
+
+  .mesafe__dugum:focus-visible{
+    outline: 3px solid var(--pirinc);
+    outline-offset: 4px;
+    border-radius: 4px;
+  }
+
+  .mesafe__dipnot{
+    font-size: 10.5px;
+    fill: var(--duman);
+  }
+
+  /* Açılış animasyonu (EK-2 §A5) — yalnızca JS hazırlarsa devreye girer.
+     JS yoksa harita doğrudan son hâliyle görünür. */
+  .mesafe--hazir .mesafe__cizgi{
+    stroke-dasharray: var(--uzunluk);
+    stroke-dashoffset: var(--uzunluk);
+  }
+  .mesafe--hazir .mesafe__dugumIc{ opacity: 0; }
+
+  .mesafe--canli .mesafe__cizgi{
+    animation: cizgiCiz .7s ease-out forwards;
+  }
+  .mesafe--canli .mesafe__dugumIc{
+    animation: dugumBelir .3s ease-out forwards;
+    animation-delay: calc(.7s + var(--sira) * 80ms);
+  }
+
+  @keyframes cizgiCiz{ to{ stroke-dashoffset: 0; } }
+  @keyframes dugumBelir{ to{ opacity: 1; } }
+
+  /* Mobil liste — masaüstünde gizli */
+  .mesafe__liste{
+    display: none;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-width: 460px;
+    margin-inline: auto;
+    padding-inline: 16px;
+  }
+  .mesafe__liste a,
+  .mesafe__listeSatir{
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    padding: 13px 4px;
+    border-bottom: 0.5px solid var(--cizgi);
+    text-decoration: none;
+    transition: background .12s ease-out;
+  }
+  /* Dokunma geri bildirimi (EK-2 §A6) */
+  .mesafe__liste a:active{
+    background: color-mix(in srgb, var(--pirinc) 10%, transparent);
+  }
+  .mesafe__listeAd{ font-size: 15px; color: var(--gece); }
+  .mesafe__listeSure{ font-size: 12.5px; color: var(--duman); white-space: nowrap; }
+
+  /* SVG mobilde okunmuyor — listeye geç */
+  @media (max-width: 720px){
+    .mesafe__sahne{ display: none; }
+    .mesafe__liste{ display: block; }
+    .mesafe__alt{ margin-bottom: 18px; }
+  }
+
+  /* Hareket azaltma: animasyon ve geçiş yok, harita son hâliyle durur */
+  @media (prefers-reduced-motion: reduce){
+    .mesafe__cizgi,
+    .mesafe__nokta,
+    .mesafe__hale,
+    .mesafe__ad,
+    .mesafe__dugum,
+    .mesafe__liste a,
+    .mesafe__listeSatir{ transition: none; }
+
+    .mesafe--hazir .mesafe__cizgi{ stroke-dasharray: none; stroke-dashoffset: 0; }
+    .mesafe--hazir .mesafe__dugumIc{ opacity: 1; }
+    .mesafe--canli .mesafe__cizgi,
+    .mesafe--canli .mesafe__dugumIc{ animation: none; }
+  }
+</style>
+
+<script is:inline>
+  (function () {
+    var bolum = document.querySelector('.mesafe');
+    var svg = bolum && bolum.querySelector('.mesafe__svg');
+    if (!svg || !window.IntersectionObserver) return;
+
+    var sakin = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (!sakin) {
+      // Her çizginin kendi uzunluğu — dash animasyonu bununla çalışır
+      svg.querySelectorAll('.mesafe__cizgi').forEach(function (c) {
+        c.style.setProperty('--uzunluk', c.getTotalLength());
+      });
+      bolum.classList.add('mesafe--hazir');
+
+      var calisti = false;
+      var gozcu = new IntersectionObserver(function (girdiler) {
+        calisti = true;
+        girdiler.forEach(function (g) {
+          if (!g.isIntersecting) return;
+          bolum.classList.add('mesafe--canli');   // tek seferlik
+          gozcu.disconnect();
+        });
+      }, { threshold: 0.25 });
+      gozcu.observe(bolum);
+
+      // Güvenlik ağı: gözcü hiç çalışmazsa harita gizli kalmasın, animasyonu
+      // atlayıp doğrudan son hâline dönsün. Gözcü çalışıyorsa buraya girilmez.
+      setTimeout(function () {
+        if (!calisti) bolum.classList.remove('mesafe--hazir');
+      }, 2000);
+    }
+
+    // Tıklama onayı: 220 ms bekleyip yönlendir. Yeni sekme/orta tık bozulmaz.
+    svg.querySelectorAll('a.mesafe__dugum').forEach(function (a) {
+      a.addEventListener('click', function (e) {
+        if (sakin || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+        var adres = a.getAttribute('href');
+        if (!adres) return;
+        e.preventDefault();
+        setTimeout(function () { location.href = adres; }, 220);
+      });
+    });
+  })();
+</script>

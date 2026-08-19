@@ -1,0 +1,39 @@
+---
+// Tek 404.html — statik hosting tek dosya tanır; altı dilde kısa mesaj.
+// Silinen turlar 404 almaz: kategoriye 301 (lansmanda .htaccess ile — url-semasi §6.6).
+import { DILLER } from '../lib/tipler';
+import { MARKA } from '../config/marka';
+
+const mesajlar: Record<string, { m: string; l: string }> = {
+  tr: { m: 'Sayfa bulunamadı.', l: 'Ana sayfa' },
+  en: { m: 'Page not found.', l: 'Home' },
+  ru: { m: 'Страница не найдена.', l: 'Главная' },
+  de: { m: 'Seite nicht gefunden.', l: 'Startseite' },
+  pl: { m: 'Strona nie została znaleziona.', l: 'Strona główna' },
+  ro: { m: 'Pagina nu a fost găsită.', l: 'Acasă' },
+};
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>404 · {MARKA}</title>
+    <meta name="robots" content="noindex" />
+    <style>
+      body{ font-family: Georgia, serif; background:#F7F3EC; color:#16122B;
+            display:grid; place-items:center; min-height:100vh; margin:0; }
+      main{ text-align:center; padding:24px; }
+      h1{ font-weight:500; letter-spacing:.14em; }
+      p{ margin:8px 0; }
+      a{ color:#16122B; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>{MARKA}</h1>
+      {DILLER.map((d) => (
+        <p lang={d}>{mesajlar[d].m} <a href={`/${d}/`}>{mesajlar[d].l}</a></p>
+      ))}
+    </main>
+  </body>
+</html>

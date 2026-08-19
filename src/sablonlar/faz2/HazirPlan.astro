@@ -1,0 +1,84 @@
+---
+// FAZ 2 ŞABLONU — HENÜZ ROTAYA BAĞLI DEĞİL (EK-1 §8).
+// 3 plan (3/5/7 gün) × 6 dil = 18 sayfa. Boş kalan sayfa yayınlanmaz.
+//
+// Aktifleştirme adımları (Faz 2'de):
+// 1. src/data/planlar.ts oluştur: her plan için gün gün program
+//    (sabah/öğleden sonra/akşam; tur id'leri + ücretsiz aktiviteler karışık).
+// 2. rotalar.ts'e 'hazirplan' sayfa tipi + slug tablosu ekle
+//    (/tr/planlar/uc-gun/ · /en/plans/three-days/ · … — slug'da rakam yok).
+// 3. [...yol].astro'ya bu şablonu bağla.
+// Sayfa sonunda planlayıcıdaki gibi toplu WhatsApp butonu bulunur.
+import type { Dil, Tur } from '../../lib/tipler';
+import TemelSayfa from '../../layouts/TemelSayfa.astro';
+import WaIkon from '../../components/WaIkon.astro';
+import { MARKA, WA_NUMBERS } from '../../config/marka';
+import { sozluk } from '../../i18n/sozluk';
+import { anaUrl, turBul, turUrl } from '../../lib/rotalar';
+
+export interface PlanGunu {
+  baslik: string;                       // "1. gün" o dilde
+  sabah: string;
+  ogleden_sonra: string;
+  aksam: string;
+  turIdleri: string[];                  // o günün turları (toplu mesaja girer)
+}
+
+interface Props {
+  dil: Dil;
+  alternatifler: Record<Dil, string>;
+  baslik: string;
+  girisMetni: string;
+  gunler: PlanGunu[];
+}
+
+const { dil, alternatifler: alt, baslik, girisMetni, gunler } = Astro.props;
+const s = sozluk[dil];
+
+// Plandaki tüm turlar — toplu WhatsApp mesajı için
+const planTurlari = [...new Set(gunler.flatMap((g) => g.turIdleri))]
+  .map((id) => turBul(id))
+  .filter((t): t is Tur => !!t && t.aktif);
+
+const satirlar = [s.plan_msj_giris, '', ...planTurlari.map((t, i) => `${i + 1}. ${t.baslik[dil]}`), '', s.plan_msj_kapanis];
+const waLink = `https://wa.me/${WA_NUMBERS[dil]}?text=${encodeURIComponent(satirlar.join('\n'))}`;
+---
+<TemelSayfa dil={dil} baslik={`${baslik} | ${MARKA}`} aciklama={girisMetni} alternatifler={alt}>
+  <div class="kap bolum">
+    <nav class="kirinti" aria-label="breadcrumb">
+      <ol>
+        <li><a href={anaUrl(dil)}>{s.ana_sayfa}</a></li>
+        <li>{baslik}</li>
+      </ol>
+    </nav>
+
+    <h1>{baslik}</h1>
+    <p>{girisMetni}</p>
+
+    {gunler.map((gun) => (
+      <section class="tur-bolum">
+        <h2>{gun.baslik}</h2>
+        <ol class="program-liste">
+          <li>{gun.sabah}</li>
+          <li>{gun.ogleden_sonra}</li>
+          <li>{gun.aksam}</li>
+        </ol>
+        {gun.turIdleri.length > 0 && (
+          <p>
+            {gun.turIdleri.map((id) => {
+              const t = turBul(id);
+              return t ? <a href={turUrl(dil, t)} style="margin-right:16px">{t.baslik[dil]}</a> : null;
+            })}
+          </p>
+        )}
+      </section>
+    ))}
+
+    <p style="margin-top:24px">
+      <a class="wa-buton wa-buton--genis" href={waLink} target="_blank" rel="noopener" style="max-width:420px">
+        <WaIkon boyut={18} />
+        {s.plan_wa_buton}
+      </a>
+    </p>
+  </div>
+</TemelSayfa>

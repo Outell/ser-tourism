@@ -1,0 +1,190 @@
+/* ============================================================
+   TASARIM TOKENLARI
+   Palet: Gece + Pirinç  (hero gün batımı fotoğrafından türetildi)
+
+   KURAL: Projede hiçbir yerde elle hex yazılmaz.
+          Her renk buradan var() ile okunur.
+   ============================================================ */
+
+:root{
+
+  /* --- Marka renkleri ------------------------------------- */
+  --gece:        #16122B;   /* başlık, footer, üst bar, ana metin */
+  --murekkep:    #322A52;   /* ikon, hover, ikincil koyu yüzey */
+  --pirinc:      #B8813F;   /* fiyat, rozet, ince ayraç — ASLA buton */
+  --pirinc-koyu: #8A5F28;   /* pirinç üzerine metin gerekirse */
+
+  /* --- Aksiyon -------------------------------------------- */
+  --yesil:       #0F7A3C;   /* SADECE WhatsApp butonu */
+  --yesil-hover: #0D6B34;
+
+  /* --- Nötr ----------------------------------------------- */
+  --kagit:       #F7F3EC;   /* sayfa arka planı */
+  --beyaz:       #FFFFFF;   /* kart yüzeyi */
+  --duman:       #6E6680;   /* süre, kalkış, ikincil metin */
+  --cizgi:       rgba(22,18,43,.10);
+  --cizgi-koyu:  rgba(22,18,43,.18);
+
+  /* --- Ölçüler -------------------------------------------- */
+  --r-kart:      12px;
+  --r-buton:     8px;
+  --r-rozet:     999px;
+}
+
+
+/* ============================================================
+   KULLANIM KURALLARI  — bunlar tavsiye değil, kural
+   ============================================================
+
+   1. TURUNCU/PİRİNÇ ASLA BUTON OLMAZ.
+      Kontrastı 3.04 — küçük metin ve buton için yetersiz.
+      Pirinç sadece: fiyat rakamı, rozet çerçevesi, ince ayraç.
+
+   2. YEŞİL SADECE WHATSAPP BUTONUNDA.
+      Sayfada başka hiçbir yerde yeşil görünmez.
+      Böylece kullanıcı yeşili "tıklanacak yer" diye öğrenir.
+
+   3. SAYFA ARKA PLANI --kagit, KART --beyaz.
+      Saf beyaz sayfa kullanma; ekran gibi durur.
+
+   4. İKİNCİL METİN --duman, ana metin --gece.
+      Ara ton yok. İki seviye yeterli.
+   ============================================================ */
+
+
+/* --- Temel --------------------------------------------------- */
+
+body{
+  background: var(--kagit);
+  color: var(--gece);
+}
+
+h1,h2,h3{ color: var(--gece); font-weight: 500; }
+
+.ikincil{ color: var(--duman); }
+
+
+/* --- Hero ---------------------------------------------------- */
+
+.hero{
+  position: relative;
+  min-height: 520px;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+.hero__gorsel{
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  object-position: center 42%;
+}
+
+/* Soldan karartma: yazı okunur, sağdaki gün batımı bozulmaz */
+.hero::after{
+  content:"";
+  position: absolute; inset: 0;
+  background: linear-gradient(
+    100deg,
+    rgba(22,18,43,.66) 0%,
+    rgba(22,18,43,.36) 44%,
+    rgba(22,18,43,0)   74%
+  );
+}
+
+.hero__icerik{
+  position: relative; z-index: 2;
+  max-width: 560px;
+  padding: 0 clamp(20px, 5vw, 64px);
+  color: var(--beyaz);
+}
+
+@media (max-width: 767px){
+  .hero{ min-height: 440px; }
+  .hero::after{
+    background: linear-gradient(
+      to top,
+      rgba(22,18,43,.74) 0%,
+      rgba(22,18,43,.40) 55%,
+      rgba(22,18,43,.12) 100%
+    );
+  }
+}
+
+
+/* --- Tur kartı ------------------------------------------------ */
+
+.tur-kart{
+  background: var(--beyaz);
+  border: 0.5px solid var(--cizgi);
+  border-radius: var(--r-kart);
+  overflow: hidden;
+  transition: border-color .2s ease;
+}
+
+.tur-kart:hover{ border-color: var(--cizgi-koyu); }
+
+.tur-kart__gorsel{
+  position: relative;
+  aspect-ratio: 4 / 3;        /* TÜM kartlarda sabit */
+  overflow: hidden;
+}
+
+.tur-kart__gorsel img{
+  width:100%; height:100%;
+  object-fit: cover;
+  filter: saturate(.92) contrast(1.06);
+  transition: transform .4s ease;
+}
+
+.tur-kart:hover .tur-kart__gorsel img{ transform: scale(1.04); }
+
+/* Tema rengi katmanı — karışık kaynaklı fotoğrafları birleştirir */
+.tur-kart__gorsel::before{
+  content:""; position:absolute; inset:0; z-index:1;
+  background: var(--murekkep);
+  mix-blend-mode: color;
+  opacity: .10;
+}
+
+.tur-kart__rozet{
+  position:absolute; left:11px; top:11px; z-index:2;
+  background: rgba(247,243,236,.94);
+  color: var(--gece);
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: var(--r-rozet);
+}
+
+.tur-kart__fiyat{
+  font-size: 20px;
+  font-weight: 500;
+  color: var(--pirinc);
+  letter-spacing: -.01em;
+}
+
+
+/* --- WhatsApp butonu ------------------------------------------ */
+
+.wa-buton{
+  display: inline-flex; align-items: center; gap: 7px;
+  background: var(--yesil);
+  color: var(--beyaz);
+  font-size: 13px;
+  padding: 10px 17px;
+  border: 0;
+  border-radius: var(--r-buton);
+  cursor: pointer;
+  transition: background .15s ease;
+}
+
+.wa-buton:hover{ background: var(--yesil-hover); }
+.wa-buton:focus-visible{ outline: 3px solid var(--pirinc); outline-offset: 2px; }
+
+
+/* --- Erişilebilirlik ------------------------------------------ */
+
+@media (prefers-reduced-motion: reduce){
+  *{ transition: none !important; animation: none !important; }
+}

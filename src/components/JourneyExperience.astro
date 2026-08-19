@@ -1,0 +1,882 @@
+---
+import type { Dil, JourneyStageIcon, Tur } from '../lib/tipler';
+import JourneyTimeline from './JourneyTimeline.astro';
+import JourneyMapPreview from './JourneyMapPreview.astro';
+import JourneyLiveMap from './JourneyLiveMap.astro';
+import { sozluk, yerlestir } from '../i18n/sozluk';
+import { getJourneyForTour, SELECTED_LOCATION_STORAGE_KEY } from '../lib/journey';
+import { euroTutar } from '../lib/fiyat';
+
+interface Props {
+  dil: Dil;
+  tur: Tur;
+}
+
+const { dil, tur } = Astro.props;
+const s = sozluk[dil];
+const journey = getJourneyForTour(tur.id);
+const metrics = journey?.comparisonMetrics ?? null;
+const canUseLiveMap = !!journey?.mapData && journey.mapProvider === 'leaflet-osm';
+const contentId = `journey-experience-${tur.id}`;
+
+const iconPath: Record<JourneyStageIcon, string> = {
+  hotel: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20V8.5L12 4l8 4.5V20"/><path d="M8 20v-7h8v7"/><path d="M9 9h.01M15 9h.01"/></svg>',
+  bus: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 17h12M7 17l-1 3M17 17l1 3"/><path d="M5 13V7.5C5 5.6 6.6 4 8.5 4h7C17.4 4 19 5.6 19 7.5V13c0 1.1-.9 2-2 2H7c-1.1 0-2-.9-2-2Z"/><path d="M8 8h8M8 12h.01M16 12h.01"/></svg>',
+  buggy: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 15l2-5h7l3 5"/><path d="M8 10l1-3h4l1 3"/><path d="M6 18a2 2 0 1 0 0-4 2 2 0 0 0 0 4ZM18 18a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"/><path d="M8 15h8"/></svg>',
+  raft: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12c2 1.5 4 1.5 6 0s4-1.5 8 0"/><path d="M4 16c2 1.5 4 1.5 6 0s4-1.5 10 0"/><path d="M8 8l8 8M16 8l-8 8"/></svg>',
+  zipline: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16"/><path d="M8 6l5 5"/><path d="M13 11l-2 5"/><path d="M15 13l3 4"/><path d="M10 16h3"/></svg>',
+  truck: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 16V8h11v8"/><path d="M14 11h3l3 3v2h-6"/><path d="M6 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4ZM17 19a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"/></svg>',
+  meal: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4v16"/><path d="M4 4v5a3 3 0 0 0 6 0V4"/><path d="M16 4v16"/><path d="M16 4c2.2 1.2 3.5 3.4 3.5 6 0 2.4-1.3 4-3.5 4"/></svg>',
+};
+
+const formatMinutes = (minutes: number) => {
+  const hours = Math.floor(minutes / 60);
+  const mins = minutes % 60;
+  if (!hours) return `${mins} ${s.journey.minutesShort}`;
+  if (!mins) return `${hours} ${s.journey.hoursShort}`;
+  return `${hours} ${s.journey.hoursShort} ${mins} ${s.journey.minutesShort}`;
+};
+
+const formatRange = (range: { min: number; max: number }, unit: string) => `${range.min}–${range.max} ${unit}`;
+
+const stageItems = journey?.routeStages.map((stage, index) => {
+  const durationText = stage.durationMinutes
+    ? formatMinutes(stage.durationMinutes)
+    : stage.durationRangeMinutes
+      ? formatRange(stage.durationRangeMinutes, s.journey.minutesShort)
+      : null;
+  const distanceText = stage.activityDistanceMeters
+    ? formatRange(stage.activityDistanceMeters, s.journey.metersShort)
+    : null;
+
+  return {
+    index,
+    id: stage.id,
+    title: stage.title[dil],
+    icon: iconPath[stage.icon],
+    meta: durationText ?? distanceText,
+    durationText,
+    distanceText,
+    description: stage.description?.[dil] ?? null,
+    stageLabel: yerlestir(s.journey.stageOf, { current: index + 1, total: journey.routeStages.length }),
+  };
+}) ?? [];
+
+const pickupLabels = journey
+  ? Object.fromEntries(journey.pickupZones.map((zone) => [zone.code, zone.label[dil]]))
+  : {};
+
+const summaryItems = [
+  tur.sure_saat ? `${tur.sure_saat} ${s.saat_kisa}` : null,
+  metrics?.activityCount ? yerlestir(s.journey.previewActivities, { count: metrics.activityCount }) : null,
+  metrics?.transferIncluded ? s.journey.transferIncluded : null,
+  metrics?.mealIncluded ? s.journey.lunchIncluded : null,
+  metrics?.waterActivity ? s.journey.waterActivity : null,
+  metrics?.familyFriendly ? s.journey.familyFriendly : null,
+].filter((item): item is string => !!item);
+
+const teaserItems = [
+  tur.sure_saat ? `${tur.sure_saat} ${s.saat_kisa}` : null,
+  metrics?.activityCount ? yerlestir(s.journey.previewActivities, { count: metrics.activityCount }) : null,
+  metrics?.transferIncluded ? s.journey.transferIncluded : null,
+  metrics?.mealIncluded ? s.journey.lunchIncluded : null,
+].filter((item): item is string => !!item);
+
+const flowPoints = journey ? [
+  { label: s.journey.flowStart, stageIndex: 0 },
+  { label: s.journey.flowTransfer, stageIndex: 1 },
+  { label: s.journey.flowAdventureArea, stageIndex: 2 },
+  { label: s.journey.flowActivities, stageIndex: Math.min(4, journey.routeStages.length - 1) },
+  { label: s.journey.flowReturn, stageIndex: journey.routeStages.length - 1 },
+] : [];
+---
+
+{journey && stageItems.length > 0 && (
+  <section class="journey-experience tur-bolum" data-journey-experience data-expanded="false" data-stage-count={stageItems.length}>
+    <div class="journey-experience__teaser-shell" data-journey-teaser>
+      <div class="journey-experience__teaser">
+        <div class="journey-experience__teaser-copy">
+          <p class="journey-experience__eyebrow">{s.journey.teaserEyebrow}</p>
+          <h2>{s.journey.teaserTitle}</h2>
+          <p>{s.journey.teaserText}</p>
+        </div>
+        <div class="journey-experience__teaser-visual" aria-hidden="true">
+          <span class="journey-experience__teaser-line"></span>
+          <span class="journey-experience__teaser-point">
+            <strong>01</strong>
+            <span>{s.journey.flowStart}</span>
+          </span>
+          <span class="journey-experience__teaser-point">
+            <strong>02</strong>
+            <span>{s.journey.flowActivities}</span>
+          </span>
+          <span class="journey-experience__teaser-point">
+            <strong>03</strong>
+            <span>{s.journey.flowReturn}</span>
+          </span>
+        </div>
+        <ul class="journey-experience__summary journey-experience__summary--teaser" aria-label={s.journey.tourFlow}>
+          {teaserItems.map((item) => <li>{item}</li>)}
+        </ul>
+        <button
+          class="journey-experience__primary journey-experience__explore"
+          type="button"
+          data-journey-expand
+          aria-expanded="false"
+          aria-controls={contentId}
+        >
+          {s.journey.exploreJourney}
+        </button>
+      </div>
+    </div>
+
+    <div class="journey-experience__content-shell" id={contentId} data-journey-content aria-hidden="true" inert>
+      <div class="journey-experience__content">
+        <div class="journey-experience__head">
+          <div>
+            <p class="journey-experience__eyebrow">{s.journey.experienceEyebrow}</p>
+            <h2>{s.journey.experienceTitle}</h2>
+            <p>{s.journey.experienceText}</p>
+          </div>
+          <div class="journey-experience__price">
+            <span>{tur.baslik[dil]}</span>
+            <strong>{euroTutar(tur.fiyat_eur, dil)} €</strong>
+            <button
+              class="journey-experience__ghost journey-experience__collapse"
+              type="button"
+              data-journey-collapse
+              aria-expanded="true"
+              aria-controls={contentId}
+            >
+              {s.journey.closeJourney}
+            </button>
+          </div>
+        </div>
+
+        <div class="journey-experience__bar">
+          <ul class="journey-experience__summary" aria-label={s.journey.tourFlow}>
+            {summaryItems.map((item) => <li>{item}</li>)}
+          </ul>
+
+          <div class="journey-experience__actions">
+            <div class="journey-experience__location-block">
+              <span>{s.journey.locationLabel}</span>
+              <strong data-journey-location-text>{s.journey.noStartingArea}</strong>
+            </div>
+            <div class="journey-experience__controls" aria-label={s.journey.tourFlow}>
+              <button class="journey-experience__primary" type="button" data-journey-toggle>
+                {s.journey.startJourney}
+              </button>
+              <button class="journey-experience__ghost" type="button" data-journey-restart>
+                {s.journey.restart}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="journey-experience__grid">
+          {canUseLiveMap ? (
+            <JourneyLiveMap
+              dil={dil}
+              title={s.journey.liveMapLabel}
+              mapData={journey.mapData!}
+              stages={journey.routeStages}
+              pickupLabels={pickupLabels}
+              selectedLocationKey={SELECTED_LOCATION_STORAGE_KEY}
+              startingAreaTemplate={s.journey.startingArea}
+              noStartingAreaText={s.journey.noStartingArea}
+              modeLabel={journey.mapData!.coordinateStatus === 'verified' ? s.journey.verifiedMode : s.journey.demoMode}
+              referencePointLabel={s.journey.pickupReferencePoint}
+            />
+          ) : (
+            <JourneyMapPreview points={flowPoints} note={s.journey.visualFlowNote} title={s.journey.tourFlow} />
+          )}
+
+          <div class="journey-experience__timeline-wrap">
+            <JourneyTimeline stages={stageItems} nowShowingLabel={s.journey.nowShowing} />
+          </div>
+        </div>
+
+        <div class="journey-experience__detail" data-journey-detail aria-live="polite">
+          <span class="journey-experience__detail-icon" data-detail-icon set:html={stageItems[0].icon}></span>
+          <div class="journey-experience__detail-copy">
+            <span data-detail-stage>{stageItems[0].stageLabel}</span>
+            <h3 data-detail-title>{stageItems[0].title}</h3>
+            <p data-detail-description>{stageItems[0].description}</p>
+          </div>
+          <dl>
+            <div data-detail-duration-wrap hidden>
+              <dt>{s.journey.stageDuration}</dt>
+              <dd data-detail-duration></dd>
+            </div>
+            <div data-detail-distance-wrap hidden>
+              <dt>{s.journey.stageDistance}</dt>
+              <dd data-detail-distance></dd>
+            </div>
+          </dl>
+        </div>
+      </div>
+    </div>
+  </section>
+)}
+
+<style>
+  .journey-experience{
+    width: 100%;
+    margin-left: 0;
+    transform: none;
+    display: grid;
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    scroll-margin-top: 96px;
+    border: 1px solid var(--border);
+    border-radius: var(--r-kart);
+    padding: clamp(20px, 3.5vw, 42px);
+    background:
+      linear-gradient(135deg, color-mix(in srgb, var(--surface-elevated) 98%, transparent), color-mix(in srgb, var(--bg-soft) 74%, transparent));
+    box-shadow: 0 26px 70px rgba(20, 18, 36, .10);
+  }
+  .journey-experience[data-expanded="false"]{
+    padding: clamp(18px, 2.6vw, 30px);
+    background:
+      radial-gradient(circle at 100% 0%, color-mix(in srgb, var(--action) 16%, transparent), transparent 34%),
+      linear-gradient(135deg, color-mix(in srgb, var(--surface-elevated) 98%, transparent), color-mix(in srgb, var(--bg-soft) 82%, transparent));
+  }
+  .journey-experience[data-expanded="false"]::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    z-index:-1;
+    background:
+      linear-gradient(90deg, color-mix(in srgb, var(--action) 34%, transparent), transparent 38%),
+      linear-gradient(135deg, transparent 0 62%, color-mix(in srgb, var(--text-primary) 7%, transparent) 62% 63%, transparent 63%);
+    opacity:.16;
+    pointer-events:none;
+  }
+  .journey-experience__teaser-shell,
+  .journey-experience__content-shell{
+    display: grid;
+    overflow: clip;
+    transition: grid-template-rows .36s cubic-bezier(.22, 1, .36, 1), opacity .24s ease-out, transform .36s cubic-bezier(.22, 1, .36, 1);
+  }
+  .journey-experience__teaser-shell{
+    grid-template-rows: 1fr;
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .journey-experience__content-shell{
+    grid-template-rows: 0fr;
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  .journey-experience[data-expanded="true"] .journey-experience__teaser-shell{
+    grid-template-rows: 0fr;
+    opacity: 0;
+    transform: translateY(-6px);
+  }
+  .journey-experience[data-expanded="true"] .journey-experience__content-shell{
+    grid-template-rows: 1fr;
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .journey-experience__teaser,
+  .journey-experience__content{
+    min-height: 0;
+    overflow: hidden;
+  }
+  .journey-experience__content{
+    display: grid;
+    gap: clamp(18px, 2.6vw, 30px);
+  }
+  .journey-experience__teaser{
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: clamp(16px, 2.4vw, 24px);
+    align-items: start;
+  }
+  .journey-experience__teaser-copy{
+    display: grid;
+    gap: 10px;
+  }
+  .journey-experience__teaser h2{
+    max-width: 700px;
+    margin: 0;
+    font-size: clamp(30px, 3.4vw, 42px);
+  }
+  .journey-experience__teaser p:not(.journey-experience__eyebrow){
+    max-width: 680px;
+    color: var(--text-muted);
+  }
+  .journey-experience__teaser-visual{
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    border: 1px solid color-mix(in srgb, var(--action) 26%, var(--border));
+    border-radius: calc(var(--r-kart) - 6px);
+    padding: 16px;
+    background: color-mix(in srgb, var(--surface-elevated) 78%, transparent);
+    box-shadow: inset 0 1px 0 color-mix(in srgb, white 36%, transparent);
+  }
+  .journey-experience__teaser-line{
+    position:absolute;
+    left: 15%;
+    right: 15%;
+    top: 34px;
+    height: 1px;
+    background: linear-gradient(90deg, color-mix(in srgb, var(--action) 20%, transparent), var(--action), color-mix(in srgb, var(--action) 20%, transparent));
+    opacity: .58;
+  }
+  .journey-experience__teaser-point{
+    position: relative;
+    display: grid;
+    justify-items: center;
+    gap: 8px;
+    min-width: 0;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+  .journey-experience__teaser-point strong{
+    width: 36px;
+    height: 36px;
+    display: grid;
+    place-items: center;
+    border: 1px solid color-mix(in srgb, var(--action) 42%, var(--border));
+    border-radius: 999px;
+    background: var(--surface-strong);
+    color: var(--text-inverse);
+    font-size: 12px;
+    box-shadow: 0 10px 24px rgba(20, 18, 36, .16);
+  }
+  .journey-experience__teaser-point span{
+    overflow-wrap: normal;
+    word-break: normal;
+  }
+  .journey-experience__head{
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 24px;
+    align-items: start;
+  }
+  .journey-experience__eyebrow{
+    margin: 0 0 8px;
+    color: var(--action);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+  .journey-experience h2{
+    margin-bottom: 10px;
+    font-size: clamp(30px, 4.4vw, 52px);
+    line-height: 1;
+  }
+  .journey-experience__head p:not(.journey-experience__eyebrow){
+    max-width: 720px;
+    color: var(--text-muted);
+  }
+  .journey-experience__price{
+    display: grid;
+    gap: 3px;
+    justify-items: end;
+    min-width: max-content;
+    color: var(--text-muted);
+    font-size: 12px;
+  }
+  .journey-experience__price strong{
+    color: var(--action);
+    font-family: var(--font-baslik);
+    font-size: clamp(30px, 4vw, 42px);
+    font-weight: 500;
+    line-height: 1;
+  }
+  .journey-experience__bar{
+    display: grid;
+    gap: 18px;
+    border-block: 1px solid var(--border);
+    padding-block: 16px;
+  }
+  .journey-experience__summary{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .journey-experience__summary li{
+    border: 1px solid var(--border);
+    border-radius: var(--r-rozet);
+    background: color-mix(in srgb, var(--surface-elevated) 88%, transparent);
+    color: var(--text-primary);
+    padding: 8px 11px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .02em;
+  }
+  .journey-experience__summary--teaser{
+    padding-top: 2px;
+  }
+  .journey-experience__actions{
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 18px;
+  }
+  .journey-experience__location-block{
+    min-width: 0;
+    display: grid;
+    gap: 3px;
+  }
+  .journey-experience__location-block span{
+    color: var(--text-muted);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+  .journey-experience__location-block strong{
+    min-width: 0;
+    color: var(--text-primary);
+    font-size: clamp(16px, 2vw, 20px);
+    line-height: 1.2;
+    overflow-wrap: normal;
+    word-break: normal;
+  }
+  .journey-experience__controls{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .journey-experience__controls button,
+  .journey-experience__explore,
+  .journey-experience__collapse{
+    min-height: 42px;
+    border-radius: var(--r-buton);
+    padding: 0 18px;
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+    transition: border-color .18s ease-out, background .18s ease-out, color .18s ease-out, transform .18s ease-out;
+  }
+  .journey-experience__explore{
+    min-width: 190px;
+    justify-self: start;
+    min-height: 48px;
+    padding-inline: 24px;
+    box-shadow: 0 16px 34px rgba(20, 18, 36, .16);
+  }
+  .journey-experience__collapse{
+    margin-top: 10px;
+    justify-self: end;
+  }
+  .journey-experience__primary{
+    border: 1px solid var(--surface-strong);
+    background: var(--surface-strong);
+    color: var(--text-inverse);
+  }
+  .journey-experience__ghost{
+    border: 1px solid var(--border);
+    background: color-mix(in srgb, var(--surface-elevated) 72%, transparent);
+    color: var(--text-primary);
+  }
+  .journey-experience__controls button:hover,
+  .journey-experience__explore:hover,
+  .journey-experience__collapse:hover{
+    border-color: var(--action);
+    color: var(--action-hover);
+  }
+  .journey-experience__controls button:active,
+  .journey-experience__explore:active,
+  .journey-experience__collapse:active{
+    transform: translateY(1px);
+  }
+  .journey-experience__grid{
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: clamp(18px, 2.8vw, 34px);
+    align-items: stretch;
+  }
+  .journey-experience__timeline-wrap{
+    min-width: 0;
+    align-self: stretch;
+  }
+  .journey-experience__detail{
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 16px;
+    align-items: center;
+    border: 1px solid var(--border);
+    border-radius: var(--r-kart);
+    padding: clamp(14px, 2.4vw, 20px);
+    background: color-mix(in srgb, var(--surface-elevated) 88%, transparent);
+    transition: opacity .22s ease-out, transform .22s ease-out;
+  }
+  .journey-experience__detail[data-updating="true"]{
+    opacity: .72;
+    transform: translateY(2px);
+  }
+  .journey-experience__detail-icon{
+    width: 50px;
+    height: 50px;
+    display: grid;
+    place-items: center;
+    border: 1px solid color-mix(in srgb, var(--action) 42%, var(--border));
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--action) 11%, var(--surface-elevated));
+    color: var(--action);
+  }
+  .journey-experience__detail-icon :global(svg){
+    width: 24px;
+    height: 24px;
+    display: block;
+  }
+  .journey-experience__detail-copy{
+    min-width: 0;
+    display: grid;
+    gap: 5px;
+  }
+  .journey-experience__detail-copy > span{
+    color: var(--action);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+  }
+  .journey-experience__detail h3{
+    margin: 0;
+    font-size: clamp(22px, 3vw, 34px);
+    line-height: 1.05;
+    overflow-wrap: normal;
+    word-break: normal;
+  }
+  .journey-experience__detail p{
+    max-width: 760px;
+    margin: 0;
+    color: var(--text-muted);
+  }
+  .journey-experience__detail dl{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: end;
+    margin: 0;
+  }
+  .journey-experience__detail dl div{
+    display: grid;
+    gap: 2px;
+    border: 1px solid var(--border);
+    border-radius: var(--r-buton);
+    padding: 9px 11px;
+    background: color-mix(in srgb, var(--surface-elevated) 86%, transparent);
+  }
+  .journey-experience__detail dt{
+    color: var(--text-muted);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+  .journey-experience__detail dd{
+    margin: 0;
+    color: var(--text-primary);
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .journey-experience__detail [hidden]{
+    display: none !important;
+  }
+
+  @media (max-width: 1040px){
+    .journey-experience__head,
+    .journey-experience__teaser,
+    .journey-experience__grid{
+      grid-template-columns: 1fr;
+    }
+    .journey-experience__price{
+      justify-items: start;
+      min-width: 0;
+    }
+    .journey-experience__explore{
+      justify-self: start;
+    }
+  }
+  @media (max-width: 760px){
+    .journey-experience__actions,
+    .journey-experience__detail{
+      grid-template-columns: 1fr;
+    }
+    .journey-experience__actions{
+      display: grid;
+      align-items: start;
+    }
+    .journey-experience__detail dl{
+      justify-content: start;
+    }
+  }
+  @media (max-width: 430px){
+    .journey-experience{
+      width: min(100%, calc(100vw - 32px));
+      gap: 18px;
+      padding: 16px;
+    }
+    .journey-experience__summary li{
+      font-size: 11px;
+    }
+    .journey-experience__controls{
+      display: grid;
+      grid-template-columns: 1fr;
+    }
+    .journey-experience__controls button,
+    .journey-experience__explore,
+    .journey-experience__collapse{
+      width: 100%;
+      justify-self: stretch;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .journey-experience__teaser-shell,
+    .journey-experience__content-shell,
+    .journey-experience__controls button,
+    .journey-experience__explore,
+    .journey-experience__collapse{
+      transition: none;
+    }
+    .journey-experience__controls button:active,
+    .journey-experience__explore:active,
+    .journey-experience__collapse:active{
+      transform: none;
+    }
+  }
+</style>
+
+<script is:inline define:vars={{
+  stages: stageItems,
+  pickupLabels,
+  selectedLocationKey: SELECTED_LOCATION_STORAGE_KEY,
+  startingAreaTemplate: s.journey.startingArea,
+  noStartingAreaText: s.journey.noStartingArea,
+  startText: s.journey.startJourney,
+  pauseText: s.journey.pause,
+}}>
+  (function () {
+    document.querySelectorAll('[data-journey-experience]').forEach(function (root) {
+      var activeIndex = 0;
+      var timer = null;
+      var intervalMs = 2200;
+      var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      var expand = root.querySelector('[data-journey-expand]');
+      var collapse = root.querySelector('[data-journey-collapse]');
+      var content = root.querySelector('[data-journey-content]');
+      var toggle = root.querySelector('[data-journey-toggle]');
+      var restart = root.querySelector('[data-journey-restart]');
+      var timeline = root.querySelector('[data-journey-timeline]');
+      var detailStage = root.querySelector('[data-detail-stage]');
+      var detailTitle = root.querySelector('[data-detail-title]');
+      var detailDescription = root.querySelector('[data-detail-description]');
+      var detailIcon = root.querySelector('[data-detail-icon]');
+      var durationWrap = root.querySelector('[data-detail-duration-wrap]');
+      var durationValue = root.querySelector('[data-detail-duration]');
+      var distanceWrap = root.querySelector('[data-detail-distance-wrap]');
+      var distanceValue = root.querySelector('[data-detail-distance]');
+      var locationText = root.querySelector('[data-journey-location-text]');
+      var mapCanvas = root.querySelector('.journey-map__canvas');
+      var liveMap = root.querySelector('[data-journey-live-map]');
+
+      function notifyExpanded() {
+        if (!liveMap) return;
+        liveMap.dispatchEvent(new CustomEvent('limyra:journey-expanded'));
+      }
+
+      function setExpanded(isExpanded) {
+        root.dataset.expanded = isExpanded ? 'true' : 'false';
+        if (expand) expand.setAttribute('aria-expanded', isExpanded ? 'true' : 'false');
+        if (collapse) collapse.setAttribute('aria-expanded', isExpanded ? 'true' : 'false');
+        if (content) {
+          content.setAttribute('aria-hidden', isExpanded ? 'false' : 'true');
+          if (isExpanded) content.removeAttribute('inert');
+          else content.setAttribute('inert', '');
+        }
+        if (!isExpanded) {
+          stop();
+          return;
+        }
+        window.setTimeout(notifyExpanded, reduced ? 0 : 380);
+      }
+
+      function selectedLocationCode() {
+        try {
+          var raw = window.localStorage.getItem(selectedLocationKey);
+          if (!raw) return null;
+          var parsed = JSON.parse(raw);
+          if (!parsed || parsed.type !== 'pickup-zone' || !pickupLabels[parsed.code]) return null;
+          return parsed.code;
+        } catch (error) {
+          return null;
+        }
+      }
+
+      function updateLocation() {
+        if (!locationText) return;
+        var code = selectedLocationCode();
+        locationText.textContent = code
+          ? startingAreaTemplate.replace('{location}', pickupLabels[code])
+          : noStartingAreaText;
+      }
+
+      function setRunning(isRunning) {
+        root.dataset.running = isRunning ? 'true' : 'false';
+        if (toggle) toggle.textContent = isRunning ? pauseText : startText;
+        if (liveMap) {
+          liveMap.dispatchEvent(new CustomEvent('limyra:journey-playback', {
+            detail: { running: isRunning },
+          }));
+        }
+      }
+
+      function stop() {
+        if (timer) window.clearInterval(timer);
+        timer = null;
+        setRunning(false);
+      }
+
+      function progressFor(index) {
+        if (stages.length < 2) return 100;
+        return Math.round((index / (stages.length - 1)) * 100);
+      }
+
+      function mapProgressFor(index) {
+        if (stages.length < 2) return 100;
+        return Math.round((index / (stages.length - 1)) * 100);
+      }
+
+      function renderMap(index) {
+        if (mapCanvas) mapCanvas.style.setProperty('--map-progress', mapProgressFor(index));
+        root.querySelectorAll('[data-map-stage]').forEach(function (point) {
+          var pointIndex = parseInt(point.getAttribute('data-map-stage'), 10) || 0;
+          point.dataset.active = pointIndex === index ? 'true' : 'false';
+          point.dataset.complete = pointIndex < index ? 'true' : 'false';
+        });
+        root.querySelectorAll('[data-map-label]').forEach(function (label) {
+          var pointIndex = parseInt(label.getAttribute('data-map-label'), 10) || 0;
+          label.dataset.active = pointIndex === index ? 'true' : 'false';
+        });
+      }
+
+      function renderStage(index) {
+        activeIndex = Math.max(0, Math.min(stages.length - 1, index));
+        var stage = stages[activeIndex];
+        var detail = root.querySelector('[data-journey-detail]');
+        if (detail) detail.dataset.updating = 'true';
+        if (timeline) timeline.style.setProperty('--timeline-progress', progressFor(activeIndex) + '%');
+        root.querySelectorAll('[data-journey-stage]').forEach(function (button) {
+          var buttonIndex = parseInt(button.getAttribute('data-journey-stage'), 10) || 0;
+          if (buttonIndex === activeIndex) button.setAttribute('aria-current', 'step');
+          else button.removeAttribute('aria-current');
+          button.dataset.complete = buttonIndex < activeIndex ? 'true' : 'false';
+        });
+        if (detailStage) detailStage.textContent = stage.stageLabel;
+        if (detailTitle) detailTitle.textContent = stage.title;
+        if (detailDescription) detailDescription.textContent = stage.description || '';
+        if (detailIcon) detailIcon.innerHTML = stage.icon || '';
+        if (durationWrap && durationValue) {
+          durationWrap.hidden = !stage.durationText;
+          durationValue.textContent = stage.durationText || '';
+        }
+        if (distanceWrap && distanceValue) {
+          distanceWrap.hidden = !stage.distanceText;
+          distanceValue.textContent = stage.distanceText || '';
+        }
+        renderMap(activeIndex);
+        if (liveMap) {
+          liveMap.dispatchEvent(new CustomEvent('limyra:journey-stage-change', {
+            detail: { stageIndex: activeIndex, stageId: stage.id },
+          }));
+        }
+        if (detail) {
+          window.setTimeout(function () {
+            detail.dataset.updating = 'false';
+          }, 80);
+        }
+      }
+
+      function play() {
+        if (reduced) {
+          renderStage(stages.length - 1);
+          stop();
+          return;
+        }
+        if (timer) return;
+        if (activeIndex >= stages.length - 1) renderStage(0);
+        setRunning(true);
+        timer = window.setInterval(function () {
+          if (activeIndex >= stages.length - 1) {
+            stop();
+            return;
+          }
+          renderStage(activeIndex + 1);
+        }, intervalMs);
+      }
+
+      if (toggle) {
+        toggle.addEventListener('click', function () {
+          if (timer) stop();
+          else play();
+        });
+      }
+
+      if (expand) {
+        expand.addEventListener('click', function () {
+          setExpanded(true);
+        });
+      }
+
+      if (collapse) {
+        collapse.addEventListener('click', function () {
+          setExpanded(false);
+        });
+      }
+
+      if (restart) {
+        restart.addEventListener('click', function () {
+          stop();
+          renderStage(0);
+          play();
+        });
+      }
+
+      root.querySelectorAll('[data-journey-stage]').forEach(function (button) {
+        button.addEventListener('click', function () {
+          stop();
+          renderStage(parseInt(button.getAttribute('data-journey-stage'), 10) || 0);
+        });
+      });
+
+      window.addEventListener('storage', updateLocation);
+      window.addEventListener('focus', updateLocation);
+      window.addEventListener('limyra:journey-location-change', updateLocation);
+
+      renderStage(0);
+      updateLocation();
+      setRunning(false);
+
+      try {
+        var params = new URLSearchParams(window.location.search);
+        if (params.get('journey') === '1') {
+          setExpanded(true);
+          window.requestAnimationFrame(function () {
+            root.scrollIntoView({ behavior: reduced ? 'auto' : 'smooth', block: 'start' });
+          });
+        } else {
+          setExpanded(false);
+        }
+      } catch (error) {
+        setExpanded(false);
+      }
+    });
+  })();
+</script>

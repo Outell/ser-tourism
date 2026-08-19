@@ -1,0 +1,62 @@
+---
+// FAZ 2 ŞABLONU — HENÜZ ROTAYA BAĞLI DEĞİL (EK-1 §7).
+// 12 ay × 6 dil = 72 sayfa. Boş kalan sayfa yayınlanmaz.
+//
+// Aktifleştirme adımları (Faz 2'de):
+// 1. src/data/aylik.ts oluştur: her ay için giriş metni (6 dil), ortalama hava,
+//    deniz suyu sıcaklığı, kalabalık durumu (yogun/orta/sakin) — elle girilir.
+// 2. rotalar.ts'e 'aylik' sayfa tipi + AYLIK_SLUG tablosu ekle
+//    (/tr/aylik/agustos/ · /en/monthly/august/ · …).
+// 3. [...yol].astro'ya bu şablonu bağla.
+// Tur listesi elle yazılmaz — sezonda() süzgecinden otomatik gelir.
+import type { Dil } from '../../lib/tipler';
+import TemelSayfa from '../../layouts/TemelSayfa.astro';
+import TurKart from '../../components/TurKart.astro';
+import { MARKA } from '../../config/marka';
+import { sozluk } from '../../i18n/sozluk';
+import { listelenebilirTurlar, anaUrl } from '../../lib/rotalar';
+
+interface Props {
+  dil: Dil;
+  alternatifler: Record<Dil, string>;
+  ay: number;                 // 1-12
+  baslik: string;             // ayın adı, o dilde
+  girisMetni: string;         // 3-4 cümle, elle yazılır (Faz 2)
+  havaOrtalama: string | null;
+  denizSuyu: string | null;
+  kalabalik: 'yogun' | 'orta' | 'sakin' | null;
+}
+
+const { dil, alternatifler: alt, ay, baslik, girisMetni, havaOrtalama, denizSuyu, kalabalik } = Astro.props;
+const s = sozluk[dil];
+
+// O ay aktif olan turlar — sezon alanlarından otomatik
+const aylikTurlar = listelenebilirTurlar(ay);
+---
+<TemelSayfa dil={dil} baslik={`${baslik} | ${MARKA}`} aciklama={girisMetni} alternatifler={alt}>
+  <div class="kap bolum">
+    <nav class="kirinti" aria-label="breadcrumb">
+      <ol>
+        <li><a href={anaUrl(dil)}>{s.ana_sayfa}</a></li>
+        <li>{baslik}</li>
+      </ol>
+    </nav>
+
+    <h1>{baslik}</h1>
+    <p>{girisMetni}</p>
+
+    {(havaOrtalama || denizSuyu || kalabalik) && (
+      <dl class="kosullar">
+        {havaOrtalama && <><dt>☀️</dt><dd>{havaOrtalama}</dd></>}
+        {denizSuyu && <><dt>🌊</dt><dd>{denizSuyu}</dd></>}
+        {kalabalik && <><dt>👥</dt><dd>{kalabalik}</dd></>}
+      </dl>
+    )}
+
+    <section class="bolum--dar">
+      <div class="grid">
+        {aylikTurlar.map((t) => <TurKart dil={dil} tur={t} />)}
+      </div>
+    </section>
+  </div>
+</TemelSayfa>

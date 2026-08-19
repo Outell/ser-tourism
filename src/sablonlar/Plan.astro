@@ -1,0 +1,624 @@
+---
+import type { Dil } from '../lib/tipler';
+import TemelSayfa from '../layouts/TemelSayfa.astro';
+import WaIkon from '../components/WaIkon.astro';
+import { MARKA, WA_NUMBERS, LEAD_ENDPOINT } from '../config/marka';
+import { sozluk, yerlestir } from '../i18n/sozluk';
+import { TUM_KALKIS_NOKTALARI } from '../data/taksonomi';
+import { aktifTurlar, anaUrl } from '../lib/rotalar';
+
+interface Props {
+  dil: Dil;
+  alternatifler: Record<Dil, string>;
+}
+
+// Tatil planlayıcı — EK-1 §4 + EK-2 §C.
+// Soru adımları sakin, sonuç ekranı zengin. Tamamen client tarafında.
+// Kartlar sunucuda render edilir: Astro'nun scoped CSS'i yalnızca sunucuda
+// üretilen elemanlara damga bastığı için JS ile eleman oluşturulmuyor.
+const { dil, alternatifler: alt } = Astro.props;
+const s = sozluk[dil];
+
+// Teknik satır kodları — dilden bağımsız (ekip için)
+const GUN_KODLARI = ['2-3gun', '4-5gun', '6-7gun', '7plus'];
+const GRUP_KODLARI = ['cift', 'aile', 'arkadas', 'yalniz'];
+const STIL_KODLARI = ['deniz', 'kultur', 'macera', 'rahatlama'];
+
+// Gömülü çizgi ikonlar — dolgu yok, 1.5px, 28×28. İkon kütüphanesi yüklenmez.
+const TAKVIM = '<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M3 10h18"/>';
+const IKON_GUN = [
+  TAKVIM + '<path d="M8 14.5h.01M12 14.5h.01"/>',
+  TAKVIM + '<path d="M7 14.5h.01M11 14.5h.01M15 14.5h.01M9 18h.01"/>',
+  TAKVIM + '<path d="M7 14.5h10M7 18h10"/>',
+  TAKVIM + '<path d="M8 14.5l2.5 2.5L8 19.5M13 14.5l2.5 2.5L13 19.5"/>',
+];
+const IKON_GRUP = [
+  '<circle cx="8" cy="8" r="2.8"/><circle cx="16" cy="8" r="2.8"/><path d="M3 20c0-2.8 2.2-5 5-5s5 2.2 5 5M11 20c0-2.8 2.2-5 5-5s5 2.2 5 5"/>',
+  '<circle cx="7" cy="7.5" r="2.6"/><circle cx="15" cy="7.5" r="2.6"/><circle cx="19" cy="13" r="1.9"/><path d="M2.5 19c0-2.5 2-4.5 4.5-4.5s4.5 2 4.5 4.5M10.5 19c0-2.5 2-4.5 4.5-4.5M16 20c0-1.7 1.3-3 3-3s3 1.3 3 3"/>',
+  '<circle cx="6" cy="8" r="2.4"/><circle cx="12" cy="7" r="2.6"/><circle cx="18" cy="8" r="2.4"/><path d="M2 19c0-2.2 1.8-4 4-4M7.5 20c0-2.5 2-4.5 4.5-4.5s4.5 2 4.5 4.5M18 15c2.2 0 4 1.8 4 4"/>',
+  '<circle cx="12" cy="8" r="3.2"/><path d="M6 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/>',
+];
+const IKON_STIL = [
+  '<path d="M2 11c2-2.4 4-2.4 6 0s4 2.4 6 0 4-2.4 6 0M2 16c2-2.4 4-2.4 6 0s4 2.4 6 0 4-2.4 6 0"/>',
+  '<path d="M12 3.5 21 8H3zM5.5 8v10M10 8v10M14 8v10M18.5 8v10M3.5 20.5h17"/>',
+  '<path d="M2.5 19.5 9 8.5l3.6 5.6L15 10l6.5 9.5z"/><path d="M8 11.5l2.2 2"/>',
+  '<path d="M4.5 19.5c0-8 5.5-13.5 15.5-13.5 0 9.5-5.5 14-12 14-2.2 0-3.5-.2-3.5-.5z"/><path d="M8 17c1.8-3.8 4.6-6.6 8.5-8.4"/>',
+];
+
+const ikonSvg = (icerik: string) =>
+  `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+    stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${icerik}</svg>`;
+
+const kalkisAdlari = (kodlar: string[]) =>
+  kodlar
+    .map((k) => TUM_KALKIS_NOKTALARI.find((b) => b.kod === k)?.ad[dil])
+    .filter(Boolean)
+    .join(', ');
+
+const planVeri = {
+  dil,
+  numara: WA_NUMBERS[dil],
+  endpoint: LEAD_ENDPOINT,
+  gunKodlari: GUN_KODLARI,
+  grupKodlari: GRUP_KODLARI,
+  stilKodlari: STIL_KODLARI,
+  turlar: aktifTurlar.map((t) => ({
+    id: t.id,
+    ad: t.baslik[dil],
+    etiketler: t.etiketler,
+    populer: t.one_cikan,
+  })),
+  m: {
+    giris: s.plan_msj_giris,
+    kalis: s.plan_msj_kalis,
+    kapanis: s.plan_msj_kapanis,
+    gunler: s.plan_s1,
+    gruplar: s.plan_s2,
+    stilKisa: s.plan_stil_kisa,
+    nedenStil: s.plan_neden_stil,
+    nedenAile: s.plan_neden_aile,
+    nedenPopuler: s.plan_neden_populer,
+    adim: s.plan_adim,
+  },
+};
+
+const sorular = [
+  { ad: 'gun', baslik: s.plan_soru1, ipucu: null, secenekler: s.plan_s1, kodlar: GUN_KODLARI, ikonlar: IKON_GUN, coklu: false },
+  { ad: 'grup', baslik: s.plan_soru2, ipucu: null, secenekler: s.plan_s2, kodlar: GRUP_KODLARI, ikonlar: IKON_GRUP, coklu: false },
+  { ad: 'stil', baslik: s.plan_soru3, ipucu: s.plan_soru3_ipucu, secenekler: s.plan_s3, kodlar: STIL_KODLARI, ikonlar: IKON_STIL, coklu: true },
+];
+---
+<TemelSayfa dil={dil} baslik={`${s.plan_baslik} | ${MARKA}`} aciklama={s.plan_ozet} alternatifler={alt}>
+  <div class="kap bolum">
+    <nav class="kirinti" aria-label="breadcrumb">
+      <ol>
+        <li><a href={anaUrl(dil)}>{s.ana_sayfa}</a></li>
+        <li>{s.plan_baslik}</li>
+      </ol>
+    </nav>
+
+    <h1>{s.plan_baslik}</h1>
+    <p class="ikincil">{s.plan_ozet}</p>
+
+    <form id="plan" class="plan">
+      <!-- İlerleme göstergesi (EK-2 §C2) -->
+      <div class="plan-ilerleme" id="plan-ilerleme"
+           role="progressbar" aria-valuemin="1" aria-valuemax="3" aria-valuenow="1"
+           aria-label={yerlestir(s.plan_adim, { n: 1, t: 3 })}>
+        <span class="plan-ilerleme__metin" data-ilerleme-metin>1 / 3</span>
+        <span class="plan-ilerleme__ray">
+          <span class="plan-ilerleme__dolu" data-ilerleme-dolu></span>
+        </span>
+      </div>
+
+      <div class="plan-sahne">
+        {sorular.map((soru, si) => (
+          <fieldset class="plan-adim" data-adim={si + 1} hidden={si > 0}>
+            <legend class="plan-adim__baslik" tabindex="-1">{soru.baslik}</legend>
+            {soru.ipucu && <p class="plan-adim__ipucu">{soru.ipucu}</p>}
+
+            <div class="plan-kartlar">
+              {soru.secenekler.map((secenek, i) => (
+                <label class="plan-kart">
+                  <input
+                    class="plan-kart__giris"
+                    type={soru.coklu ? 'checkbox' : 'radio'}
+                    name={soru.ad}
+                    value={soru.kodlar[i]}
+                    required={!soru.coklu}
+                  />
+                  <span class="plan-kart__ikon" set:html={ikonSvg(soru.ikonlar[i])} />
+                  <span class="plan-kart__ad">{secenek}</span>
+                </label>
+              ))}
+            </div>
+
+            <div class="plan-butonlar">
+              {si > 0 && <button type="button" class="buton-sade" data-geri>{s.plan_geri}</button>}
+              {soru.coklu && (
+                <button type="submit" class="buton-govde">{s.plan_sonuclari_gor}</button>
+              )}
+            </div>
+          </fieldset>
+        ))}
+      </div>
+    </form>
+
+    <!-- Sonuç ekranı (EK-2 §C6) — kartlar sunucuda hazır, JS üçünü gösterir -->
+    <section id="plan-sonuc" hidden>
+      <h2 tabindex="-1" id="plan-sonuc-baslik">{s.plan_sonuc_baslik}</h2>
+      <p class="ikincil" data-plan-uyari hidden>{s.plan_bos}</p>
+
+      <div class="plan-oneriler">
+        {aktifTurlar.map((t) => (
+          <article class="oneri-kart" data-plan-kart={t.id} hidden>
+            <div class="oneri-kart__gorsel">
+              <span class="oneri-kart__rozet">{s.plan_rozet}</span>
+              {t.kapak && (
+                <img
+                  src={t.kapak}
+                  alt={t.alt_metin?.[dil] ?? t.baslik[dil]}
+                  width="1200" height="675"
+                  loading="lazy" decoding="async"
+                />
+              )}
+            </div>
+            <div class="oneri-kart__govde">
+              <h3 class="oneri-kart__baslik">{t.baslik[dil]}</h3>
+              <p class="oneri-kart__neden" data-oneri-neden></p>
+              <p class="oneri-kart__fiyat">{yerlestir(s.fiyat_baslayan, { f: t.fiyat_eur })}</p>
+              <dl class="oneri-kart__bilgi">
+                {(t.sure_gun || t.sure_saat) && (
+                  <div>
+                    <dt>{s.filtre_sure}</dt>
+                    <dd>{t.sure_gun ? `${t.sure_gun} ${s.gun_kisa}` : `${t.sure_saat} ${s.saat_kisa}`}</dd>
+                  </div>
+                )}
+                {t.kalkis_bolgeleri.length > 0 && (
+                  <div class="oneri-kart__kalkis">
+                    <dt>{s.k_kalkis}</dt>
+                    <dd>{kalkisAdlari(t.kalkis_bolgeleri)}</dd>
+                  </div>
+                )}
+              </dl>
+            </div>
+          </article>
+        ))}
+      </div>
+
+      <div class="plan-sonuc-alt">
+        <a class="wa-buton wa-buton--genis" id="plan-wa" href="#" target="_blank" rel="noopener">
+          <WaIkon boyut={18} />
+          {s.plan_wa_buton}
+        </a>
+        <button type="button" class="buton-sade" id="plan-yeniden">{s.plan_yeniden}</button>
+      </div>
+    </section>
+  </div>
+</TemelSayfa>
+
+<style>
+  /* İlerleme (EK-2 §C2) */
+  .plan-ilerleme{
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 24px 0 8px;
+    max-width: 560px;
+  }
+  .plan-ilerleme__metin{
+    font-size: 12px;
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .plan-ilerleme__ray{
+    flex: 1;
+    height: 3px;
+    background: var(--border);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .plan-ilerleme__dolu{
+    display: block;
+    height: 100%;
+    width: 33.33%;
+    background: var(--action);
+    border-radius: 999px;
+    transition: width .25s ease-out;
+  }
+
+  /* Adımlar — yükseklik sabit tutulur, geçişte sayfa zıplamaz (EK-2 §C5) */
+  .plan-sahne{
+    position: relative;
+    min-height: 330px;
+  }
+  .plan-adim{
+    border: 0;
+    padding: 0;
+    margin: 0;
+    animation: adimGel .22s ease-out;
+  }
+  .plan-adim--cikan{
+    position: absolute;
+    inset: 0;
+    animation: adimCik .22s ease-out forwards;
+    pointer-events: none;
+  }
+  @keyframes adimGel{ from{ opacity: 0; transform: translateX(22px) } to{ opacity: 1; transform: none } }
+  @keyframes adimCik{ from{ opacity: 1; transform: none } to{ opacity: 0; transform: translateX(-22px) } }
+
+  .plan-adim__baslik{
+    font-family: var(--font-baslik);
+    font-size: 22px;
+    font-weight: 500;
+    margin-bottom: 4px;
+    padding: 0;
+  }
+  .plan-adim__baslik:focus-visible{ outline: 3px solid var(--focus-ring); outline-offset: 4px; }
+  .plan-adim__ipucu{ font-size: 13px; color: var(--text-muted); margin: 0 0 12px; }
+
+  /* Seçenek kartları (EK-2 §C3) */
+  .plan-kartlar{
+    display: grid;
+    gap: 12px;
+    grid-template-columns: 1fr;
+    margin-top: 12px;
+    max-width: 560px;
+  }
+  @media (min-width: 620px){
+    .plan-kartlar{ grid-template-columns: 1fr 1fr; }
+  }
+
+  .plan-kart{
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    background: var(--surface-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--r-kart);
+    cursor: pointer;
+    transition: border-color .16s ease-out, transform .16s ease-out, box-shadow .16s ease-out;
+  }
+  .plan-kart:hover{
+    border-color: var(--border-strong);
+    transform: translateY(-1px);
+  }
+  .plan-kart__giris{
+    position: absolute;
+    opacity: 0;
+    width: 0;
+    height: 0;
+    margin: 0;
+  }
+  .plan-kart__ikon{
+    color: var(--text-secondary);
+    display: inline-flex;
+    flex-shrink: 0;
+    transition: color .16s ease-out;
+  }
+  .plan-kart__ad{ font-size: 15px; }
+
+  /* Seçili: pirinç kenarlık + ikon, hafif pirinç gölge */
+  .plan-kart:has(.plan-kart__giris:checked){
+    border-color: var(--action);
+    border-width: 2px;
+    padding: 15px;                       /* 2px kenarlıkta boyut sabit kalsın */
+    box-shadow: 0 2px 10px color-mix(in srgb, var(--action) 18%, transparent);
+  }
+  .plan-kart:has(.plan-kart__giris:checked) .plan-kart__ikon{ color: var(--action); }
+
+  .plan-kart:has(.plan-kart__giris:focus-visible){
+    outline: 3px solid var(--focus-ring);
+    outline-offset: 2px;
+  }
+
+  .plan-butonlar{
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 24px;
+  }
+
+  /* Sonuç kartları (EK-2 §C6) */
+  .plan-oneriler{
+    display: grid;
+    gap: 24px;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    margin-top: 16px;
+  }
+  .oneri-kart{
+    background: var(--surface-elevated);
+    border: 0.5px solid var(--border);
+    border-radius: var(--r-kart);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    animation: kartBelir .32s ease-out backwards;
+    animation-delay: calc(var(--sira, 0) * 80ms);
+  }
+  @keyframes kartBelir{
+    from{ opacity: 0; transform: translateY(12px) }
+    to  { opacity: 1; transform: none }
+  }
+
+  .oneri-kart__gorsel{
+    position: relative;
+    aspect-ratio: 16 / 9;          /* liste kartından daha büyük görsel */
+    overflow: hidden;
+    background: var(--surface-strong);
+  }
+  .oneri-kart__gorsel img{
+    width: 100%; height: 100%;
+    object-fit: cover;
+    filter: saturate(.92) contrast(1.06);
+  }
+  .oneri-kart__rozet{
+    position: absolute;
+    left: 11px; top: 11px;
+    z-index: 2;
+    background: color-mix(in srgb, var(--surface-elevated) 92%, transparent);
+    color: var(--action);
+    border: 1px solid var(--border);
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: var(--r-rozet);
+  }
+
+  .oneri-kart__govde{
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    flex: 1;
+  }
+  .oneri-kart__baslik{
+    font-family: var(--font-baslik);
+    font-size: 19px;
+    font-weight: 500;
+    margin: 0;
+  }
+  .oneri-kart__neden{
+    font-size: 13px;
+    color: var(--text-muted);
+    margin: 0;
+    font-style: italic;
+  }
+  .oneri-kart__bilgi{
+    margin: 0;
+    display: grid;
+    gap: 4px;
+    font-size: 13px;
+  }
+  .oneri-kart__bilgi div{ display: flex; gap: 8px; align-items: baseline; }
+  .oneri-kart__bilgi dt{ color: var(--text-muted); margin: 0; }
+  .oneri-kart__bilgi dd{ margin: 0; }
+  .oneri-kart__fiyat{
+    font-family: var(--font-baslik);
+    font-size: 20px;
+    color: var(--action);
+    margin: auto 0 0;
+  }
+  .oneri-kart__kalkis dd{
+    color: var(--text-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 210px;
+  }
+
+  .plan-sonuc-alt{
+    margin-top: 24px;
+    display: grid;
+    gap: 8px;
+    max-width: 420px;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .plan-adim,
+    .plan-adim--cikan,
+    .oneri-kart{ animation: none; }
+    .plan-ilerleme__dolu,
+    .plan-kart,
+    .plan-kart__ikon{ transition: none; }
+  }
+</style>
+
+<script is:inline define:vars={{ V: planVeri }}>
+  (function () {
+    var form = document.getElementById('plan');
+    var sonuc = document.getElementById('plan-sonuc');
+    if (!form || !sonuc) return;
+
+    var refKod = 'ANT-' + (1000 + Math.floor(Math.random() * 9000));
+    var adimlar = [].slice.call(form.querySelectorAll('.plan-adim'));
+    var ilerleme = document.getElementById('plan-ilerleme');
+    var ilerlemeMetin = form.querySelector('[data-ilerleme-metin]');
+    var ilerlemeDolu = form.querySelector('[data-ilerleme-dolu]');
+    var sakin = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var aktif = 0;
+    var zamanlayici = null;
+
+    function ilerlemeYaz(i) {
+      var n = i + 1, t = adimlar.length;
+      ilerlemeMetin.textContent = n + ' / ' + t;
+      ilerlemeDolu.style.width = (n / t * 100) + '%';
+      ilerleme.setAttribute('aria-valuenow', n);
+      ilerleme.setAttribute('aria-label', V.m.adim.replace('{n}', n).replace('{t}', t));
+    }
+
+    // Adım geçişi: çıkan sola solar, gelen sağdan gelir (EK-2 §C5)
+    function git(hedef) {
+      if (hedef === aktif || hedef < 0 || hedef >= adimlar.length) return;
+      var eski = adimlar[aktif], yeni = adimlar[hedef];
+
+      if (sakin) {
+        eski.hidden = true;
+      } else {
+        eski.classList.add('plan-adim--cikan');
+        setTimeout(function () {
+          eski.classList.remove('plan-adim--cikan');
+          eski.hidden = true;
+        }, 220);
+      }
+
+      yeni.hidden = false;
+      aktif = hedef;
+      ilerlemeYaz(aktif);
+
+      // Odak yeni sorunun başlığına (EK-2 §C8)
+      var baslik = yeni.querySelector('.plan-adim__baslik');
+      if (baslik) baslik.focus({ preventScroll: true });
+    }
+
+    // Otomatik ilerleme (EK-2 §C4): yalnızca tek seçimli sorularda.
+    // `click` kullanılıyor — ok tuşuyla gezinme `change` üretir ama `click`
+    // üretmez, böylece klavye kullanıcısı seçenekleri gezerken adım atlamaz.
+    form.addEventListener('click', function (e) {
+      var giris = e.target.closest ? e.target.closest('.plan-kart__giris') : null;
+      if (!giris || giris.type !== 'radio') return;
+      clearTimeout(zamanlayici);
+      zamanlayici = setTimeout(function () { git(aktif + 1); }, 280);
+    });
+
+    form.addEventListener('click', function (e) {
+      var geri = e.target.closest ? e.target.closest('[data-geri]') : null;
+      if (!geri) return;
+      clearTimeout(zamanlayici);
+      git(aktif - 1);
+    });
+
+    // Puanlama (EK-1 §4): stil eşleşmesi +2 · çocuklu aile → cocuk_dostu +2 ·
+    // 2-3 gün → konaklamalı eleme · 6-7 gün ve üzeri → konaklamalı +1.
+    function puanla(gun, grup, stiller) {
+      var siralama = V.turlar.map(function (t) {
+        // eslesme: yalnızca kullanıcının SEÇİMİNDEN gelen puan.
+        // Popülerlik bonusu buna katılmaz, yoksa hiç seçim yapılmasa bile
+        // "tam eşleşme" sayılır ve C7 uyarısı hiç görünmezdi.
+        var eslesme = 0, eslesen = null;
+        stiller.forEach(function (st) {
+          if (t.etiketler.indexOf(st) >= 0) { eslesme += 2; if (!eslesen) eslesen = st; }
+        });
+        if (grup === 'aile' && t.etiketler.indexOf('cocuk_dostu') >= 0) eslesme += 2;
+
+        var konaklamali = t.etiketler.indexOf('konaklamali') >= 0;
+        var puan = eslesme + (t.populer ? 0.5 : 0);
+        if ((gun === '6-7gun' || gun === '7plus') && konaklamali) puan += 1;
+        if (gun === '2-3gun' && konaklamali) puan = -99;   // kısa tatile sığmaz
+
+        return { t: t, puan: puan, eslesme: eslesme, eslesen: eslesen };
+      });
+      siralama.sort(function (a, b) { return b.puan - a.puan; });
+
+      var elenmemis = siralama.filter(function (x) { return x.puan > -99; });
+      var uyanlar = elenmemis.filter(function (x) { return x.eslesme > 0; });
+      var tamEslesme = uyanlar.length >= 3;
+
+      // Eşleşme yetersizse en popüler turlarla tamamlanır, boş ekran gösterilmez
+      return {
+        secilen: (tamEslesme ? uyanlar : elenmemis).slice(0, 3),
+        tamEslesme: tamEslesme,
+      };
+    }
+
+    // "Neden önerildi" satırı (EK-2 §C6)
+    function nedenMetni(kayit, gun, grup) {
+      var t = kayit.t;
+      if (grup === 'aile' && t.etiketler.indexOf('cocuk_dostu') >= 0) return V.m.nedenAile;
+      if (kayit.eslesen) {
+        var gunEtiket = V.m.gunler[V.gunKodlari.indexOf(gun)] || gun;
+        var stilKisa = V.m.stilKisa[V.stilKodlari.indexOf(kayit.eslesen)] || '';
+        return V.m.nedenStil.replace('{g}', gunEtiket).replace('{s}', stilKisa);
+      }
+      return V.m.nedenPopuler;
+    }
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var gun = form.elements.gun.value;
+      var grup = form.elements.grup.value;
+      var stiller = [].slice.call(form.querySelectorAll('input[name=stil]:checked'))
+        .map(function (i) { return i.value; });
+
+      var cikti = puanla(gun, grup, stiller);
+      var secilen = cikti.secilen;
+
+      document.querySelectorAll('[data-plan-kart]').forEach(function (k) { k.hidden = true; });
+      secilen.forEach(function (kayit, i) {
+        var kart = document.querySelector('[data-plan-kart="' + kayit.t.id + '"]');
+        if (!kart) return;
+        kart.hidden = false;
+        kart.style.setProperty('--sira', i);
+        // Kartlar sunucuda katalog sırasıyla duruyor; ekranda puan sırasına
+        // dizilsin ki WhatsApp mesajındaki 1-2-3 ile aynı olsun.
+        kart.style.order = i;
+        var neden = kart.querySelector('[data-oneri-neden]');
+        if (neden) neden.textContent = nedenMetni(kayit, gun, grup);
+      });
+
+      // Tam eşleşme yoksa uyarı satırı (EK-2 §C7) — boş ekran gösterilmez
+      var uyari = sonuc.querySelector('[data-plan-uyari]');
+      if (uyari) uyari.hidden = cikti.tamEslesme;
+
+      // Toplu WhatsApp mesajı (EK-1 §4 şablonu)
+      var gunEtiket = V.m.gunler[V.gunKodlari.indexOf(gun)] || gun;
+      // Küçük harfe çevrilmiyor: Almanca'da isimler büyük yazılır ("Paar"),
+      // küçültmek dilbilgisi hatası olurdu.
+      var grupEtiket = V.m.gruplar[V.grupKodlari.indexOf(grup)] || grup;
+      var satirlar = [V.m.giris, ''];
+      secilen.forEach(function (kayit, i) { satirlar.push((i + 1) + '. ' + kayit.t.ad); });
+      satirlar.push(
+        '',
+        V.m.kalis.replace('{g}', gunEtiket).replace('{p}', grupEtiket),
+        V.m.kapanis,
+        '',
+        '—',
+        '#' + refKod + ' · ' + V.dil.toUpperCase() + ' · PLAN · ' + gun + ' · ' + grup
+      );
+      var mesaj = satirlar.join('\n');
+
+      var wa = document.getElementById('plan-wa');
+      wa.href = 'https://wa.me/' + V.numara + '?text=' + encodeURIComponent(mesaj);
+      wa.onclick = function () {
+        if (V.endpoint && navigator.sendBeacon) {
+          try {
+            navigator.sendBeacon(V.endpoint, new Blob([JSON.stringify({
+              ref: refKod, dil: V.dil, tur: 'PLAN', gun: gun, grup: grup,
+              stiller: stiller, oneriler: secilen.map(function (k) { return k.t.id; }),
+              zaman: new Date().toISOString(),
+            })], { type: 'application/json' }));
+          } catch (hata) {}
+        }
+        if (window.dataLayer) {
+          window.dataLayer.push({ event: 'wa_click', dil: V.dil, tur: 'PLAN', ref: refKod });
+        }
+      };
+
+      form.hidden = true;
+      sonuc.hidden = false;
+      var baslik = document.getElementById('plan-sonuc-baslik');
+      if (baslik) baslik.focus({ preventScroll: true });
+      sonuc.scrollIntoView({ block: 'start' });
+    });
+
+    document.getElementById('plan-yeniden').addEventListener('click', function () {
+      form.reset();
+      form.hidden = false;
+      sonuc.hidden = true;
+      adimlar.forEach(function (a, i) {
+        a.hidden = i > 0;
+        a.classList.remove('plan-adim--cikan');
+      });
+      document.querySelectorAll('[data-plan-kart]').forEach(function (k) {
+        k.style.order = '';
+      });
+      aktif = 0;
+      ilerlemeYaz(0);
+      form.scrollIntoView({ block: 'start' });
+    });
+
+    ilerlemeYaz(0);
+  })();
+</script>

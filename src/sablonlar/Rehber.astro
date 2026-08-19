@@ -1,0 +1,89 @@
+---
+import type { Dil } from '../lib/tipler';
+import type { RehberKodu } from '../lib/rotalar';
+import TemelSayfa from '../layouts/TemelSayfa.astro';
+import WaIkon from '../components/WaIkon.astro';
+import { MARKA, WA_NUMBERS } from '../config/marka';
+import { sozluk } from '../i18n/sozluk';
+import { anaUrl, turlarUrl } from '../lib/rotalar';
+import { PRATIK_BOLUMLER, UCRETSIZ_MADDELER } from '../data/rehber';
+
+interface Props {
+  dil: Dil;
+  alternatifler: Record<Dil, string>;
+  rehberKodu: RehberKodu;
+}
+
+// Rehber sayfaları — EK-1 §5-6. Bu sayfalar satış yapmaz, güven kurar.
+// Pratik: 8 bölüm + doğrulama dipnotu + WhatsApp satırı.
+// Ücretsiz: 10 madde; hiçbir maddede tur satışı yok, sonda tek satır bağlantı.
+const { dil, alternatifler: alt, rehberKodu } = Astro.props;
+const s = sozluk[dil];
+
+const baslik = rehberKodu === 'pratik' ? s.rehber_pratik_baslik : s.rehber_ucretsiz_baslik;
+
+// Basit soru mesajıyla WhatsApp bağlantısı (yalnızca pratik sayfasında)
+const waMesaj = `${s.m_selamlama}\n\n${s.rehber_soru_wa}`;
+const waLink = `https://wa.me/${WA_NUMBERS[dil]}?text=${encodeURIComponent(waMesaj)}`;
+
+// Son güncelleme: build tarihi — içerik değiştikçe build ile tazelenir
+const LOCALE: Record<Dil, string> = { tr: 'tr-TR', en: 'en-GB', ru: 'ru-RU', de: 'de-DE', pl: 'pl-PL', ro: 'ro-RO' };
+const guncelleme = new Intl.DateTimeFormat(LOCALE[dil], { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date());
+---
+<TemelSayfa dil={dil} baslik={`${baslik} | ${MARKA}`} aciklama={baslik} alternatifler={alt}>
+  <div class="kap bolum">
+    <nav class="kirinti" aria-label="breadcrumb">
+      <ol>
+        <li><a href={anaUrl(dil)}>{s.ana_sayfa}</a></li>
+        <li>{baslik}</li>
+      </ol>
+    </nav>
+
+    <div class="metin-icerik">
+      <h1>{baslik}</h1>
+
+      {rehberKodu === 'pratik' && (
+        <>
+          {PRATIK_BOLUMLER.map((bolum) => (
+            <section class="rehber-bolum">
+              <h2>{bolum.baslik[dil]}</h2>
+              {bolum.metin[dil].split('\n\n').map((p) => <p>{p}</p>)}
+            </section>
+          ))}
+
+          <p class="ikincil rehber-dipnot">
+            {s.rehber_dogrulama}
+            <br />
+            {s.rehber_guncelleme}: {guncelleme}
+          </p>
+
+          <p>
+            <a class="wa-buton" href={waLink} target="_blank" rel="noopener">
+              <WaIkon boyut={16} />
+              {s.rehber_soru_wa}
+            </a>
+          </p>
+        </>
+      )}
+
+      {rehberKodu === 'ucretsiz' && (
+        <>
+          {UCRETSIZ_MADDELER.map((madde) => (
+            <section class="rehber-bolum">
+              <h2>{madde.baslik[dil]}</h2>
+              {madde.metin[dil].split('\n\n').map((p) => <p>{p}</p>)}
+            </section>
+          ))}
+
+          <p class="ikincil rehber-dipnot">
+            {s.rehber_dogrulama}
+            <br />
+            {s.rehber_guncelleme}: {guncelleme}
+          </p>
+
+          <p><a href={turlarUrl(dil)}>{s.rehber_ucretsiz_kapanis}</a></p>
+        </>
+      )}
+    </div>
+  </div>
+</TemelSayfa>

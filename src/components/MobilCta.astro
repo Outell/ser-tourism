@@ -1,0 +1,27 @@
+---
+import type { Dil, Tur } from '../lib/tipler';
+import { sozluk, yerlestir } from '../i18n/sozluk';
+import { euroTutar } from '../lib/fiyat';
+import WaIkon from './WaIkon.astro';
+
+interface Props {
+  dil: Dil;
+  tur: Tur;
+}
+
+// Mobilde alta sabit çubuk: fiyat + "WhatsApp'tan sor" (MASTER-PROMPT §7.5).
+// Buton forma götürür — mesaj yine formdan, kayıtla birlikte gider.
+const { dil, tur } = Astro.props;
+const s = sozluk[dil];
+const fiyatMetni = euroTutar(tur.fiyat_eur, dil);
+---
+<div class="mobil-cta">
+  <div class="mobil-cta__fiyat">
+    {yerlestir(s.fiyat_baslayan, { f: fiyatMetni })}
+    <small>{s.odeme_gunu}</small>
+  </div>
+  <a class="wa-buton" href="#wa-form">
+    <WaIkon boyut={16} />
+    {s.mobil_cta}
+  </a>
+</div>

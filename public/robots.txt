@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /*?ref=
+
+Sitemap: https://limyra.com/sitemap.xml

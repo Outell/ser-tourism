@@ -1,0 +1,167 @@
+---
+import type { Dil } from '../lib/tipler';
+import { DILLER } from '../lib/tipler';
+import { mutlak } from '../lib/rotalar';
+import { VARSAYILAN_PARA, PARA_SIMGELERI } from '../i18n/sozluk';
+import kurlar from '../data/kurlar.json';
+import Baslik from '../components/Baslik.astro';
+import AltBilgi from '../components/AltBilgi.astro';
+import SeyahatAsistani from '../components/SeyahatAsistani.astro';
+import SerLogo from '../components/SerLogo.astro';
+import '../styles/global.css';
+
+interface Props {
+  dil: Dil;
+  baslik: string;               // <title> — ≤60 karakter hedefi
+  aciklama: string;             // meta description — ≤155 karakter hedefi
+  alternatifler: Record<Dil, string>;  // 6 dildeki yollar (göreli)
+  jsonLd?: object[];            // sayfa tipine göre şema blokları
+}
+
+const { dil, baslik, aciklama, alternatifler: alt, jsonLd = [] } = Astro.props;
+
+// hreflang: 6 dil + x-default (EN) + canonical — tamamı mutlak URL (EK-3 §4).
+// Bağlar rotalar.ts'te tek üreticiden çıktığı için her zaman karşılıklı.
+const canonical = mutlak(alt[dil]);
+
+const LOCALE: Record<Dil, string> = { tr: 'tr-TR', en: 'en-GB', ru: 'ru-RU', de: 'de-DE', pl: 'pl-PL', ro: 'ro-RO' };
+---
+<html lang={dil}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script is:inline>
+      (function () {
+        var tema = 'light';
+        try {
+          var kayitli = localStorage.getItem('limyra-theme');
+          if (kayitli === 'dark' || kayitli === 'light') tema = kayitli;
+          else if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) tema = 'dark';
+        } catch (e) {}
+        document.documentElement.dataset.theme = tema;
+        document.documentElement.style.colorScheme = tema;
+        try {
+          var hareketAzalt = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+          if (!hareketAzalt && !sessionStorage.getItem('limyra_intro_seen')) {
+            sessionStorage.setItem('limyra_intro_seen', '1');
+            document.documentElement.dataset.intro = 'play';
+          }
+        } catch (e) {}
+      })();
+    </script>
+    <!-- Tarayıcı teması (EK-4 §10): mobil adres çubuğu üst barla aynı renge
+         gelsin. var() burada geçmiyor — değer --gece ile elle eşit tutulur. -->
+    <meta name="theme-color" content="#16122B" />
+    <title>{baslik}</title>
+    <meta name="description" content={aciklama} />
+
+    {DILLER.map((d) => <link rel="alternate" hreflang={d} href={mutlak(alt[d])} />)}
+    <link rel="alternate" hreflang="x-default" href={mutlak(alt.en)} />
+    <link rel="canonical" href={canonical} />
+
+    <!-- Deneme yayını (ser-tourism.tapsync.cc): gerçek domain gelene kadar
+         arama motorları indekslemesin. Lansmanda bu satır kaldırılacak. -->
+    <meta name="robots" content="noindex, nofollow" />
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500&family=Spectral:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+
+    {jsonLd.map((blok) => <script type="application/ld+json" set:html={JSON.stringify(blok)} />)}
+
+    <!-- Filtre parametreli URL'ler indekslenmez (MASTER-PROMPT §5.2, §13) -->
+    <script is:inline>
+      if (location.search) {
+        var m = document.createElement('meta');
+        m.name = 'robots';
+        m.content = 'noindex';
+        document.head.appendChild(m);
+      }
+    </script>
+  </head>
+  <body>
+    <div class="site-intro" aria-hidden="true">
+      <div class="site-intro__ic">
+        <span class="site-intro__marka" aria-hidden="true">
+          <SerLogo variant="full" decorative />
+        </span>
+        <span class="site-intro__cizgi"></span>
+      </div>
+    </div>
+
+    <a class="atla" href="#icerik">{
+      { tr: 'İçeriğe geç', en: 'Skip to content', ru: 'К содержанию', de: 'Zum Inhalt', pl: 'Przejdź do treści', ro: 'Sari la conținut' }[dil]
+    }</a>
+
+    <Baslik dil={dil} alternatifler={alt} />
+
+    <main id="icerik">
+      <slot />
+    </main>
+
+    <AltBilgi dil={dil} />
+
+    <SeyahatAsistani dil={dil} />
+
+    <!-- Döviz seçici (MASTER-PROMPT §8): kurlar build'de JSON'a yazılır,
+         client'ta API çağrısı yok. Seçim sessionStorage'da tutulur.
+         € her zaman birincil; diğer para birimi "≈" ile ikincil gösterilir. -->
+    <script is:inline define:vars={{ kurlar, dil, varsayilan: VARSAYILAN_PARA[dil], simgeler: PARA_SIMGELERI, locale: LOCALE[dil] }}>
+      (function () {
+        var SS = 'limyra-para';
+        var para = null;
+        try { para = sessionStorage.getItem(SS); } catch (e) {}
+        if (!para || !kurlar[para]) para = varsayilan;
+
+        function yaz(p) {
+          document.querySelectorAll('[data-eur]').forEach(function (el) {
+            var eur = parseFloat(el.getAttribute('data-eur'));
+            if (!eur || p === 'EUR' || !kurlar[p]) { el.textContent = ''; return; }
+            var tutar = Math.round(eur * kurlar[p]);
+            var metin;
+            try {
+              metin = new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }).format(tutar);
+            } catch (e) { metin = String(tutar); }
+            el.textContent = '≈ ' + metin + ' ' + (simgeler[p] || p);
+          });
+        }
+
+        var seciciler = document.querySelectorAll('[data-para-sec]');
+        seciciler.forEach(function (secici) {
+          secici.value = para;
+          secici.addEventListener('change', function () {
+            para = secici.value;
+            try { sessionStorage.setItem(SS, para); } catch (e) {}
+            seciciler.forEach(function (diger) { diger.value = para; });
+            yaz(para);
+          });
+        });
+        yaz(para);
+      })();
+    </script>
+    <script is:inline>
+      (function () {
+        function temaRengiYaz() {
+          var meta = document.querySelector('meta[name="theme-color"]');
+          if (meta) meta.setAttribute('content', document.documentElement.dataset.theme === 'dark' ? '#0D1020' : '#16122B');
+        }
+        temaRengiYaz();
+        window.addEventListener('limyra-theme-change', temaRengiYaz);
+      })();
+    </script>
+    <script is:inline>
+      (function () {
+        if (document.documentElement.dataset.intro === 'play') {
+          window.setTimeout(function () {
+            document.documentElement.removeAttribute('data-intro');
+          }, 1100);
+        }
+      })();
+    </script>
+  </body>
+</html>

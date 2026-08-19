@@ -1,0 +1,87 @@
+---
+import type { Dil } from '../lib/tipler';
+import type { MetinSayfaKodu } from '../lib/rotalar';
+import TemelSayfa from '../layouts/TemelSayfa.astro';
+import WaIkon from '../components/WaIkon.astro';
+import { MARKA, WA_NUMBERS } from '../config/marka';
+import { sozluk } from '../i18n/sozluk';
+import { anaUrl } from '../lib/rotalar';
+import { SABIT_SAYFALAR } from '../data/icerik';
+import type { SabitSayfaKodu } from '../data/icerik';
+
+interface Props {
+  dil: Dil;
+  alternatifler: Record<Dil, string>;
+  metinKodu: MetinSayfaKodu;
+}
+
+const { dil, alternatifler: alt, metinKodu } = Astro.props;
+const s = sozluk[dil];
+
+const basliklar: Record<MetinSayfaKodu, string> = {
+  hakkimizda: s.s_hakkimizda,
+  iptal: s.s_iptal,
+  sss: s.s_sss,
+  iletisim: s.s_iletisim,
+  gizlilik: s.s_gizlilik,
+};
+const baslik = basliklar[metinKodu];
+
+// Gizlilik metni henüz yazılmadı; kalan dördü icerik/ klasöründen geliyor.
+const icerikliMi = metinKodu !== 'gizlilik';
+const bolumler = icerikliMi ? SABIT_SAYFALAR[metinKodu as SabitSayfaKodu][dil] : [];
+
+const waMesaj = `${s.m_selamlama}\n\n${s.rehber_soru_wa}`;
+const waLink = `https://wa.me/${WA_NUMBERS[dil]}?text=${encodeURIComponent(waMesaj)}`;
+
+// SSS sayfasında FAQPage şeması (MASTER-PROMPT §13)
+const jsonLd = metinKodu === 'sss'
+  ? [{
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: bolumler.map((b) => ({
+        '@type': 'Question',
+        name: b.baslik,
+        acceptedAnswer: { '@type': 'Answer', text: b.metin },
+      })),
+    }]
+  : [];
+
+// Meta açıklama: ilk bölümün ilk cümlesi, 155 karakterle sınırlı
+const ilkMetin = bolumler[0]?.metin.split('\n\n')[0] ?? baslik;
+const aciklama = ilkMetin.length > 155 ? ilkMetin.slice(0, 152).trimEnd() + '…' : ilkMetin;
+---
+<TemelSayfa dil={dil} baslik={`${baslik} | ${MARKA}`} aciklama={aciklama} alternatifler={alt} jsonLd={jsonLd}>
+  <div class="kap bolum">
+    <nav class="kirinti" aria-label="breadcrumb">
+      <ol>
+        <li><a href={anaUrl(dil)}>{s.ana_sayfa}</a></li>
+        <li>{baslik}</li>
+      </ol>
+    </nav>
+
+    <div class="metin-icerik">
+      <h1>{baslik}</h1>
+
+      {icerikliMi ? (
+        <>
+          {bolumler.map((b) => (
+            <section class="rehber-bolum">
+              <h2>{b.baslik}</h2>
+              {b.metin.split('\n\n').map((p) => <p>{p}</p>)}
+            </section>
+          ))}
+
+          <p style="margin-top:24px">
+            <a class="wa-buton" href={waLink} target="_blank" rel="noopener">
+              <WaIkon boyut={16} />
+              {s.rehber_soru_wa}
+            </a>
+          </p>
+        </>
+      ) : (
+        <p class="ikincil">{s.yt_metin_sayfa}</p>
+      )}
+    </div>
+  </div>
+</TemelSayfa>

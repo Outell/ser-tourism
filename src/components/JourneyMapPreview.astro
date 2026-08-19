@@ -1,0 +1,167 @@
+---
+interface FlowPoint {
+  label: string;
+  stageIndex: number;
+}
+
+interface Props {
+  points: FlowPoint[];
+  note: string;
+  title: string;
+}
+
+const { points, note, title } = Astro.props;
+---
+
+<div class="journey-map" data-journey-map-preview aria-label={title}>
+  <div class="journey-map__canvas" aria-hidden="true">
+    <svg viewBox="0 0 720 320" role="img" aria-label={title} preserveAspectRatio="none">
+      <path
+        class="journey-map__base"
+        d="M76 226 C156 112 232 96 318 158 S496 254 632 92"
+        pathLength="100"
+      />
+      <path
+        class="journey-map__progress"
+        d="M76 226 C156 112 232 96 318 158 S496 254 632 92"
+        pathLength="100"
+      />
+    </svg>
+    {points.map((point, index) => (
+      <span class={`journey-map__point journey-map__point--${index + 1}`} data-map-stage={point.stageIndex}>
+        <span></span>
+      </span>
+    ))}
+  </div>
+
+  <ol class="journey-map__labels">
+    {points.map((point) => (
+      <li data-map-label={point.stageIndex}>{point.label}</li>
+    ))}
+  </ol>
+  <p>{note}</p>
+</div>
+
+<style>
+  .journey-map{
+    display: grid;
+    gap: 14px;
+    min-width: 0;
+    border: 1px solid var(--border);
+    border-radius: var(--r-kart);
+    padding: clamp(16px, 3vw, 24px);
+    background:
+      radial-gradient(circle at 22% 22%, color-mix(in srgb, var(--action) 10%, transparent), transparent 32%),
+      color-mix(in srgb, var(--surface-elevated) 94%, transparent);
+    overflow: hidden;
+  }
+  .journey-map__canvas{
+    --map-progress: 0;
+    position: relative;
+    min-height: 230px;
+  }
+  .journey-map svg{
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+  .journey-map__base,
+  .journey-map__progress{
+    fill: none;
+    stroke-linecap: round;
+    stroke-width: 2;
+  }
+  .journey-map__base{
+    stroke: var(--border-strong);
+    stroke-dasharray: 4 10;
+  }
+  .journey-map__progress{
+    stroke: var(--action);
+    stroke-opacity: .9;
+    stroke-dasharray: var(--map-progress) 100;
+    transition: stroke-dasharray .55s cubic-bezier(.16, 1, .3, 1);
+  }
+  .journey-map__point{
+    position: absolute;
+    width: 30px;
+    height: 30px;
+    display: grid;
+    place-items: center;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--surface-elevated) 84%, transparent);
+    border: 1px solid var(--border-strong);
+    transform: translate(-50%, -50%);
+    transition: border-color .25s ease-out, background .25s ease-out, transform .25s ease-out;
+  }
+  .journey-map__point span{
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    background: var(--text-muted);
+    transition: background .25s ease-out;
+  }
+  .journey-map__point[data-active="true"]{
+    border-color: var(--action);
+    background: color-mix(in srgb, var(--action) 12%, var(--surface-elevated));
+    transform: translate(-50%, -50%) scale(1.08);
+  }
+  .journey-map__point[data-active="true"] span,
+  .journey-map__point[data-complete="true"] span{
+    background: var(--action);
+  }
+  .journey-map__point--1{ left: 11%; top: 71%; }
+  .journey-map__point--2{ left: 28%; top: 39%; }
+  .journey-map__point--3{ left: 45%; top: 50%; }
+  .journey-map__point--4{ left: 64%; top: 68%; }
+  .journey-map__point--5{ left: 88%; top: 29%; }
+  .journey-map__labels{
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 8px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .journey-map__labels li{
+    min-width: 0;
+    color: var(--text-muted);
+    font-size: 11px;
+    font-weight: 700;
+    line-height: 1.25;
+    text-transform: uppercase;
+  }
+  .journey-map__labels li[data-active="true"]{
+    color: var(--action);
+  }
+  .journey-map p{
+    margin: 0;
+    color: var(--text-muted);
+    font-size: 12px;
+    line-height: 1.45;
+  }
+
+  @media (max-width: 760px){
+    .journey-map__canvas{
+      min-height: 190px;
+    }
+    .journey-map__labels{
+      grid-template-columns: 1fr;
+      gap: 5px;
+    }
+    .journey-map__labels li{
+      font-size: 12px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .journey-map__progress,
+    .journey-map__point,
+    .journey-map__point span{
+      transition: none;
+    }
+    .journey-map__point[data-active="true"]{
+      transform: translate(-50%, -50%);
+    }
+  }
+</style>

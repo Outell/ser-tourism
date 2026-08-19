@@ -1,0 +1,663 @@
+---
+import type { Dil, Tur } from '../lib/tipler';
+import { aktifTurlar } from '../lib/rotalar';
+import { sozluk } from '../i18n/sozluk';
+import { WA_NUMBERS, LEAD_ENDPOINT } from '../config/marka';
+import WaIkon from './WaIkon.astro';
+import Secim from './Secim.astro';
+
+interface Props {
+  dil: Dil;
+  tur: Tur;   // form bu turla önceden dolu gelir, değiştirilebilir
+}
+
+const { dil, tur } = Astro.props;
+const s = sozluk[dil];
+
+const LOCALE: Record<Dil, string> = { tr: 'tr-TR', en: 'en-GB', ru: 'ru-RU', de: 'de-DE', pl: 'pl-PL', ro: 'ro-RO' };
+
+// Tarih yer tutucusunun harfleri (gg.aa.yyyy / dd/mm/yyyy …) — EK-4 §1.
+// Sıra ve ayraç Intl'den gelir, harfler dilin kendi kısaltmasıdır.
+const TARIH_HARF: Record<Dil, { gun: string; ay: string; yil: string }> = {
+  tr: { gun: 'gg', ay: 'aa', yil: 'yyyy' },
+  en: { gun: 'dd', ay: 'mm', yil: 'yyyy' },
+  ru: { gun: 'дд', ay: 'мм', yil: 'гггг' },
+  de: { gun: 'TT', ay: 'MM', yil: 'JJJJ' },
+  pl: { gun: 'dd', ay: 'mm', yil: 'rrrr' },
+  ro: { gun: 'zz', ay: 'll', yil: 'aaaa' },
+};
+
+// Client script'in ihtiyacı olan her şey — mesaj misafirin dilinde üretilir (§7.2)
+const formVeri = {
+  numara: WA_NUMBERS[dil],
+  endpoint: LEAD_ENDPOINT,
+  dil,
+  locale: LOCALE[dil],
+  harf: TARIH_HARF[dil],
+  turlar: Object.fromEntries(aktifTurlar.map((t) => [t.id, {
+    kod: t.kod,
+    ad: t.baslik[dil],
+    fiyat: t.fiyat_eur,
+    yetiskinFiyat: t.adult_price_eur ?? t.fiyat_eur,
+    cocukFiyat: t.child_price_eur ?? null,
+    yetiskinYasMin: t.adult_age_min ?? null,
+    cocukYasMin: t.child_age_min ?? null,
+    cocukYasMax: t.child_age_max ?? null,
+    bebekFiyat: t.infant_price_eur ?? null,
+    bebekUcretsiz: !!t.infant_free,
+    bebekYasMin: t.infant_age_min ?? 0,
+    bebekYasMax: t.infant_age_max ?? t.bebek_ucretsiz_yas ?? null,
+    fiyatEtiketleri: {
+      adult: t.fiyat_etiketleri?.adult?.[dil] ?? null,
+      child: t.fiyat_etiketleri?.child?.[dil] ?? null,
+      infant: t.fiyat_etiketleri?.infant?.[dil] ?? null,
+    },
+    bookingOptions: t.booking_options ? {
+      label: t.booking_options.labels?.option?.[dil] ?? t.booking_options.labels?.experience?.[dil] ?? s.f_tur,
+      defaultOptionId: t.booking_options.defaultOptionId ?? t.booking_options.options[0]?.id ?? null,
+      options: t.booking_options.options.map((option) => ({
+        id: option.id,
+        label: option.label[dil],
+        kod: option.kod ?? t.kod,
+        yetiskinFiyat: option.adult_price_eur,
+        cocukFiyat: option.child_price_eur ?? null,
+        bebekFiyat: option.infant_price_eur ?? null,
+        yetiskinYasMin: option.adult_age_min ?? null,
+        cocukYasMin: option.child_age_min ?? null,
+        cocukYasMax: option.child_age_max ?? null,
+        bebekYasMin: option.infant_age_min ?? null,
+        bebekYasMax: option.infant_age_max ?? null,
+        note: option.note?.[dil] ?? null,
+      })),
+    } : null,
+  }])),
+  m: {
+    selamlama: s.m_selamlama, kapanis: s.m_kapanis,
+    tur: s.m_tur, tarih: s.m_tarih, kisi: s.m_kisi, otel: s.m_otel, ad: s.m_ad, not: s.m_not,
+    yetiskin: s.m_yetiskin, cocuk: s.m_cocuk, yas: s.m_yas,
+    fiyatlar: s.fiyat_kategorileri, fiyatYetiskin: s.fiyat_yetiskin, fiyatCocuk: s.fiyat_cocuk,
+    fiyatBebek: s.fiyat_bebek, fiyatUcretsiz: s.fiyat_ucretsiz, fiyatYas12: s.fiyat_yas_12,
+  },
+};
+---
+<form class="wa-form" id="wa-form" novalidate>
+  <label class="alan">
+    <span class="alan__etiket">{s.f_tur}<i class="zorunlu" role="img" aria-label={s.f_zorunlu}></i></span>
+    <Secim>
+      <select name="tur" required>
+        {aktifTurlar.map((t) => (
+          <option value={t.id} selected={t.id === tur.id}>{t.baslik[dil]}</option>
+        ))}
+      </select>
+    </Secim>
+  </label>
+
+  <label class="alan" hidden data-booking-option-alani>
+    <span class="alan__etiket" data-booking-option-label>{s.f_tur}</span>
+    <Secim>
+      <select name="booking_option" data-booking-option-select></select>
+    </Secim>
+    <span class="alan__yardim" data-booking-option-note hidden></span>
+  </label>
+
+  <!-- Tarih: tarayıcı takvimi yerine kendi takvimimiz (EK-4 §1).
+       Görünen alan biçimli metni ve required'ı taşır, gizli alan ISO değeri. -->
+  <div class="alan">
+    <label class="alan__etiket" for="wa-tarih">{s.f_tarih}<i class="zorunlu" role="img" aria-label={s.f_zorunlu}></i></label>
+    <div class="tarih" data-tarih>
+      <input type="text" id="wa-tarih" class="tarih__giris" name="tarih_gosterim" required
+             autocomplete="off" inputmode="none" aria-haspopup="dialog" aria-expanded="false" data-tarih-giris />
+      <svg class="tarih__ikon" width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"
+           fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="2.5" y="3.5" width="13" height="12" rx="2" />
+        <path d="M2.5 7h13M6 2.5v2M12 2.5v2" />
+      </svg>
+      <input type="hidden" name="tarih" />
+
+      <div class="takvim" data-takvim hidden role="dialog" aria-modal="false" aria-label={s.f_tarih}>
+        <div class="takvim__ust">
+          <button type="button" class="takvim__ok" data-ay="-1" aria-label={s.f_ay_onceki}>
+            <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" fill="none"
+                 stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9.5 4 5.5 8l4 4" />
+            </svg>
+          </button>
+          <span class="takvim__baslik" data-takvim-baslik aria-live="polite"></span>
+          <button type="button" class="takvim__ok" data-ay="1" aria-label={s.f_ay_sonraki}>
+            <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true" fill="none"
+                 stroke="currentColor" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6.5 4l4 4-4 4" />
+            </svg>
+          </button>
+        </div>
+        <div class="takvim__gunadlari" data-takvim-gunadlari aria-hidden="true"></div>
+        <div class="takvim__izgara" data-takvim-izgara></div>
+        <button type="button" class="takvim__kapat" data-takvim-kapat>{s.f_kapat}</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="wa-form__yanyana">
+    <div class="alan">
+      <label class="alan__etiket" for="wa-yetiskin">{s.f_yetiskin}<i class="zorunlu" role="img" aria-label={s.f_zorunlu}></i></label>
+      <div class="sayi" data-sayi>
+        <button type="button" class="sayi__btn" data-adim="-1" aria-label={s.f_azalt}>−</button>
+        <input type="number" id="wa-yetiskin" name="yetiskin" inputmode="numeric" min="1" max="99" value="2" required />
+        <button type="button" class="sayi__btn" data-adim="1" aria-label={s.f_arttir}>+</button>
+      </div>
+    </div>
+    <div class="alan">
+      <label class="alan__etiket" for="wa-cocuk">{s.f_cocuk}</label>
+      <div class="sayi" data-sayi>
+        <button type="button" class="sayi__btn" data-adim="-1" aria-label={s.f_azalt}>−</button>
+        <input type="number" id="wa-cocuk" name="cocuk" inputmode="numeric" min="0" max="99" value="0" />
+        <button type="button" class="sayi__btn" data-adim="1" aria-label={s.f_arttir}>+</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Çocuk > 0 olunca görünür (MASTER-PROMPT §7.1) -->
+  <label class="alan" hidden data-yas-alani>
+    <span class="alan__etiket">{s.f_cocuk_yas}</span>
+    <input type="text" name="yaslar" placeholder={s.f_cocuk_yas_ipucu} autocomplete="off" />
+    <span class="alan__yardim">{s.yas_12_notu}</span>
+  </label>
+
+  <label class="alan">
+    <span class="alan__etiket">{s.f_otel}<i class="zorunlu" role="img" aria-label={s.f_zorunlu}></i></span>
+    <input type="text" name="otel" required autocomplete="off" />
+  </label>
+
+  <label class="alan">
+    <span class="alan__etiket">{s.f_ad}<i class="zorunlu" role="img" aria-label={s.f_zorunlu}></i></span>
+    <input type="text" name="ad" required autocomplete="name" />
+  </label>
+
+  <label class="alan">
+    <span class="alan__etiket">{s.f_not}</span>
+    <textarea name="not" maxlength="300" rows="2" data-buyuyen></textarea>
+    <span class="sayac" data-sayac aria-hidden="true">0 / 300</span>
+  </label>
+
+  <button type="submit" class="wa-buton wa-buton--genis">
+    <WaIkon boyut={18} />
+    {s.f_buton}
+  </button>
+</form>
+
+<script is:inline define:vars={{ V: formVeri }}>
+  (function () {
+    var form = document.getElementById('wa-form');
+    if (!form) return;
+
+    // Referans kodu sayfa yüklendiğinde üretilir, form boyunca sabit kalır (§7.2)
+    var refKod = 'ANT-' + (1000 + Math.floor(Math.random() * 9000));
+
+    var alanlar = form.elements;
+    var yasAlani = form.querySelector('[data-yas-alani]');
+    var bookingOptionAlani = form.querySelector('[data-booking-option-alani]');
+    var bookingOptionLabel = form.querySelector('[data-booking-option-label]');
+    var bookingOptionSelect = form.querySelector('[data-booking-option-select]');
+    var bookingOptionNote = form.querySelector('[data-booking-option-note]');
+
+    function iki(n) { return (n < 10 ? '0' : '') + n; }
+    // Yerel ISO — toISOString() UTC'ye kaydırıp günü bir eksiltebiliyor
+    function yerelISO(d) { return d.getFullYear() + '-' + iki(d.getMonth() + 1) + '-' + iki(d.getDate()); }
+    function isoTarih(iso) { var p = iso.split('-'); return new Date(+p[0], +p[1] - 1, +p[2]); }
+
+    var bugunISO = yerelISO(new Date());
+
+    // ---------------------------------------------------------------
+    // 1 · TARİH SEÇİCİ (EK-4 §1)
+    // ---------------------------------------------------------------
+    var kutu = form.querySelector('[data-tarih]');
+    var giris = form.querySelector('[data-tarih-giris]');
+    var takvim = form.querySelector('[data-takvim]');
+    var izgara = form.querySelector('[data-takvim-izgara]');
+    var takvimBaslik = form.querySelector('[data-takvim-baslik]');
+    var gunAdlariEl = form.querySelector('[data-takvim-gunadlari]');
+    var kapatBtn = form.querySelector('[data-takvim-kapat]');
+
+    var bicimGosterim, bicimAyBaslik, bicimGunAdi;
+    try {
+      bicimGosterim = new Intl.DateTimeFormat(V.locale, { day: '2-digit', month: '2-digit', year: 'numeric' });
+      bicimAyBaslik = new Intl.DateTimeFormat(V.locale, { month: 'long', year: 'numeric' });
+      bicimGunAdi = new Intl.DateTimeFormat(V.locale, { weekday: 'short' });
+    } catch (e) {
+      bicimGosterim = bicimAyBaslik = bicimGunAdi = null;
+    }
+
+    // Yer tutucu: sıra ve ayraç dilin biçiminden, harfler dilin kendi kısaltması
+    (function () {
+      if (!bicimGosterim || !bicimGosterim.formatToParts) { giris.placeholder = V.harf.gun + '.' + V.harf.ay + '.' + V.harf.yil; return; }
+      var metin = '';
+      bicimGosterim.formatToParts(new Date(2026, 0, 2)).forEach(function (p) {
+        if (p.type === 'day') metin += V.harf.gun;
+        else if (p.type === 'month') metin += V.harf.ay;
+        else if (p.type === 'year') metin += V.harf.yil;
+        else metin += p.value;
+      });
+      giris.placeholder = metin;
+    })();
+
+    // Haftanın ilk günü dile göre (TR/DE/PL/RO pazartesi; EN yerelden okunur)
+    var ilkGun = 1;
+    try {
+      var yerel = new Intl.Locale(V.locale);
+      var haftaBilgi = typeof yerel.getWeekInfo === 'function' ? yerel.getWeekInfo() : yerel.weekInfo;
+      if (haftaBilgi && haftaBilgi.firstDay) ilkGun = haftaBilgi.firstDay % 7; // 7 = pazar → 0
+    } catch (e) {}
+
+    (function gunAdlariniYaz() {
+      var html = '';
+      for (var i = 0; i < 7; i++) {
+        var idx = (ilkGun + i) % 7;
+        var ornek = new Date(2024, 0, 7 + idx); // 7 Ocak 2024 = pazar
+        html += '<span>' + (bicimGunAdi ? bicimGunAdi.format(ornek) : '') + '</span>';
+      }
+      gunAdlariEl.innerHTML = html;
+    })();
+
+    var seciliISO = '';
+    var odakISO = bugunISO;
+    var gosterilenAy = isoTarih(bugunISO);
+    gosterilenAy.setDate(1);
+
+    function ayCiz() {
+      takvimBaslik.textContent = bicimAyBaslik ? bicimAyBaslik.format(gosterilenAy) : '';
+      var y = gosterilenAy.getFullYear(), a = gosterilenAy.getMonth();
+      var kaydir = (new Date(y, a, 1).getDay() - ilkGun + 7) % 7;
+      var gunSayisi = new Date(y, a + 1, 0).getDate();
+      var html = '';
+      for (var b = 0; b < kaydir; b++) html += '<span class="takvim__bos"></span>';
+      for (var g = 1; g <= gunSayisi; g++) {
+        var iso = y + '-' + iki(a + 1) + '-' + iki(g);
+        var gecmis = iso < bugunISO;
+        var sinif = 'takvim__gun';
+        if (iso === bugunISO) sinif += ' takvim__gun--bugun';
+        if (iso === seciliISO) sinif += ' takvim__gun--secili';
+        html += '<button type="button" class="' + sinif + '" data-gun="' + iso + '"' +
+          (gecmis ? ' disabled' : '') +
+          ' tabindex="' + (iso === odakISO ? '0' : '-1') + '"' +
+          ' aria-pressed="' + (iso === seciliISO ? 'true' : 'false') + '">' + g + '</button>';
+      }
+      izgara.innerHTML = html;
+    }
+
+    function odagiTazele() {
+      var hedef = izgara.querySelector('[data-gun="' + odakISO + '"]');
+      if (!hedef) {  // ay değiştiyse ayın ilk seçilebilir günü
+        hedef = izgara.querySelector('.takvim__gun:not([disabled])');
+        if (hedef) odakISO = hedef.getAttribute('data-gun');
+      }
+      izgara.querySelectorAll('.takvim__gun').forEach(function (b) {
+        b.tabIndex = b.getAttribute('data-gun') === odakISO ? 0 : -1;
+      });
+      if (hedef) hedef.focus();
+    }
+
+    function ac() {
+      if (!takvim.hidden) return;
+      gosterilenAy = isoTarih(seciliISO || bugunISO);
+      gosterilenAy.setDate(1);
+      odakISO = seciliISO || bugunISO;
+      ayCiz();
+      takvim.hidden = false;
+      giris.setAttribute('aria-expanded', 'true');
+      // Başlangıç durumunu tarayıcıya yazdırıp sınıfı hemen ekliyoruz.
+      // rAF kullanılmıyor: arka plandaki sekmede çalışmıyor, takvim
+      // opacity 0'da takılı kalıyordu.
+      void takvim.offsetHeight;
+      takvim.classList.add('takvim--acik');
+      document.addEventListener('pointerdown', disaTiklandi, true);
+    }
+
+    function kapat(odagiGeriVer) {
+      if (takvim.hidden) return;
+      takvim.classList.remove('takvim--acik');
+      takvim.hidden = true;
+      giris.setAttribute('aria-expanded', 'false');
+      document.removeEventListener('pointerdown', disaTiklandi, true);
+      if (odagiGeriVer) giris.focus();
+    }
+
+    function disaTiklandi(e) { if (!kutu.contains(e.target)) kapat(false); }
+
+    function gunSec(iso) {
+      seciliISO = iso;
+      odakISO = iso;
+      alanlar.tarih.value = iso;
+      giris.value = bicimGosterim ? bicimGosterim.format(isoTarih(iso)) : iso;
+      giris.setCustomValidity('');
+      kapat(true);
+      guncelle();
+    }
+
+    function ayKaydir(fark) {
+      gosterilenAy.setMonth(gosterilenAy.getMonth() + fark);
+      var yeni = isoTarih(odakISO);
+      yeni.setDate(1);
+      yeni.setMonth(gosterilenAy.getMonth());
+      yeni.setFullYear(gosterilenAy.getFullYear());
+      var sonGun = new Date(gosterilenAy.getFullYear(), gosterilenAy.getMonth() + 1, 0).getDate();
+      var g = Math.min(isoTarih(odakISO).getDate(), sonGun);
+      odakISO = gosterilenAy.getFullYear() + '-' + iki(gosterilenAy.getMonth() + 1) + '-' + iki(g);
+      if (odakISO < bugunISO) odakISO = bugunISO;
+      ayCiz();
+      odagiTazele();
+    }
+
+    function odakKaydir(gun) {
+      var d = isoTarih(odakISO);
+      d.setDate(d.getDate() + gun);
+      var yeniISO = yerelISO(d);
+      if (yeniISO < bugunISO) return;
+      odakISO = yeniISO;
+      if (d.getMonth() !== gosterilenAy.getMonth() || d.getFullYear() !== gosterilenAy.getFullYear()) {
+        gosterilenAy = new Date(d.getFullYear(), d.getMonth(), 1);
+      }
+      ayCiz();
+      odagiTazele();
+    }
+
+    giris.addEventListener('pointerdown', function (e) { e.preventDefault(); giris.focus(); takvim.hidden ? ac() : kapat(false); });
+    giris.addEventListener('keydown', function (e) {
+      if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') { e.preventDefault(); ac(); odagiTazele(); return; }
+      if (e.key === 'Escape') { kapat(false); return; }
+      // Yazarak giriş yok — tarih yalnızca takvimden seçilir
+      if (e.key.length === 1 || e.key === 'Backspace' || e.key === 'Delete') e.preventDefault();
+    });
+    giris.addEventListener('paste', function (e) { e.preventDefault(); });
+
+    takvim.addEventListener('click', function (e) {
+      var ok = e.target.closest('[data-ay]');
+      if (ok) { ayKaydir(+ok.getAttribute('data-ay')); return; }
+      var gun = e.target.closest('[data-gun]');
+      if (gun && !gun.disabled) gunSec(gun.getAttribute('data-gun'));
+    });
+    kapatBtn.addEventListener('click', function () { kapat(true); });
+
+    takvim.addEventListener('keydown', function (e) {
+      var k = e.key;
+      if (k === 'Escape') { e.preventDefault(); kapat(true); return; }
+      if (k === 'ArrowLeft') { e.preventDefault(); odakKaydir(-1); }
+      else if (k === 'ArrowRight') { e.preventDefault(); odakKaydir(1); }
+      else if (k === 'ArrowUp') { e.preventDefault(); odakKaydir(-7); }
+      else if (k === 'ArrowDown') { e.preventDefault(); odakKaydir(7); }
+      else if (k === 'PageUp') { e.preventDefault(); ayKaydir(-1); }
+      else if (k === 'PageDown') { e.preventDefault(); ayKaydir(1); }
+      else if (k === 'Home') { e.preventDefault(); odakKaydir(-((isoTarih(odakISO).getDay() - ilkGun + 7) % 7)); }
+      else if (k === 'End') { e.preventDefault(); odakKaydir(6 - ((isoTarih(odakISO).getDay() - ilkGun + 7) % 7)); }
+    });
+
+    // ---------------------------------------------------------------
+    // 3 · SAYI KUTULARI (EK-4 §3)
+    // ---------------------------------------------------------------
+    function sayiSinirla(kutu) {
+      var alan = kutu.querySelector('input');
+      var min = +alan.min, max = +alan.max;
+      var deger = parseInt(alan.value, 10);
+      if (isNaN(deger)) deger = min;
+      deger = Math.min(max, Math.max(min, deger));
+      if (String(deger) !== alan.value) alan.value = deger;
+      kutu.querySelectorAll('.sayi__btn').forEach(function (b) {
+        var adim = +b.getAttribute('data-adim');
+        var sinirda = adim < 0 ? deger <= min : deger >= max;
+        b.disabled = sinirda;
+      });
+    }
+
+    var sayiKutulari = form.querySelectorAll('[data-sayi]');
+    sayiKutulari.forEach(function (kutu) {
+      var alan = kutu.querySelector('input');
+      kutu.querySelectorAll('.sayi__btn').forEach(function (b) {
+        b.addEventListener('click', function () {
+          alan.value = (parseInt(alan.value, 10) || 0) + +b.getAttribute('data-adim');
+          sayiSinirla(kutu);
+          guncelle();
+        });
+      });
+      alan.addEventListener('input', function () { sayiSinirla(kutu); });
+      sayiSinirla(kutu);
+    });
+
+    // ---------------------------------------------------------------
+    // 4 · METİN ALANI (EK-4 §4)
+    // ---------------------------------------------------------------
+    var notAlani = form.querySelector('[data-buyuyen]');
+    var sayac = form.querySelector('[data-sayac]');
+    var NOT_SINIR = 300, NOT_UYARI = 250;
+    function notGuncelle() {
+      notAlani.style.height = 'auto';
+      notAlani.style.height = Math.min(notAlani.scrollHeight, 200) + 'px';
+      var n = notAlani.value.length;
+      sayac.textContent = n + ' / ' + NOT_SINIR;
+      sayac.classList.toggle('sayac--dolu', n > NOT_UYARI);
+    }
+    notAlani.addEventListener('input', notGuncelle);
+    notGuncelle();
+
+    // ---------------------------------------------------------------
+    // Mesaj kurulumu (§7.2) — değişmedi
+    // ---------------------------------------------------------------
+    function tarihMetni(iso) {
+      if (!iso) return '';
+      try {
+        return new Intl.DateTimeFormat(V.locale, {
+          day: 'numeric', month: 'long', year: 'numeric', weekday: 'long',
+        }).format(new Date(iso + 'T12:00:00'));
+      } catch (e) { return iso; }
+    }
+
+    function eur(v) {
+      try {
+        return new Intl.NumberFormat(V.locale, {
+          minimumFractionDigits: Number.isInteger(v) ? 0 : 2,
+          maximumFractionDigits: 2,
+        }).format(v) + ' €';
+      } catch (e) { return v + ' €'; }
+    }
+
+    function yaslariOku(metin) {
+      return (metin.match(/\d+/g) || []).map(function (n) { return parseInt(n, 10); }).filter(function (n) { return !isNaN(n); });
+    }
+
+    function etkinTurBilgi() {
+      var turId = alanlar.tur.value;
+      var turBilgi = V.turlar[turId] || { kod: '???', ad: turId };
+      var optionId = bookingOptionSelect ? bookingOptionSelect.value : '';
+      var option = null;
+      if (turBilgi.bookingOptions && turBilgi.bookingOptions.options) {
+        option = turBilgi.bookingOptions.options.find(function (o) { return o.id === optionId; }) || turBilgi.bookingOptions.options[0] || null;
+      }
+      if (!option) return turBilgi;
+      var kopya = {};
+      Object.keys(turBilgi).forEach(function (k) { kopya[k] = turBilgi[k]; });
+      kopya.kod = option.kod || turBilgi.kod;
+      kopya.ad = turBilgi.ad + ' — ' + option.label;
+      kopya.yetiskinFiyat = option.yetiskinFiyat;
+      kopya.cocukFiyat = option.cocukFiyat;
+      kopya.bebekFiyat = option.bebekFiyat;
+      kopya.bebekUcretsiz = option.bebekFiyat === 0;
+      kopya.yetiskinYasMin = option.yetiskinYasMin;
+      kopya.cocukYasMin = option.cocukYasMin;
+      kopya.cocukYasMax = option.cocukYasMax;
+      kopya.bebekYasMin = option.bebekYasMin;
+      kopya.bebekYasMax = option.bebekYasMax;
+      kopya.secilenOpsiyon = option;
+      return kopya;
+    }
+
+    function yasDagilimi(turBilgi, yaslar, cocukSayisi) {
+      var bebekMinVar = typeof turBilgi.bebekYasMin === 'number';
+      var bebekMaxVar = typeof turBilgi.bebekYasMax === 'number';
+      var cocukMinVar = typeof turBilgi.cocukYasMin === 'number';
+      var cocukMaxVar = typeof turBilgi.cocukYasMax === 'number';
+      var bebekMin = bebekMinVar ? turBilgi.bebekYasMin : 0;
+      var bebekMax = bebekMaxVar ? turBilgi.bebekYasMax : null;
+      var cocukMin = cocukMinVar ? turBilgi.cocukYasMin : null;
+      var cocukMax = cocukMaxVar ? turBilgi.cocukYasMax : null;
+      var sayim = { bebek: 0, cocuk: 0, yetiskin: 0 };
+      var yasSiniri = typeof cocukSayisi === 'number' ? Math.max(0, cocukSayisi) : yaslar.length;
+      var siniflanacakYaslar = yaslar.slice(0, yasSiniri);
+      siniflanacakYaslar.forEach(function (yas) {
+        if (bebekMaxVar && yas >= bebekMin && yas <= bebekMax) sayim.bebek += 1;
+        else if (cocukMinVar && cocukMaxVar && yas >= cocukMin && yas <= cocukMax && typeof turBilgi.cocukFiyat === 'number') sayim.cocuk += 1;
+        else if (!cocukMinVar && !cocukMaxVar && typeof turBilgi.cocukFiyat === 'number') sayim.cocuk += 1;
+        else sayim.yetiskin += 1;
+      });
+      var eksikYas = Math.max(0, (cocukSayisi || 0) - siniflanacakYaslar.length);
+      sayim.cocuk += eksikYas;
+      return sayim;
+    }
+
+    function yasFiyatMetni(turBilgi, yaslar, cocukSayisi) {
+      if ((!yaslar.length && !cocukSayisi) || typeof turBilgi.yetiskinFiyat !== 'number') return '';
+      var sayim = yasDagilimi(turBilgi, yaslar, cocukSayisi);
+      var satirlar = [];
+      var etiketler = turBilgi.fiyatEtiketleri || {};
+      if (sayim.bebek) satirlar.push((etiketler.infant || V.m.fiyatBebek) + ': ' + sayim.bebek + ' x ' + V.m.fiyatUcretsiz);
+      if (sayim.cocuk) satirlar.push((etiketler.child || V.m.fiyatCocuk) + ': ' + sayim.cocuk + ' x ' + eur(turBilgi.cocukFiyat));
+      if (sayim.yetiskin) satirlar.push((etiketler.adult || V.m.fiyatYas12) + ': ' + sayim.yetiskin + ' x ' + eur(turBilgi.yetiskinFiyat));
+      return satirlar.join(', ');
+    }
+
+    function fiyatMetni(turBilgi, yaslar, cocukSayisi) {
+      var yasDetayi = yasFiyatMetni(turBilgi, yaslar || [], cocukSayisi || 0);
+      if (yasDetayi) return yasDetayi;
+      var satirlar = [];
+      var etiketler = turBilgi.fiyatEtiketleri || {};
+      if (typeof turBilgi.yetiskinFiyat === 'number') satirlar.push((etiketler.adult || V.m.fiyatYetiskin) + ': ' + eur(turBilgi.yetiskinFiyat));
+      if (typeof turBilgi.cocukFiyat === 'number') satirlar.push((etiketler.child || V.m.fiyatCocuk) + ': ' + eur(turBilgi.cocukFiyat));
+      if (turBilgi.bebekUcretsiz) satirlar.push((etiketler.infant || V.m.fiyatBebek) + ': ' + V.m.fiyatUcretsiz);
+      else if (typeof turBilgi.bebekFiyat === 'number') satirlar.push((etiketler.infant || V.m.fiyatBebek) + ': ' + eur(turBilgi.bebekFiyat));
+      return satirlar.length > 1 ? satirlar.join(', ') : '';
+    }
+
+    function kisiMetni(turBilgi, yetiskin, cocuk, yaslar, yasListesi) {
+      var kisi = yetiskin + ' ' + V.m.yetiskin;
+      if (cocuk < 1) return kisi;
+
+      var sayim = yasDagilimi(turBilgi, yasListesi, cocuk);
+      var normalizeYetiskin = yetiskin + sayim.yetiskin;
+      var parcalar = [normalizeYetiskin + ' ' + V.m.yetiskin];
+      if (sayim.cocuk) parcalar.push(sayim.cocuk + ' ' + V.m.cocuk);
+      if (sayim.bebek) parcalar.push(sayim.bebek + ' ' + ((turBilgi.fiyatEtiketleri || {}).infant || V.m.fiyatBebek) + ' (' + V.m.fiyatUcretsiz + ')');
+
+      var metin = parcalar.join(', ');
+      if (yaslar) metin += ' (' + V.m.yas + ': ' + yaslar + ')';
+      return metin;
+    }
+
+    function mesajKur() {
+      var turBilgi = etkinTurBilgi();
+      var yetiskin = parseInt(alanlar.yetiskin.value, 10) || 0;
+      var cocuk = parseInt(alanlar.cocuk.value, 10) || 0;
+      var yaslar = alanlar.yaslar.value.trim();
+      var yasListesi = yaslariOku(yaslar);
+      var iso = alanlar.tarih.value;
+
+      var kisi = kisiMetni(turBilgi, yetiskin, cocuk, yaslar, yasListesi);
+      var normalizeSayim = yasDagilimi(turBilgi, yasListesi, cocuk);
+      var teknikYetiskin = yetiskin + normalizeSayim.yetiskin;
+      var teknikCocuk = normalizeSayim.cocuk;
+      var teknikBebek = normalizeSayim.bebek;
+
+      var satirlar = [
+        V.m.selamlama,
+        '',
+        V.m.tur + ': ' + turBilgi.ad,
+        V.m.tarih + ': ' + tarihMetni(iso),
+        V.m.kisi + ': ' + kisi,
+        V.m.otel + ': ' + alanlar.otel.value.trim(),
+        V.m.ad + ': ' + alanlar.ad.value.trim(),
+      ];
+      var fiyatlar = fiyatMetni(turBilgi, yasListesi, cocuk);
+      if (fiyatlar) satirlar.splice(5, 0, V.m.fiyatlar + ': ' + fiyatlar);
+      var not = alanlar.not.value.trim();
+      if (not) satirlar.push('', V.m.not + ': ' + not);
+
+      // Teknik satır: dilden bağımsız, sabit format — ekip altı dil bilmiyor,
+      // turu/tarihi/kişiyi buradan okur (§7.2). İsteğe bağlı DEĞİL.
+      satirlar.push(
+        '',
+        V.m.kapanis,
+        '',
+        '—',
+        '#' + refKod + ' · ' + V.dil.toUpperCase() + ' · ' + turBilgi.kod + ' · ' + (iso || '?') + ' · ' + teknikYetiskin + 'A+' + teknikCocuk + 'C+' + teknikBebek + 'I'
+      );
+
+      return satirlar.join('\n');
+    }
+
+    function guncelle() {
+      var cocuk = parseInt(alanlar.cocuk.value, 10) || 0;
+      yasAlani.hidden = cocuk < 1;
+      var turBilgi = V.turlar[alanlar.tur.value] || {};
+      var bookingOptions = turBilgi.bookingOptions;
+      if (bookingOptionAlani && bookingOptionSelect) {
+        if (bookingOptions && bookingOptions.options && bookingOptions.options.length) {
+          bookingOptionAlani.hidden = false;
+          if (bookingOptionLabel) bookingOptionLabel.textContent = bookingOptions.label || V.m.tur;
+          var mevcut = bookingOptionSelect.value || bookingOptions.defaultOptionId;
+          bookingOptionSelect.innerHTML = bookingOptions.options.map(function (option) {
+            return '<option value="' + option.id + '">' + option.label + '</option>';
+          }).join('');
+          bookingOptionSelect.value = bookingOptions.options.some(function (o) { return o.id === mevcut; }) ? mevcut : (bookingOptions.defaultOptionId || bookingOptions.options[0].id);
+          var secilen = bookingOptions.options.find(function (o) { return o.id === bookingOptionSelect.value; });
+          if (bookingOptionNote) {
+            bookingOptionNote.hidden = !(secilen && secilen.note);
+            bookingOptionNote.textContent = secilen && secilen.note ? secilen.note : '';
+          }
+        } else {
+          bookingOptionAlani.hidden = true;
+          bookingOptionSelect.innerHTML = '';
+        }
+      }
+    }
+
+    form.addEventListener('input', guncelle);
+    form.addEventListener('change', guncelle);
+    guncelle();
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (!form.reportValidity()) return;
+
+      var mesaj = mesajKur();
+      var waLink = 'https://wa.me/' + V.numara + '?text=' + encodeURIComponent(mesaj);
+
+      // Lead kaydı: WhatsApp AÇILMADAN ÖNCE gönderilir (§7.3 — atlanamaz).
+      // Endpoint henüz kurulmadıysa (iskelet aşaması) sessizce atlanır.
+      if (V.endpoint && navigator.sendBeacon) {
+        try {
+          navigator.sendBeacon(
+            V.endpoint,
+            new Blob([JSON.stringify({
+              ref: refKod,
+              dil: V.dil,
+              tur: alanlar.tur.value,
+              booking_option: alanlar.booking_option ? alanlar.booking_option.value : '',
+              tarih: alanlar.tarih.value,
+              yetiskin: alanlar.yetiskin.value,
+              cocuk: alanlar.cocuk.value,
+              fiyatlar: fiyatMetni(V.turlar[alanlar.tur.value] || {}, yaslariOku(alanlar.yaslar.value.trim()), parseInt(alanlar.cocuk.value, 10) || 0),
+              yaslar: alanlar.yaslar.value,
+              otel: alanlar.otel.value,
+              ad: alanlar.ad.value,
+              not: alanlar.not.value,
+              zaman: new Date().toISOString(),
+            })], { type: 'application/json' })
+          );
+        } catch (hata) {}
+      }
+
+      // Analytics olayı: wa_click (dil, tur, referans kodu) — GA4 lansmanda gelecek
+      if (window.dataLayer) {
+        window.dataLayer.push({ event: 'wa_click', dil: V.dil, tur: alanlar.tur.value, ref: refKod });
+      }
+
+      window.open(waLink, '_blank', 'noopener');
+    });
+  })();
+</script>

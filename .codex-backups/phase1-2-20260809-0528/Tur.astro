@@ -1,0 +1,657 @@
+---
+import type { Dil, Tur } from '../lib/tipler';
+import TemelSayfa from '../layouts/TemelSayfa.astro';
+import TurKart from '../components/TurKart.astro';
+import WhatsAppForm from '../components/WhatsAppForm.astro';
+import MobilCta from '../components/MobilCta.astro';
+import { MARKA } from '../config/marka';
+import { sozluk, yerlestir } from '../i18n/sozluk';
+import { KATEGORILER, TUM_KALKIS_NOKTALARI } from '../data/taksonomi';
+import { turBul, anaUrl, turlarUrl, mutlak } from '../lib/rotalar';
+import { euroTutar } from '../lib/fiyat';
+
+interface Props {
+  dil: Dil;
+  alternatifler: Record<Dil, string>;
+  turId: string;
+}
+
+const { dil, alternatifler: alt, turId } = Astro.props;
+const s = sozluk[dil];
+const tur = turBul(turId)! as Tur;
+const GUN_ADLARI: Record<Dil, Record<string, string>> = {
+  tr: { pzt: 'Pazartesi', sal: 'Salı', car: 'Çarşamba', per: 'Perşembe', cum: 'Cuma', cmt: 'Cumartesi', paz: 'Pazar' },
+  en: { pzt: 'Monday', sal: 'Tuesday', car: 'Wednesday', per: 'Thursday', cum: 'Friday', cmt: 'Saturday', paz: 'Sunday' },
+  ru: { pzt: 'Понедельник', sal: 'Вторник', car: 'Среда', per: 'Четверг', cum: 'Пятница', cmt: 'Суббота', paz: 'Воскресенье' },
+  de: { pzt: 'Montag', sal: 'Dienstag', car: 'Mittwoch', per: 'Donnerstag', cum: 'Freitag', cmt: 'Samstag', paz: 'Sonntag' },
+  pl: { pzt: 'Poniedziałek', sal: 'Wtorek', car: 'Środa', per: 'Czwartek', cum: 'Piątek', cmt: 'Sobota', paz: 'Niedziela' },
+  ro: { pzt: 'Luni', sal: 'Marți', car: 'Miercuri', per: 'Joi', cum: 'Vineri', cmt: 'Sâmbătă', paz: 'Duminică' },
+};
+
+const benzerler = tur.benzer_turlar
+  .map((id) => turBul(id))
+  .filter((t): t is Tur => !!t && t.aktif)
+  .slice(0, 3);
+
+const sureMetni = tur.sure_gun
+  ? `${tur.sure_gun} ${s.gun_kisa}`
+  : tur.sure_saat
+    ? `${tur.sure_saat} ${s.saat_kisa}`
+    : null;
+
+const kalkisAdlari = tur.kalkis_bolgeleri
+  .map((kod) => TUM_KALKIS_NOKTALARI.find((b) => b.kod === kod)?.ad[dil])
+  .filter(Boolean)
+  .join(', ');
+
+// İptal metni: özel metin yoksa kesin saatli kalıp (§5.3 — açık ve büyük puntoda)
+const iptalMetni = tur.iptal_metni?.[dil] ?? yerlestir(s.iptal_kalip, { saat: tur.iptal_saat });
+
+const grupMetni =
+  tur.min_kisi && tur.max_kisi ? `${tur.min_kisi} – ${tur.max_kisi}`
+  : tur.min_kisi ? `${tur.min_kisi}+`
+  : null;
+
+const yasMetni =
+  tur.min_yas && tur.max_yas ? `${tur.min_yas} – ${tur.max_yas}`
+  : tur.min_yas ? `${tur.min_yas}+`
+  : null;
+
+const zorlukMetni = tur.zorluk
+  ? { kolay: s.zorluk_kolay, orta: s.zorluk_orta, zor: s.zorluk_zor }[tur.zorluk]
+  : null;
+
+const fiyatMetni = euroTutar(tur.fiyat_eur, dil);
+const fiyatKatmanlari = [
+  { etiket: tur.adult_age_min ? `${s.fiyat_yetiskin} / ${s.fiyat_yas_12}` : s.fiyat_yetiskin, fiyat: tur.adult_price_eur ?? tur.fiyat_eur, ucretsiz: false },
+  ...(tur.child_price_eur != null ? [{ etiket: s.fiyat_cocuk, fiyat: tur.child_price_eur, ucretsiz: false }] : []),
+  ...(tur.infant_free ? [{ etiket: s.fiyat_bebek, fiyat: null, ucretsiz: true }] : tur.infant_price_eur != null ? [{ etiket: s.fiyat_bebek, fiyat: tur.infant_price_eur, ucretsiz: false }] : []),
+];
+
+// Galeri: en fazla 6 fotoğraf. Kaç fotoğraf varsa düzen ona göre oturur —
+// eksik kutu, yer tutucu, "+" işareti yok (MASTER-PROMPT §11).
+const galeri = tur.galeri.slice(0, 6);
+const galeriAlt = tur.alt_metin?.[dil] ?? tur.baslik[dil];
+const kategoriAdi = KATEGORILER.find((k) => k.kod === tur.kategoriler[0])?.ad[dil] ?? s.tur_hero_kategori;
+const gunMetni = tur.gunler?.length ? tur.gunler.map((g) => GUN_ADLARI[dil][g] ?? g).join(', ') : null;
+const ogleDahil = tur.dahil_olanlar?.[dil]?.some((m) => /öğle|lunch|обед|mittag|prânz/i.test(m)) ?? false;
+const heroBilgileri = [
+  sureMetni,
+  gunMetni,
+  tur.transfer_dahil ? s.transfer_dahil : null,
+  ogleDahil ? s.tur_hero_ogle : null,
+].filter((m): m is string => !!m).slice(0, 4);
+
+// Program satırı "06:30 – 07:30 Otelden alınış" biçiminde geliyor.
+// Saat kısmı ayrılır ki zaman çizgisinde kendi sütununda dursun;
+// saatsiz satırlarda olay tüm satır olur, çizgi yine düzgün çalışır.
+const programSatiri = (satir: string) => {
+  const m = satir.match(/^(\d{1,2}[:.]\d{2}(?:\s*[–—-]\s*\d{1,2}[:.]\d{2})?)\s+(.+)$/);
+  return m ? { saat: m[1], olay: m[2] } : { saat: null, olay: satir };
+};
+
+const sayfaBaslik = tur.meta_baslik?.[dil] ?? `${tur.baslik[dil]} | ${MARKA}`;
+const aciklama =
+  tur.meta_aciklama?.[dil] ?? yerlestir(s.meta_tur_aciklama, { b: tur.baslik[dil], f: fiyatMetni });
+
+// Product + Offer şeması, fiyat lowPrice (MASTER-PROMPT §13)
+const jsonLd = [{
+  '@context': 'https://schema.org',
+  '@type': 'Product',
+  name: tur.baslik[dil],
+  description: tur.ozet[dil],
+  ...(tur.kapak ? { image: [mutlak(tur.kapak)] } : {}),
+  offers: {
+    '@type': 'AggregateOffer',
+    priceCurrency: 'EUR',
+    lowPrice: tur.fiyat_eur,
+    availability: 'https://schema.org/InStock',
+    url: mutlak(alt[dil]),
+  },
+}];
+---
+<TemelSayfa dil={dil} baslik={sayfaBaslik} aciklama={aciklama} alternatifler={alt} jsonLd={jsonLd}>
+  <div class="kap">
+    <nav class="kirinti" aria-label="breadcrumb">
+      <ol>
+        <li><a href={anaUrl(dil)}>{s.ana_sayfa}</a></li>
+        <li><a href={turlarUrl(dil)}>{s.tum_turlar}</a></li>
+        <li>{tur.baslik[dil]}</li>
+      </ol>
+    </nav>
+
+    <div class="tur-yerlesim bolum--dar">
+      <div class="tur-hero-kolon">
+        {galeri.length > 0 && (
+          <div class="galeri" data-adet={galeri.length} data-galeri>
+            <button
+              type="button"
+              class="tur-hero"
+              data-galeri-ac="0"
+              aria-label={galeriAlt}
+            >
+              <img
+                src={galeri[0]}
+                alt={galeriAlt}
+                width="1600" height="1200"
+                fetchpriority="high" decoding="async"
+              />
+              <span class="tur-hero__golge" aria-hidden="true"></span>
+              <span class="tur-hero__icerik">
+                <span class="tur-hero__rozet">{kategoriAdi}</span>
+                <span class="tur-hero__baslik">{tur.baslik[dil]}</span>
+                {tur.ozet[dil] && <span class="tur-hero__ozet">{tur.ozet[dil]}</span>}
+                <span class="tur-hero__meta">
+                  {heroBilgileri.map((m) => <span>{m}</span>)}
+                </span>
+              </span>
+            </button>
+
+            {galeri.length > 1 && (
+              <div class="galeri__serit">
+                {galeri.slice(1).map((g, i) => (
+                  <button type="button" class="galeri__mini" data-galeri-ac={i + 1} aria-label={galeriAlt}>
+                    <img src={g} alt="" width="1600" height="1200" loading="lazy" decoding="async" />
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {galeri.length === 0 && <h1>{tur.baslik[dil]}</h1>}
+        {galeri.length === 0 && tur.ozet[dil] && <p class="ikincil">{tur.ozet[dil]}</p>}
+        <div class="tur-meta">
+          {sureMetni && <span>{sureMetni}</span>}
+          {gunMetni && <span>{gunMetni}</span>}
+          {kalkisAdlari && <span>{s.k_kalkis}: {kalkisAdlari}</span>}
+        </div>
+      </div>
+
+      <aside class="tur-yan">
+        <div class="rez-panel">
+          <div class="rez-panel__ust">
+            <h2>{s.rezervasyon_baslik}</h2>
+            <p>{s.rezervasyon_alt}</p>
+          </div>
+          <div class="fiyat-blok">
+          <div class="fiyat-blok__rakam">{yerlestir(s.fiyat_baslayan, { f: fiyatMetni })}</div>
+          <div class="fiyat-blok__yaklasik" data-eur={tur.fiyat_eur}></div>
+          <div class="fiyat-blok__odeme">{s.odeme_gunu}</div>
+          {fiyatKatmanlari.length > 1 && (
+            <div class="fiyat-katmanlari" aria-label={s.fiyat_kategorileri}>
+              {fiyatKatmanlari.map((katman) => (
+                <div class="fiyat-katmani">
+                  <span>{katman.etiket}</span>
+                  <strong>{katman.ucretsiz || katman.fiyat == null ? s.fiyat_ucretsiz : `${euroTutar(katman.fiyat, dil)} €`}</strong>
+                </div>
+              ))}
+            </div>
+          )}
+          {tur.fiyat_notu?.[dil] && <div class="ikincil" style="font-size:13px;margin-top:4px">{tur.fiyat_notu[dil]}</div>}
+
+          <!-- İptal politikası: WhatsApp butonunun hemen üstünde, küçük puntoda DEĞİL -->
+          <div class="iptal-kutu">
+            {iptalMetni}
+            {tur.hava_iptali && <div class="ikincil" style="margin-top:8px">{s.hava_iptali_metni}</div>}
+          </div>
+          </div>
+          <WhatsAppForm dil={dil} tur={tur} />
+        </div>
+      </aside>
+
+      <!-- Sol alt: içerik bölümleri (§5.3 sıra 6-12). Boş alan sessizdir (§11). -->
+      <div class="tur-ana-alt">
+        {tur.aciklama?.[dil] && (
+          <section class="tur-bolum">
+            <h2>{s.b_aciklama}</h2>
+            {tur.aciklama[dil].split('\n\n').map((p) => <p>{p}</p>)}
+          </section>
+        )}
+
+        {tur.program?.[dil]?.length ? (
+          <section class="tur-bolum">
+            <h2>{s.b_program}</h2>
+            <ol class="program">
+              {tur.program[dil].map((satir) => {
+                const { saat, olay } = programSatiri(satir);
+                return (
+                  <li class="program__adim">
+                    {saat && <time class="program__saat">{saat}</time>}
+                    <span class="program__olay">{olay}</span>
+                  </li>
+                );
+              })}
+            </ol>
+          </section>
+        ) : null}
+
+        {(tur.dahil_olanlar?.[dil]?.length || tur.dahil_olmayanlar?.[dil]?.length) ? (
+          <section class="tur-bolum">
+            <div class="iki-sutun">
+              {tur.dahil_olanlar?.[dil]?.length ? (
+                <div>
+                  <h2>{s.b_dahil}</h2>
+                  <ul>{tur.dahil_olanlar[dil].map((m) => <li>{m}</li>)}</ul>
+                </div>
+              ) : null}
+              {tur.dahil_olmayanlar?.[dil]?.length ? (
+                <div>
+                  <h2>{s.b_dahil_degil}</h2>
+                  <ul>{tur.dahil_olmayanlar[dil].map((m) => <li>{m}</li>)}</ul>
+                </div>
+              ) : null}
+            </div>
+          </section>
+        ) : null}
+
+        {(grupMetni || yasMetni || zorlukMetni || tur.saglik_uyarisi?.[dil] || tur.gerekli_esyalar?.[dil]?.length || tur.alinis_saati || tur.donus_saati) ? (
+          <section class="tur-bolum">
+            <h2>{s.b_kosullar}</h2>
+            <dl class="kosullar">
+              {tur.alinis_saati && <><dt>{s.k_alinis}</dt><dd>{tur.alinis_saati}</dd></>}
+              {tur.donus_saati && <><dt>{s.k_donus}</dt><dd>{tur.donus_saati}</dd></>}
+              {grupMetni && <><dt>{s.k_grup}</dt><dd>{grupMetni}</dd></>}
+              {yasMetni && <><dt>{s.k_yas}</dt><dd>{yasMetni}</dd></>}
+              {zorlukMetni && <><dt>{s.k_zorluk}</dt><dd>{zorlukMetni}</dd></>}
+              {tur.saglik_uyarisi?.[dil] && <><dt>⚠</dt><dd>{tur.saglik_uyarisi[dil]}</dd></>}
+              {tur.gerekli_esyalar?.[dil]?.length ? (
+                <><dt>{s.k_esyalar}</dt><dd>{tur.gerekli_esyalar[dil].join(', ')}</dd></>
+              ) : null}
+            </dl>
+          </section>
+        ) : null}
+
+        {tur.bulusma_noktasi?.[dil] && (
+          <section class="tur-bolum">
+            <h2>{s.b_bulusma}</h2>
+            <p>{tur.bulusma_noktasi[dil]}</p>
+            {tur.bulusma_koordinat && (
+              <p>
+                <a href={`https://www.openstreetmap.org/?mlat=${tur.bulusma_koordinat.lat}&mlon=${tur.bulusma_koordinat.lng}#map=16/${tur.bulusma_koordinat.lat}/${tur.bulusma_koordinat.lng}`}
+                   target="_blank" rel="noopener">🗺</a>
+              </p>
+            )}
+          </section>
+        )}
+
+        {tur.onemli_notlar?.[dil]?.length ? (
+          <section class="tur-bolum">
+            <h2>{s.b_notlar}</h2>
+            <ul>{tur.onemli_notlar[dil].map((n) => <li>{n}</li>)}</ul>
+          </section>
+        ) : null}
+
+        {benzerler.length > 0 && (
+          <section class="tur-bolum">
+            <h2>{s.b_benzer}</h2>
+            <div class="grid">
+              {benzerler.map((b) => <TurKart dil={dil} tur={b} />)}
+            </div>
+          </section>
+        )}
+      </div>
+    </div>
+  </div>
+
+  <div class="mobil-cta-bosluk"></div>
+  <MobilCta dil={dil} tur={tur} />
+
+  {galeri.length > 0 && (
+    <dialog class="isik" data-isik aria-label={galeriAlt}>
+      <button type="button" class="isik__kapat" data-isik-kapat aria-label={s.galeri_kapat}>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="1.5" stroke-linecap="round" aria-hidden="true">
+          <path d="M6 6l12 12M18 6L6 18" />
+        </svg>
+      </button>
+
+      <figure class="isik__cerceve">
+        <img data-isik-gorsel src={galeri[0]} alt={galeriAlt} width="1600" height="1200" />
+        <figcaption class="isik__sayac" data-isik-sayac></figcaption>
+      </figure>
+
+      {galeri.length > 1 && (
+        <>
+          <button type="button" class="isik__ok isik__ok--sol" data-isik-yon="-1" aria-label={s.galeri_onceki}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M15 5l-7 7 7 7" />
+            </svg>
+          </button>
+          <button type="button" class="isik__ok isik__ok--sag" data-isik-yon="1" aria-label={s.galeri_sonraki}>
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                 stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
+        </>
+      )}
+    </dialog>
+  )}
+</TemelSayfa>
+
+<style>
+  /* ---- Galeri ------------------------------------------------------
+     Düzen fotoğraf sayısına göre oturur; eksik kutu hiç üretilmez.
+     1 foto → tek kare · 2 foto → yan yana iki eşit · 3+ → büyük + şerit  */
+
+  .galeri{ display: grid; gap: 8px; }
+
+  .tur-hero{
+    position: relative;
+    display: block;
+    width: 100%;
+    min-height: clamp(420px, 58vh, 680px);
+    padding: 0;
+    border: 0;
+    border-radius: var(--r-kart);
+    overflow: hidden;
+    background: var(--surface-strong);
+    cursor: pointer;
+    text-align: left;
+    color: var(--text-inverse);
+    box-shadow: 0 20px 60px rgba(22,18,43,.16);
+  }
+  .tur-hero img{
+    width: 100%;
+    height: 100%;
+    min-height: inherit;
+    object-fit: cover;
+    filter: saturate(.96) contrast(1.05);
+    transition: transform .24s ease-out;
+  }
+  .tur-hero:hover img{ transform: scale(1.025); }
+  .tur-hero__golge{
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(180deg, rgba(22,18,43,.10) 0%, rgba(22,18,43,.36) 46%, rgba(22,18,43,.78) 100%),
+      linear-gradient(90deg, rgba(22,18,43,.40) 0%, rgba(22,18,43,.04) 54%);
+    pointer-events: none;
+  }
+  .tur-hero__icerik{
+    position: absolute;
+    left: clamp(20px, 4vw, 42px);
+    right: clamp(20px, 4vw, 42px);
+    bottom: clamp(22px, 4vw, 42px);
+    display: grid;
+    gap: 12px;
+    max-width: 720px;
+  }
+  .tur-hero__rozet{
+    width: max-content;
+    border: 1px solid rgba(247,243,236,.42);
+    border-radius: var(--r-rozet);
+    padding: 7px 12px;
+    color: var(--text-inverse);
+    background: rgba(22,18,43,.36);
+    font-size: 12px;
+  }
+  .tur-hero__baslik{
+    display: block;
+    font-family: var(--font-baslik);
+    font-size: clamp(42px, 7vw, 76px);
+    line-height: .95;
+    font-weight: 500;
+  }
+  .tur-hero__ozet{
+    display: block;
+    max-width: 620px;
+    font-size: clamp(15px, 1.5vw, 18px);
+    line-height: 1.55;
+    color: rgba(247,243,236,.88);
+  }
+  .tur-hero__meta{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .tur-hero__meta span{
+    border-radius: var(--r-rozet);
+    background: rgba(247,243,236,.12);
+    border: 1px solid rgba(247,243,236,.20);
+    color: rgba(247,243,236,.92);
+    padding: 7px 10px;
+    font-size: 12px;
+    backdrop-filter: blur(8px);
+  }
+  .tur-hero:focus-visible{ outline: 3px solid var(--focus-ring); outline-offset: 3px; }
+
+  .galeri__buyuk,
+  .galeri__mini{
+    padding: 0;
+    border: 0;
+    background: var(--surface-strong);
+    border-radius: var(--r-kart);
+    overflow: hidden;
+    cursor: pointer;
+    display: block;
+    width: 100%;
+  }
+  .galeri__buyuk{ aspect-ratio: 4 / 3; }
+  .galeri__mini{ aspect-ratio: 4 / 3; }
+
+  .galeri img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: saturate(.92) contrast(1.06);
+    transition: transform .2s ease-out;
+  }
+  .galeri__mini:hover img{ transform: scale(1.04); }
+
+  .galeri__mini:focus-visible{ outline: 3px solid var(--focus-ring); outline-offset: 3px; }
+
+  /* Şerit: kaç fotoğraf kaldıysa o kadar sütun — boşluk doldurulmaz */
+  .galeri__serit{
+    display: grid;
+    gap: 8px;
+    grid-template-columns: repeat(var(--serit-adet, 5), 1fr);
+  }
+  .galeri[data-adet="2"] .galeri__serit{ --serit-adet: 1; }
+  .galeri[data-adet="3"] .galeri__serit{ --serit-adet: 2; }
+  .galeri[data-adet="4"] .galeri__serit{ --serit-adet: 3; }
+  .galeri[data-adet="5"] .galeri__serit{ --serit-adet: 4; }
+  .galeri[data-adet="6"] .galeri__serit{ --serit-adet: 5; }
+
+  /* İki fotoğrafta şerit altta değil, yanda: düzen ikiye göre oturur */
+  @media (min-width: 620px){
+    .galeri[data-adet="2"]{ grid-template-columns: 1fr 1fr; }
+    .galeri[data-adet="2"] .galeri__serit{ display: block; }
+    .galeri[data-adet="2"] .galeri__mini{ height: 100%; aspect-ratio: auto; }
+  }
+
+  /* ---- Program: dikey zaman çizgisi -------------------------------- */
+
+  .program{
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    position: relative;
+  }
+  /* Çizgi saat sütunuyla olay sütunu arasından geçer */
+  .program::before{
+    content: "";
+    position: absolute;
+    top: 6px;
+    bottom: 6px;
+    left: var(--saat-genislik, 74px);
+    width: 1px;
+    background: var(--cizgi-koyu);
+  }
+
+  .program__adim{
+    display: grid;
+    grid-template-columns: var(--saat-genislik, 74px) 1fr;
+    gap: 0 20px;
+    padding: 10px 0;
+    position: relative;
+  }
+  /* Nokta çizginin üstünde durur */
+  .program__adim::before{
+    content: "";
+    position: absolute;
+    left: calc(var(--saat-genislik, 74px) - 3.5px);
+    top: 17px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--action);
+  }
+
+  .program__saat{
+    font-family: var(--font-govde);
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+    color: var(--text-muted);
+    text-align: right;
+    padding-right: 4px;
+    line-height: 1.5;
+  }
+  .program__olay{
+    font-size: 15px;
+    color: var(--text-primary);
+    grid-column: 2;
+  }
+  /* Saatsiz satır: olay yine sağ sütunda, hizalama bozulmaz */
+  .program__adim:not(:has(.program__saat)) .program__olay{ grid-column: 2; }
+
+  @media (max-width: 520px){
+    .tur-hero{
+      min-height: 430px;
+      border-radius: var(--r-kart);
+    }
+    .tur-hero__icerik{ gap: 10px; }
+    .tur-hero__meta span{ font-size: 11px; }
+    .program{ --saat-genislik: 58px; }
+    .program__adim{ gap: 0 14px; }
+    .program__saat{ font-size: 12px; }
+  }
+
+  /* ---- Bölümlerin belirmesi ---------------------------------------
+     Kaydırma bağlı CSS animasyonu — JS yok. Desteklemeyen tarayıcıda
+     bölümler doğrudan görünür, hiçbir şey gizli kalmaz.               */
+
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .tur-bolum{
+        animation: bolumBelir .2s ease-out both;
+        animation-timeline: view();
+        animation-range: entry 0% entry 32%;
+      }
+    }
+  }
+  @keyframes bolumBelir{
+    from{ opacity: 0; transform: translateY(12px); }
+    to  { opacity: 1; transform: none; }
+  }
+
+  /* ---- Tam ekran görüntüleyici ------------------------------------- */
+
+  .isik{
+    border: 0;
+    padding: 0;
+    max-width: 100vw;
+    max-height: 100vh;
+    width: 100%;
+    height: 100%;
+    background: var(--surface-strong);
+    color: var(--text-inverse);
+  }
+  .isik::backdrop{ background: rgba(22,18,43,.92); }
+
+  .isik__cerceve{
+    margin: 0;
+    height: 100%;
+    display: grid;
+    place-items: center;
+    gap: 12px;
+    padding: 48px 16px;
+  }
+  .isik__cerceve img{
+    max-width: min(1200px, 92vw);
+    max-height: 78vh;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    border-radius: var(--r-buton);
+  }
+  .isik__sayac{
+    font-size: 13px;
+    color: rgba(247,243,236,.7);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .isik__kapat,
+  .isik__ok{
+    position: absolute;
+    background: rgba(247,243,236,.1);
+    color: var(--kagit);
+    border: 0;
+    border-radius: var(--r-buton);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background .2s ease-out;
+  }
+  .isik__kapat:hover,
+  .isik__ok:hover{ background: rgba(247,243,236,.2); }
+  .isik__kapat:focus-visible,
+  .isik__ok:focus-visible{ outline: 3px solid var(--focus-ring); outline-offset: 2px; }
+
+  .isik__kapat{ top: 12px; right: 12px; width: 40px; height: 40px; }
+  .isik__ok{ top: 50%; transform: translateY(-50%); width: 44px; height: 56px; }
+  .isik__ok--sol{ left: 12px; }
+  .isik__ok--sag{ right: 12px; }
+
+  @media (prefers-reduced-motion: reduce){
+    .galeri img,
+    .isik__kapat,
+    .isik__ok{ transition: none; }
+    .galeri__buyuk:hover img,
+    .galeri__mini:hover img{ transform: none; }
+    .tur-bolum{ animation: none; }
+  }
+</style>
+
+<script is:inline define:vars={{ fotograflar: galeri, altMetin: galeriAlt }}>
+  (function () {
+    var kap = document.querySelector('[data-galeri]');
+    var isik = document.querySelector('[data-isik]');
+    if (!kap || !isik || !isik.showModal) return;      // desteklemeyen tarayıcıda galeri statik kalır
+
+    var gorsel = isik.querySelector('[data-isik-gorsel]');
+    var sayac = isik.querySelector('[data-isik-sayac]');
+    var indeks = 0;
+
+    function goster(i) {
+      indeks = (i + fotograflar.length) % fotograflar.length;
+      gorsel.src = fotograflar[indeks];
+      gorsel.alt = altMetin;
+      if (sayac) sayac.textContent = (indeks + 1) + ' / ' + fotograflar.length;
+    }
+
+    kap.addEventListener('click', function (e) {
+      var dugme = e.target.closest('[data-galeri-ac]');
+      if (!dugme) return;
+      goster(parseInt(dugme.getAttribute('data-galeri-ac'), 10) || 0);
+      isik.showModal();
+    });
+
+    isik.addEventListener('click', function (e) {
+      var yon = e.target.closest('[data-isik-yon]');
+      if (yon) { goster(indeks + parseInt(yon.getAttribute('data-isik-yon'), 10)); return; }
+      if (e.target.closest('[data-isik-kapat]')) { isik.close(); return; }
+      // görselin dışına tıklama kapatır (Esc'i dialog kendi hallediyor)
+      if (!e.target.closest('.isik__cerceve img')) isik.close();
+    });
+
+    isik.addEventListener('keydown', function (e) {
+      if (fotograflar.length < 2) return;
+      if (e.key === 'ArrowRight') { e.preventDefault(); goster(indeks + 1); }
+      if (e.key === 'ArrowLeft') { e.preventDefault(); goster(indeks - 1); }
+    });
+  })();
+</script>

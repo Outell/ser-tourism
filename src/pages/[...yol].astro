@@ -1,0 +1,36 @@
+---
+// Tüm dilli sayfalar tek rotadan üretilir: 6 dil × 37 sayfa = 222 sayfa.
+// Envanter rotalar.ts'te; şablon seçimi sayfa tanımından gelir.
+// Yol parçaları dil başına çevrildiği için (turlar/tours/tury/touren/wycieczki)
+// klasör tabanlı rota yerine catch-all + getStaticPaths kullanılıyor.
+import type { SayfaTanimi } from '../lib/rotalar';
+import { tumSayfalar } from '../lib/rotalar';
+import AnaSayfa from '../sablonlar/AnaSayfa.astro';
+import Liste from '../sablonlar/Liste.astro';
+import Tur from '../sablonlar/Tur.astro';
+import Metin from '../sablonlar/Metin.astro';
+import Plan from '../sablonlar/Plan.astro';
+import Rehber from '../sablonlar/Rehber.astro';
+
+export function getStaticPaths() {
+  return tumSayfalar().map((sayfa) => ({
+    params: { yol: sayfa.yol.replace(/^\/|\/$/g, '') },
+    props: { sayfa },
+  }));
+}
+
+interface Props { sayfa: SayfaTanimi }
+const { sayfa } = Astro.props;
+---
+{sayfa.sablon === 'ana' && <AnaSayfa dil={sayfa.dil} alternatifler={sayfa.alternatifler} />}
+{sayfa.sablon === 'liste' && (
+  <Liste dil={sayfa.dil} alternatifler={sayfa.alternatifler} listeTipi={sayfa.listeTipi} anahtar={sayfa.anahtar} />
+)}
+{sayfa.sablon === 'tur' && <Tur dil={sayfa.dil} alternatifler={sayfa.alternatifler} turId={sayfa.turId} />}
+{sayfa.sablon === 'metin' && (
+  <Metin dil={sayfa.dil} alternatifler={sayfa.alternatifler} metinKodu={sayfa.metinKodu} />
+)}
+{sayfa.sablon === 'plan' && <Plan dil={sayfa.dil} alternatifler={sayfa.alternatifler} />}
+{sayfa.sablon === 'rehber' && (
+  <Rehber dil={sayfa.dil} alternatifler={sayfa.alternatifler} rehberKodu={sayfa.rehberKodu} />
+)}
