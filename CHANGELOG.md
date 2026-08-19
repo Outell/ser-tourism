@@ -76,3 +76,13 @@ güncellemesi) tarihli olarak kaydeder. Şartname dosyaları değişmez; burası
   genişlikte tüm öğeler (logo + dil + hava + hamburger) taşmadan sığıyor
   (doğrulandı: `preview_eval` ile bounding rect ölçümü, sağda 16px boşluk
   kalıyor). `src/styles/global.css`
+
+### Mobil UX — sürücü menüsünde döviz seçici tema düğmesiyle aynı satırda
+- Mobil drawer menüsündeki döviz seçici tam genişlik (`width: 100%`)
+  render oluyordu; sadece 3 karakterlik bir değer ("€") için gereksiz
+  uzun ve boş görünüyordu. `secim--dar` sınıfıyla içeriğine göre
+  daralan bir seçiciye çevrildi. `src/components/Baslik.astro`
+- `.mobil-menu__araclar` grid yerine flex düzenine geçti: tema düğmesi
+  kalan alanı kaplıyor (`flex: 1 1 auto`), döviz seçici içeriğine göre
+  sağda oturuyor (~92px), ikisi aynı satırda ve aynı yükseklikte (46px).
+  `src/styles/global.css`

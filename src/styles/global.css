@@ -1618,11 +1618,15 @@ body{
 }
 .mobil-menu__nav a + a{ border-top: 1px solid var(--border); }
 .mobil-menu__araclar{
-  display: grid;
+  display: flex;
+  align-items: stretch;
   gap: 12px;
 }
 .tema-toggle--mobil{
-  width: 100%;
+  flex: 1 1 auto;
+  min-width: 0;
+  height: auto;
+  min-height: 46px;
   grid-template-columns: 20px 1fr;
   justify-content: start;
   place-items: center start;
@@ -1632,7 +1636,8 @@ body{
   border-color: var(--border);
   padding: 0 12px;
 }
-.tema-toggle--mobil span{ font-family: var(--font-govde); font-size: 15px; }
+.tema-toggle--mobil span{ font-family: var(--font-govde); font-size: 15px; white-space: nowrap; }
+.mobil-menu__araclar .secim--dar{ flex: 0 0 auto; }
 .dil-sec--mobil summary{
   min-height: 46px;
   padding: 0 12px;
@@ -1645,7 +1650,9 @@ body{
   box-shadow: none;
 }
 .para-sec--mobil{
-  width: 100%;
+  width: auto;
+  min-width: 92px;
+  height: 100%;
   min-height: 46px;
   color: var(--text-primary);
   background: var(--bg-soft);
