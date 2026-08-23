@@ -1,0 +1,255 @@
+---
+import type { Dil } from '../lib/tipler';
+import type { TransferBolgesi } from '../data/transferler';
+import TemelSayfa from '../layouts/TemelSayfa.astro';
+import WaIkon from '../components/WaIkon.astro';
+import { MARKA, WA_NUMBERS } from '../config/marka';
+import { sozluk, yerlestir } from '../i18n/sozluk';
+import { euroTutar } from '../lib/fiyat';
+import { anaUrl } from '../lib/rotalar';
+import { TRANSFER_DOGU, TRANSFER_BATI } from '../data/transferler';
+
+interface Props {
+  dil: Dil;
+  alternatifler: Record<Dil, string>;
+}
+
+const { dil, alternatifler: alt } = Astro.props;
+const s = sozluk[dil];
+const numara = WA_NUMBERS[dil];
+
+// WhatsApp mesajı — TurKart.astro'daki gibi build zamanında hazır, form yok.
+function waMesaj(ortaSatirlar: string[]) {
+  return [s.transfer_wa_mesaj_giris, '', ...ortaSatirlar, '', s.transfer_wa_mesaj_kapanis].join('\n');
+}
+
+const genelWaLink = `https://wa.me/${numara}?text=${encodeURIComponent(waMesaj([]))}`;
+
+function bolgeWaLink(b: TransferBolgesi) {
+  const fiyat = `${euroTutar(b.fiyat_eur, dil)} €`;
+  const mesaj = waMesaj([
+    yerlestir(s.transfer_wa_mesaj_guzergah, { b: b.ad[dil] }),
+    yerlestir(s.transfer_wa_mesaj_fiyat, { f: fiyat }),
+  ]);
+  return `https://wa.me/${numara}?text=${encodeURIComponent(mesaj)}`;
+}
+
+const G = '/gorseller/havalimani-transferi/havalimani-transferi-';
+const galeri = [G + '03-galeri.webp', G + '05-galeri.webp', G + '06-galeri.webp', G + '07-galeri.webp', G + '04-galeri.webp'];
+
+const baslik = `${s.transfer_baslik} | ${MARKA}`;
+---
+<TemelSayfa dil={dil} baslik={baslik} aciklama={s.transfer_ozet} alternatifler={alt}>
+  <section class="hero hero--v2 hero--transfer">
+    <picture>
+      <source media="(max-width: 767px)" srcset={G + '01-hero-mobil.webp'} width="1080" height="1350" />
+      <img
+        class="hero__gorsel"
+        src={G + '01-hero.webp'}
+        alt=""
+        width="2400"
+        height="1350"
+        fetchpriority="high"
+        decoding="async"
+      />
+    </picture>
+    <div class="hero__icerik">
+      <p class="hero__eyebrow">{MARKA} · {s.transfer_eyebrow}</p>
+      <h1>{s.transfer_baslik}</h1>
+      <p class="hero__alt">{s.transfer_h1_alt}</p>
+      <div class="hero__aksiyonlar">
+        <a class="wa-buton wa-buton--hero" href={genelWaLink} target="_blank" rel="noopener">
+          <WaIkon boyut={18} />
+          {s.transfer_cta_wa}
+        </a>
+        <a class="buton-sade buton-sade--hero" href="#transfer-fiyatlar">{s.transfer_cta_fiyat}</a>
+      </div>
+    </div>
+  </section>
+
+  <div class="kap bolum--dar">
+    <nav class="kirinti" aria-label="breadcrumb">
+      <ol>
+        <li><a href={anaUrl(dil)}>{s.ana_sayfa}</a></li>
+        <li>{s.transfer_baslik}</li>
+      </ol>
+    </nav>
+  </div>
+
+  <!-- Öne çıkan özellikler -->
+  <section class="kap bolum--dar">
+    <div class="neden">
+      <article>
+        <h3>{s.transfer_ozellik_1_baslik}</h3>
+        <p>{s.transfer_ozellik_1_metin}</p>
+      </article>
+      <article>
+        <h3>{s.transfer_ozellik_2_baslik}</h3>
+        <p>{s.transfer_ozellik_2_metin}</p>
+      </article>
+      <article>
+        <h3>{s.transfer_ozellik_3_baslik}</h3>
+        <p>{s.transfer_ozellik_3_metin}</p>
+      </article>
+      <article>
+        <h3>{s.transfer_ozellik_4_baslik}</h3>
+        <p>{s.transfer_ozellik_4_metin}</p>
+      </article>
+    </div>
+  </section>
+
+  <!-- Araç galerisi -->
+  <section class="kap bolum--dar">
+    <div class="transfer-galeri">
+      {galeri.map((src) => (
+        <div class="transfer-galeri__ogr">
+          <img src={src} alt={s.transfer_galeri_alt} width="1600" height="1200" loading="lazy" decoding="async" />
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- Fiyat tablosu -->
+  <section id="transfer-fiyatlar" class="kap bolum">
+    <div class="bolum-baslik">
+      <h2>{s.transfer_fiyat_baslik}</h2>
+      <p class="ikincil">{s.transfer_fiyat_alt}</p>
+    </div>
+
+    <div class="transfer-tablolar">
+      <div class="transfer-tablo">
+        <h3 class="transfer-tablo__baslik">{s.transfer_dogu_baslik}</h3>
+        <ul class="fiyat-liste" aria-label={s.transfer_dogu_baslik}>
+          {TRANSFER_DOGU.map((b) => (
+            <li class="fiyat-satir">
+              <span class="fiyat-satir__bolge">{b.ad[dil]}</span>
+              <span class="fiyat-satir__fiyat">
+                {euroTutar(b.fiyat_eur, dil)} €
+                <small data-eur={b.fiyat_eur}></small>
+              </span>
+              <a class="fiyat-satir__wa" href={bolgeWaLink(b)} target="_blank" rel="noopener"
+                 aria-label={`${s.transfer_cta_wa}: ${b.ad[dil]}`}>
+                <WaIkon boyut={16} />
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div class="transfer-tablo">
+        <h3 class="transfer-tablo__baslik">{s.transfer_bati_baslik}</h3>
+        <ul class="fiyat-liste" aria-label={s.transfer_bati_baslik}>
+          {TRANSFER_BATI.map((b) => (
+            <li class="fiyat-satir">
+              <span class="fiyat-satir__bolge">{b.ad[dil]}</span>
+              <span class="fiyat-satir__fiyat">
+                {euroTutar(b.fiyat_eur, dil)} €
+                <small data-eur={b.fiyat_eur}></small>
+              </span>
+              <a class="fiyat-satir__wa" href={bolgeWaLink(b)} target="_blank" rel="noopener"
+                 aria-label={`${s.transfer_cta_wa}: ${b.ad[dil]}`}>
+                <WaIkon boyut={16} />
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+
+    <p class="ikincil transfer-not">{s.transfer_not}</p>
+  </section>
+</TemelSayfa>
+
+<style>
+  .hero--transfer .hero__icerik{ max-width: 620px; }
+
+  .transfer-galeri{
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: clamp(10px, 2vw, 16px);
+  }
+  .transfer-galeri__ogr{
+    position: relative;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    border-radius: var(--r-media);
+    background: var(--surface-strong);
+  }
+  .transfer-galeri__ogr img{
+    width: 100%; height: 100%;
+    object-fit: cover;
+    filter: saturate(.96) contrast(1.04);
+    transition: transform .4s ease;
+  }
+  .transfer-galeri__ogr:hover img{ transform: scale(1.04); }
+
+  .transfer-tablolar{
+    display: grid;
+    gap: 24px;
+    grid-template-columns: 1fr;
+    margin-top: 8px;
+  }
+  @media (min-width: 760px){
+    .transfer-tablolar{ grid-template-columns: 1fr 1fr; }
+  }
+
+  .transfer-tablo{
+    background: var(--surface-elevated);
+    border: 0.5px solid var(--border);
+    border-radius: var(--r-card);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+  }
+  .transfer-tablo__baslik{
+    margin: 0;
+    padding: 16px 20px;
+    font-size: 17px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .fiyat-liste{ list-style: none; margin: 0; padding: 0; }
+  .fiyat-satir{
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 13px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+  .fiyat-satir:last-child{ border-bottom: 0; }
+  .fiyat-satir__bolge{ flex: 1; font-size: 14.5px; }
+  .fiyat-satir__fiyat{
+    font-family: var(--font-baslik);
+    font-weight: 500;
+    font-size: 17px;
+    color: var(--accent-hover);
+    white-space: nowrap;
+    text-align: right;
+  }
+  .fiyat-satir__fiyat small{
+    display: block;
+    font-family: var(--font-govde);
+    font-weight: 400;
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+
+  /* İkon-only WhatsApp butonu — satır sıkışmasın diye metin yok,
+     erişilebilir isim aria-label'da (§ touch-target 44×44). */
+  .fiyat-satir__wa{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--whatsapp);
+    color: var(--whatsapp-contrast);
+    transition: background .15s ease;
+  }
+  .fiyat-satir__wa:hover{ background: var(--whatsapp-hover); }
+
+  .transfer-not{ margin-top: 20px; font-size: 13px; }
+
+  .wa-buton--hero{ padding: 13px 22px; font-size: 15px; }
+</style>

@@ -4,13 +4,12 @@ import TemelSayfa from '../layouts/TemelSayfa.astro';
 import TurKart from '../components/TurKart.astro';
 import HavaDurumu from '../components/HavaDurumu.astro';
 import MesafeHaritasi from '../components/MesafeHaritasi.astro';
-import JourneyLocationPicker from '../components/JourneyLocationPicker.astro';
 import { MARKA } from '../config/marka';
 import { sozluk } from '../i18n/sozluk';
 import { KATEGORILER, BOLGELER } from '../data/taksonomi';
 import {
   listelenebilirTurlar, kategorininTurlari, bolgeninTurlari,
-  kategoriUrl, bolgeUrl, turlarUrl, planUrl, rehberUrl,
+  kategoriUrl, bolgeUrl, turlarUrl, planUrl, rehberUrl, transferUrl,
 } from '../lib/rotalar';
 
 interface Props {
@@ -86,8 +85,26 @@ const baslik = `${MARKA} · ${s.meta_ana_baslik}`;
     </div>
   </section>
 
+  <!-- Havalimanı transferi — Antalya Destinasyonları (mesafe haritası) bölümünden önce (kullanıcı isteği) -->
+  <section class="kap bolum--dar ana-bolum">
+    <div class="transfer-teaser">
+      <div class="transfer-teaser__gorsel">
+        <img
+          src="/gorseller/havalimani-transferi/havalimani-transferi-02-kart.webp"
+          alt=""
+          width="1200" height="900"
+          loading="lazy" decoding="async"
+        />
+      </div>
+      <div class="transfer-teaser__govde">
+        <h2>{s.transfer_ana_teaser_baslik}</h2>
+        <p class="ikincil">{s.transfer_ana_teaser_metin}</p>
+        <a class="buton-govde" href={transferUrl(dil)}>{s.transfer_ana_teaser_buton}</a>
+      </div>
+    </div>
+  </section>
+
   <!-- Mesafe haritası — öne çıkan turların altında (EK-1 §3) -->
-  <JourneyLocationPicker dil={dil} />
   <MesafeHaritasi lang={dil} />
 
   <!-- 4. Kategoriler — 6 kart -->
@@ -167,3 +184,40 @@ const baslik = `${MARKA} · ${s.meta_ana_baslik}`;
     </div>
   </section>
 </TemelSayfa>
+
+<style>
+  .transfer-teaser{
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+    background: var(--surface-elevated);
+    border: 0.5px solid var(--border);
+    border-radius: var(--r-card);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+  }
+  @media (min-width: 700px){
+    .transfer-teaser{ grid-template-columns: 1fr 1.2fr; }
+  }
+  .transfer-teaser__gorsel{
+    position: relative;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    background: var(--surface-strong);
+  }
+  .transfer-teaser__gorsel img{
+    width: 100%; height: 100%;
+    object-fit: cover;
+    filter: saturate(.94) contrast(1.05);
+  }
+  .transfer-teaser__govde{
+    padding: clamp(24px, 3.5vw, 40px);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 4px;
+  }
+  .transfer-teaser__govde h2{ margin: 0 0 4px; }
+  .transfer-teaser__govde p{ margin: 0 0 4px; }
+  .transfer-teaser__govde .buton-govde{ align-self: flex-start; margin-top: 12px; }
+</style>

@@ -2,7 +2,7 @@
 import type { Dil } from '../lib/tipler';
 import { DILLER } from '../lib/tipler';
 import { MARKA, SOCIAL_LINKS, WA_NUMBERS } from '../config/marka';
-import { anaUrl, turlarUrl, planUrl } from '../lib/rotalar';
+import { anaUrl, turlarUrl, transferUrl, planUrl } from '../lib/rotalar';
 import { sozluk, DIL_ADLARI, DIL_BAYRAKLARI, PARA_SIMGELERI } from '../i18n/sozluk';
 import HavaRozeti from './HavaRozeti.astro';
 import Secim from './Secim.astro';
@@ -30,6 +30,7 @@ const waLink = `https://wa.me/${WA_NUMBERS[dil]}`;
     <!-- Menü (EK-1): Turlar · Plan yap · dil · döviz -->
     <nav class="ustbar__nav" aria-label={s.nav_turlar}>
       <a class="ustbar__link" href={turlarUrl(dil)}>{s.nav_turlar}</a>
+      <a class="ustbar__link" href={transferUrl(dil)}>{s.nav_transfer}</a>
       <a class="ustbar__link" href={planUrl(dil)}>{s.plan_nav}</a>
 
       {/* Dil seçici — mobilde top-bar'da hamburger'in yanında kalır, EK-2 §B */}
@@ -103,6 +104,7 @@ const waLink = `https://wa.me/${WA_NUMBERS[dil]}`;
 
       <nav class="mobil-menu__nav" aria-label={s.nav_turlar}>
         <a href={turlarUrl(dil)}>{s.nav_turlar}</a>
+        <a href={transferUrl(dil)}>{s.nav_transfer}</a>
         <a href={planUrl(dil)}>{s.plan_nav}</a>
       </nav>
 

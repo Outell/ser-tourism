@@ -52,6 +52,7 @@ export function yerlestir(kalip: string, degerler: Record<string, string | numbe
 interface Sozluk {
   // Menü ve genel
   nav_turlar: string;
+  nav_transfer: string;
   ana_sayfa: string;
   tum_turlar: string;
   dil_secici_etiket: string;
@@ -295,6 +296,37 @@ interface Sozluk {
   rehber_ulasim: string;
   rehber_sure: string;
 
+  // Havalimanı transferi
+  transfer_baslik: string;
+  transfer_eyebrow: string;
+  transfer_ozet: string;
+  transfer_h1_alt: string;
+  transfer_cta_wa: string;
+  transfer_cta_fiyat: string;
+  transfer_ozellik_1_baslik: string;
+  transfer_ozellik_1_metin: string;
+  transfer_ozellik_2_baslik: string;
+  transfer_ozellik_2_metin: string;
+  transfer_ozellik_3_baslik: string;
+  transfer_ozellik_3_metin: string;
+  transfer_ozellik_4_baslik: string;
+  transfer_ozellik_4_metin: string;
+  transfer_fiyat_baslik: string;
+  transfer_fiyat_alt: string;
+  transfer_dogu_baslik: string;
+  transfer_bati_baslik: string;
+  transfer_tablo_bolge: string;
+  transfer_tablo_fiyat: string;
+  transfer_not: string;
+  transfer_wa_mesaj_giris: string;
+  transfer_wa_mesaj_guzergah: string;
+  transfer_wa_mesaj_fiyat: string;
+  transfer_wa_mesaj_kapanis: string;
+  transfer_galeri_alt: string;
+  transfer_ana_teaser_baslik: string;
+  transfer_ana_teaser_metin: string;
+  transfer_ana_teaser_buton: string;
+
   // Footer
   s_biz: string;
   s_hakkimizda: string;
@@ -318,6 +350,7 @@ interface Sozluk {
 export const sozluk: Record<Dil, Sozluk> = {
   tr: {
     nav_turlar: 'Turlar',
+    nav_transfer: 'Transfer',
     ana_sayfa: 'Ana sayfa',
     tum_turlar: 'Tüm turlar',
     dil_secici_etiket: 'Dil',
@@ -549,6 +582,36 @@ export const sozluk: Record<Dil, Sozluk> = {
     rehber_ulasim: 'Ulaşım',
     rehber_sure: 'Süre',
 
+    transfer_baslik: 'Antalya Havalimanı Transferi',
+    transfer_eyebrow: 'Özel VIP Transfer',
+    transfer_ozet: 'Antalya Havalimanı ile otelleriniz arasında Mercedes V-Class VIP araçla konforlu, güvenli ve sabit fiyatlı özel transfer.',
+    transfer_h1_alt: 'Uçağınız iner inmez sizi karşılıyor, Mercedes V-Class VIP aracımızla otelinize kadar keyifli ve güvenli bir yolculuk sunuyoruz.',
+    transfer_cta_wa: 'WhatsApp’ta Devam Et',
+    transfer_cta_fiyat: 'Fiyatları Gör',
+    transfer_ozellik_1_baslik: 'Konforlu VIP Araç',
+    transfer_ozellik_1_metin: 'Mercedes V-Class — deri koltuklar, yıldızlı tavan ve özel aydınlatmayla premium bir yolculuk.',
+    transfer_ozellik_2_baslik: 'Uçuş Takibi',
+    transfer_ozellik_2_metin: 'Uçuşunuzu takip ediyoruz; rötar olsa bile karşılamada bekliyoruz.',
+    transfer_ozellik_3_baslik: 'Profesyonel Şoför',
+    transfer_ozellik_3_metin: 'Güler yüzlü, deneyimli şoförlerimiz sizi karşılar ve bagajınızı taşır.',
+    transfer_ozellik_4_baslik: 'Sabit Fiyat',
+    transfer_ozellik_4_metin: 'Sürpriz ek ücret yok — araç başına net fiyat, 6 kişiye kadar geçerli.',
+    transfer_fiyat_baslik: 'Bölgelere Göre Transfer Fiyatları',
+    transfer_fiyat_alt: 'Tüm fiyatlar tek yön ve araç başınadır (maksimum 6 kişi).',
+    transfer_dogu_baslik: 'Doğu Bölgeleri',
+    transfer_bati_baslik: 'Batı Bölgeleri',
+    transfer_tablo_bolge: 'Bölge',
+    transfer_tablo_fiyat: 'Fiyat',
+    transfer_not: 'Fiyatlar tek yön, araç başınadır (maksimum 6 yolcu). Listede yer almayan bir bölge için WhatsApp’tan bize ulaşın.',
+    transfer_wa_mesaj_giris: 'Merhaba, Antalya Havalimanı transferi hakkında bilgi almak istiyorum.',
+    transfer_wa_mesaj_guzergah: 'Güzergah: Antalya Havalimanı ⇄ {b}',
+    transfer_wa_mesaj_fiyat: 'Fiyat: {f} (tek yön, araç başına, maks. 6 kişi)',
+    transfer_wa_mesaj_kapanis: 'Uygunluk ve müsait saatler için bilgi verebilir misiniz?',
+    transfer_galeri_alt: 'SER Tourism VIP havalimanı transfer aracı',
+    transfer_ana_teaser_baslik: 'Havalimanı Transferi',
+    transfer_ana_teaser_metin: 'Antalya Havalimanı ile oteliniz arasında Mercedes V-Class VIP araçla konforlu, sabit fiyatlı özel transfer.',
+    transfer_ana_teaser_buton: 'Transfer Fiyatlarını Gör',
+
     s_biz: 'Biz',
     s_hakkimizda: 'Hakkımızda',
     s_iptal: 'İptal politikası',
@@ -568,6 +631,7 @@ export const sozluk: Record<Dil, Sozluk> = {
 
   en: {
     nav_turlar: 'Tours',
+    nav_transfer: 'Transfer',
     ana_sayfa: 'Home',
     tum_turlar: 'All tours',
     dil_secici_etiket: 'Language',
@@ -799,6 +863,36 @@ export const sozluk: Record<Dil, Sozluk> = {
     rehber_ulasim: 'Getting there',
     rehber_sure: 'Time needed',
 
+    transfer_baslik: 'Antalya Airport Transfer',
+    transfer_eyebrow: 'Private VIP Transfer',
+    transfer_ozet: 'Comfortable, safe, fixed-price private transfer between Antalya Airport and your hotel in a Mercedes V-Class VIP vehicle.',
+    transfer_h1_alt: 'We meet you the moment you land and take you to your hotel in comfort and safety in our Mercedes V-Class VIP vehicle.',
+    transfer_cta_wa: 'Continue on WhatsApp',
+    transfer_cta_fiyat: 'See Prices',
+    transfer_ozellik_1_baslik: 'Comfortable VIP Vehicle',
+    transfer_ozellik_1_metin: 'Mercedes V-Class — leather seats, a starlit ceiling and ambient lighting for a premium ride.',
+    transfer_ozellik_2_baslik: 'Flight Tracking',
+    transfer_ozellik_2_metin: 'We track your flight and wait for you at arrivals, even if it’s delayed.',
+    transfer_ozellik_3_baslik: 'Professional Driver',
+    transfer_ozellik_3_metin: 'Our friendly, experienced drivers meet you and carry your luggage.',
+    transfer_ozellik_4_baslik: 'Fixed Price',
+    transfer_ozellik_4_metin: 'No surprise fees — one clear price per vehicle, for up to 6 people.',
+    transfer_fiyat_baslik: 'Transfer Prices by Region',
+    transfer_fiyat_alt: 'All prices are one-way and per vehicle (up to 6 people).',
+    transfer_dogu_baslik: 'Eastern Region',
+    transfer_bati_baslik: 'Western Region',
+    transfer_tablo_bolge: 'Region',
+    transfer_tablo_fiyat: 'Price',
+    transfer_not: 'Prices are one-way and per vehicle (up to 6 passengers). For a region not listed here, message us on WhatsApp.',
+    transfer_wa_mesaj_giris: 'Hello, I’d like information about the Antalya Airport transfer.',
+    transfer_wa_mesaj_guzergah: 'Route: Antalya Airport ⇄ {b}',
+    transfer_wa_mesaj_fiyat: 'Price: {f} (one-way, per vehicle, up to 6 people)',
+    transfer_wa_mesaj_kapanis: 'Could you confirm availability and pickup times?',
+    transfer_galeri_alt: 'SER Tourism VIP airport transfer vehicle',
+    transfer_ana_teaser_baslik: 'Airport Transfer',
+    transfer_ana_teaser_metin: 'Comfortable, fixed-price private transfer between Antalya Airport and your hotel in a Mercedes V-Class VIP vehicle.',
+    transfer_ana_teaser_buton: 'See Transfer Prices',
+
     s_biz: 'Company',
     s_hakkimizda: 'About us',
     s_iptal: 'Cancellation policy',
@@ -818,6 +912,7 @@ export const sozluk: Record<Dil, Sozluk> = {
 
   ru: {
     nav_turlar: 'Туры',
+    nav_transfer: 'Трансфер',
     ana_sayfa: 'Главная',
     tum_turlar: 'Все экскурсии',
     dil_secici_etiket: 'Язык',
@@ -1049,6 +1144,36 @@ export const sozluk: Record<Dil, Sozluk> = {
     rehber_ulasim: 'Как добраться',
     rehber_sure: 'Сколько времени',
 
+    transfer_baslik: 'Трансфер из аэропорта Анталии',
+    transfer_eyebrow: 'Индивидуальный VIP-трансфер',
+    transfer_ozet: 'Комфортный, безопасный трансфер по фиксированной цене между аэропортом Анталии и вашим отелем на VIP-автомобиле Mercedes V-Class.',
+    transfer_h1_alt: 'Мы встречаем вас сразу после посадки и с комфортом и безопасностью довозим до отеля на нашем VIP-автомобиле Mercedes V-Class.',
+    transfer_cta_wa: 'Продолжить в WhatsApp',
+    transfer_cta_fiyat: 'Смотреть цены',
+    transfer_ozellik_1_baslik: 'Комфортный VIP-автомобиль',
+    transfer_ozellik_1_metin: 'Mercedes V-Class — кожаные сиденья, звёздный потолок и мягкая подсветка для поездки премиум-класса.',
+    transfer_ozellik_2_baslik: 'Отслеживание рейса',
+    transfer_ozellik_2_metin: 'Мы отслеживаем ваш рейс и ждём вас на встрече, даже если он задержится.',
+    transfer_ozellik_3_baslik: 'Профессиональный водитель',
+    transfer_ozellik_3_metin: 'Наши приветливые и опытные водители встречают вас и помогают с багажом.',
+    transfer_ozellik_4_baslik: 'Фиксированная цена',
+    transfer_ozellik_4_metin: 'Никаких скрытых доплат — понятная цена за автомобиль, до 6 человек.',
+    transfer_fiyat_baslik: 'Цены на трансфер по районам',
+    transfer_fiyat_alt: 'Все цены указаны в одну сторону, за автомобиль (до 6 человек).',
+    transfer_dogu_baslik: 'Восточное направление',
+    transfer_bati_baslik: 'Западное направление',
+    transfer_tablo_bolge: 'Район',
+    transfer_tablo_fiyat: 'Цена',
+    transfer_not: 'Цены указаны в одну сторону, за автомобиль (до 6 пассажиров). Если вашего района нет в списке, напишите нам в WhatsApp.',
+    transfer_wa_mesaj_giris: 'Здравствуйте, хочу узнать о трансфере из аэропорта Анталии.',
+    transfer_wa_mesaj_guzergah: 'Маршрут: аэропорт Анталии ⇄ {b}',
+    transfer_wa_mesaj_fiyat: 'Цена: {f} (в одну сторону, за автомобиль, до 6 человек)',
+    transfer_wa_mesaj_kapanis: 'Подскажите, пожалуйста, о наличии и времени подачи машины?',
+    transfer_galeri_alt: 'VIP-автомобиль трансфера SER Tourism',
+    transfer_ana_teaser_baslik: 'Трансфер из аэропорта',
+    transfer_ana_teaser_metin: 'Комфортный трансфер по фиксированной цене между аэропортом Анталии и вашим отелем на VIP-автомобиле Mercedes V-Class.',
+    transfer_ana_teaser_buton: 'Смотреть цены на трансфер',
+
     s_biz: 'Компания',
     s_hakkimizda: 'О нас',
     s_iptal: 'Условия отмены',
@@ -1068,6 +1193,7 @@ export const sozluk: Record<Dil, Sozluk> = {
 
   de: {
     nav_turlar: 'Touren',
+    nav_transfer: 'Transfer',
     ana_sayfa: 'Startseite',
     tum_turlar: 'Alle Touren',
     dil_secici_etiket: 'Sprache',
@@ -1299,6 +1425,36 @@ export const sozluk: Record<Dil, Sozluk> = {
     rehber_ulasim: 'Anfahrt',
     rehber_sure: 'Zeitbedarf',
 
+    transfer_baslik: 'Flughafentransfer Antalya',
+    transfer_eyebrow: 'Privater VIP-Transfer',
+    transfer_ozet: 'Komfortabler, sicherer Privattransfer zum Festpreis zwischen dem Flughafen Antalya und Ihrem Hotel im Mercedes V-Class VIP-Fahrzeug.',
+    transfer_h1_alt: 'Wir empfangen Sie direkt nach der Landung und bringen Sie komfortabel und sicher mit unserem Mercedes V-Class VIP-Fahrzeug zu Ihrem Hotel.',
+    transfer_cta_wa: 'Weiter auf WhatsApp',
+    transfer_cta_fiyat: 'Preise ansehen',
+    transfer_ozellik_1_baslik: 'Komfortables VIP-Fahrzeug',
+    transfer_ozellik_1_metin: 'Mercedes V-Class — Ledersitze, Sternenhimmel-Dach und stimmungsvolle Beleuchtung für eine Fahrt der Extraklasse.',
+    transfer_ozellik_2_baslik: 'Flugüberwachung',
+    transfer_ozellik_2_metin: 'Wir verfolgen Ihren Flug und warten am Ankunftsbereich, selbst bei Verspätung.',
+    transfer_ozellik_3_baslik: 'Professioneller Fahrer',
+    transfer_ozellik_3_metin: 'Unsere freundlichen, erfahrenen Fahrer empfangen Sie und tragen Ihr Gepäck.',
+    transfer_ozellik_4_baslik: 'Festpreis',
+    transfer_ozellik_4_metin: 'Keine versteckten Kosten — ein klarer Preis pro Fahrzeug, für bis zu 6 Personen.',
+    transfer_fiyat_baslik: 'Transferpreise nach Region',
+    transfer_fiyat_alt: 'Alle Preise gelten für eine einfache Fahrt, pro Fahrzeug (bis zu 6 Personen).',
+    transfer_dogu_baslik: 'Östliche Region',
+    transfer_bati_baslik: 'Westliche Region',
+    transfer_tablo_bolge: 'Region',
+    transfer_tablo_fiyat: 'Preis',
+    transfer_not: 'Preise gelten für eine einfache Fahrt, pro Fahrzeug (bis zu 6 Personen). Für eine hier nicht gelistete Region schreiben Sie uns auf WhatsApp.',
+    transfer_wa_mesaj_giris: 'Hallo, ich möchte Informationen zum Flughafentransfer Antalya.',
+    transfer_wa_mesaj_guzergah: 'Strecke: Flughafen Antalya ⇄ {b}',
+    transfer_wa_mesaj_fiyat: 'Preis: {f} (einfache Fahrt, pro Fahrzeug, bis zu 6 Personen)',
+    transfer_wa_mesaj_kapanis: 'Können Sie mir Verfügbarkeit und Abholzeiten nennen?',
+    transfer_galeri_alt: 'SER Tourism VIP-Flughafentransferfahrzeug',
+    transfer_ana_teaser_baslik: 'Flughafentransfer',
+    transfer_ana_teaser_metin: 'Komfortabler Privattransfer zum Festpreis zwischen dem Flughafen Antalya und Ihrem Hotel im Mercedes V-Class VIP-Fahrzeug.',
+    transfer_ana_teaser_buton: 'Transferpreise ansehen',
+
     s_biz: 'Unternehmen',
     s_hakkimizda: 'Über uns',
     s_iptal: 'Stornierungsbedingungen',
@@ -1318,6 +1474,7 @@ export const sozluk: Record<Dil, Sozluk> = {
 
   pl: {
     nav_turlar: 'Wycieczki',
+    nav_transfer: 'Transfer',
     ana_sayfa: 'Strona główna',
     tum_turlar: 'Wszystkie wycieczki',
     dil_secici_etiket: 'Język',
@@ -1552,6 +1709,36 @@ export const sozluk: Record<Dil, Sozluk> = {
     rehber_ulasim: 'Dojazd',
     rehber_sure: 'Ile czasu',
 
+    transfer_baslik: 'Transfer z lotniska Antalya',
+    transfer_eyebrow: 'Prywatny transfer VIP',
+    transfer_ozet: 'Komfortowy, bezpieczny transfer prywatny w stałej cenie między lotniskiem Antalya a Twoim hotelem, luksusowym Mercedesem V-Class.',
+    transfer_h1_alt: 'Witamy Cię zaraz po lądowaniu i wygodnie, bezpiecznie dowozimy do hotelu naszym luksusowym Mercedesem V-Class.',
+    transfer_cta_wa: 'Kontynuuj na WhatsApp',
+    transfer_cta_fiyat: 'Zobacz ceny',
+    transfer_ozellik_1_baslik: 'Komfortowy pojazd VIP',
+    transfer_ozellik_1_metin: 'Mercedes V-Class — skórzane fotele, gwiaździsty sufit i nastrojowe oświetlenie dla podróży w klasie premium.',
+    transfer_ozellik_2_baslik: 'Śledzenie lotu',
+    transfer_ozellik_2_metin: 'Śledzimy Twój lot i czekamy na hali przylotów, nawet jeśli się opóźni.',
+    transfer_ozellik_3_baslik: 'Profesjonalny kierowca',
+    transfer_ozellik_3_metin: 'Nasi uprzejmi, doświadczeni kierowcy witają Cię i pomagają z bagażem.',
+    transfer_ozellik_4_baslik: 'Stała cena',
+    transfer_ozellik_4_metin: 'Żadnych ukrytych opłat — jasna cena za pojazd, dla maksymalnie 6 osób.',
+    transfer_fiyat_baslik: 'Ceny transferu według regionu',
+    transfer_fiyat_alt: 'Wszystkie ceny dotyczą przejazdu w jedną stronę, za pojazd (do 6 osób).',
+    transfer_dogu_baslik: 'Region wschodni',
+    transfer_bati_baslik: 'Region zachodni',
+    transfer_tablo_bolge: 'Region',
+    transfer_tablo_fiyat: 'Cena',
+    transfer_not: 'Ceny dotyczą przejazdu w jedną stronę, za pojazd (do 6 pasażerów). Jeśli Twojego regionu nie ma na liście, napisz do nas na WhatsApp.',
+    transfer_wa_mesaj_giris: 'Dzień dobry, chciał(a)bym uzyskać informacje o transferze z lotniska Antalya.',
+    transfer_wa_mesaj_guzergah: 'Trasa: Lotnisko Antalya ⇄ {b}',
+    transfer_wa_mesaj_fiyat: 'Cena: {f} (w jedną stronę, za pojazd, do 6 osób)',
+    transfer_wa_mesaj_kapanis: 'Czy mogą Państwo potwierdzić dostępność i godzinę odbioru?',
+    transfer_galeri_alt: 'Pojazd VIP transferu lotniskowego SER Tourism',
+    transfer_ana_teaser_baslik: 'Transfer z lotniska',
+    transfer_ana_teaser_metin: 'Komfortowy transfer prywatny w stałej cenie między lotniskiem Antalya a Twoim hotelem, luksusowym Mercedesem V-Class.',
+    transfer_ana_teaser_buton: 'Zobacz ceny transferu',
+
     s_biz: 'Firma',
     s_hakkimizda: 'O nas',
     s_iptal: 'Zasady anulowania',
@@ -1573,6 +1760,7 @@ export const sozluk: Record<Dil, Sozluk> = {
   // kalan anahtarlar mevcut dillerdeki karşılıklarından üretildi.
   ro: {
     nav_turlar: 'Excursii',
+    nav_transfer: 'Transfer',
     ana_sayfa: 'Acasă',
     tum_turlar: 'Toate excursiile',
     dil_secici_etiket: 'Limbă',
@@ -1809,6 +1997,36 @@ export const sozluk: Record<Dil, Sozluk> = {
     rehber_ucretsiz_kapanis: 'Dacă doriți să ieșiți din oraș, aruncați o privire asupra excursiilor noastre.',
     rehber_ulasim: 'Cum ajungeți',
     rehber_sure: 'Durată',
+
+    transfer_baslik: 'Transfer aeroport Antalya',
+    transfer_eyebrow: 'Transfer privat VIP',
+    transfer_ozet: 'Transfer privat confortabil și sigur, la preț fix, între Aeroportul Antalya și hotelul dumneavoastră, cu un Mercedes V-Class VIP.',
+    transfer_h1_alt: 'Vă întâmpinăm imediat după aterizare și vă ducem confortabil și în siguranță la hotel cu Mercedes-ul nostru V-Class VIP.',
+    transfer_cta_wa: 'Continuă pe WhatsApp',
+    transfer_cta_fiyat: 'Vezi prețurile',
+    transfer_ozellik_1_baslik: 'Vehicul VIP confortabil',
+    transfer_ozellik_1_metin: 'Mercedes V-Class — scaune din piele, plafon înstelat și iluminare ambientală pentru o călătorie premium.',
+    transfer_ozellik_2_baslik: 'Urmărirea zborului',
+    transfer_ozellik_2_metin: 'Vă urmărim zborul și vă așteptăm la sosiri, chiar dacă întârzie.',
+    transfer_ozellik_3_baslik: 'Șofer profesionist',
+    transfer_ozellik_3_metin: 'Șoferii noștri amabili și experimentați vă întâmpină și vă preiau bagajele.',
+    transfer_ozellik_4_baslik: 'Preț fix',
+    transfer_ozellik_4_metin: 'Fără costuri ascunse — un preț clar per vehicul, pentru până la 6 persoane.',
+    transfer_fiyat_baslik: 'Prețuri transfer pe regiuni',
+    transfer_fiyat_alt: 'Toate prețurile sunt pentru o cursă simplă, per vehicul (până la 6 persoane).',
+    transfer_dogu_baslik: 'Regiunea de est',
+    transfer_bati_baslik: 'Regiunea de vest',
+    transfer_tablo_bolge: 'Regiune',
+    transfer_tablo_fiyat: 'Preț',
+    transfer_not: 'Prețurile sunt pentru o cursă simplă, per vehicul (până la 6 pasageri). Pentru o regiune care nu apare în listă, scrieți-ne pe WhatsApp.',
+    transfer_wa_mesaj_giris: 'Bună ziua, aș dori informații despre transferul de la Aeroportul Antalya.',
+    transfer_wa_mesaj_guzergah: 'Traseu: Aeroportul Antalya ⇄ {b}',
+    transfer_wa_mesaj_fiyat: 'Preț: {f} (cursă simplă, per vehicul, până la 6 persoane)',
+    transfer_wa_mesaj_kapanis: 'Îmi puteți confirma disponibilitatea și ora de preluare?',
+    transfer_galeri_alt: 'Vehicul VIP de transfer aeroport SER Tourism',
+    transfer_ana_teaser_baslik: 'Transfer aeroport',
+    transfer_ana_teaser_metin: 'Transfer privat confortabil, la preț fix, între Aeroportul Antalya și hotelul dumneavoastră, cu un Mercedes V-Class VIP.',
+    transfer_ana_teaser_buton: 'Vezi prețurile transferului',
 
     s_biz: 'Compania',
     s_hakkimizda: 'Despre noi',

@@ -20,6 +20,9 @@ export type MetinSayfaKodu = 'hakkimizda' | 'iptal' | 'sss' | 'iletisim' | 'gizl
 // Planlayıcı (EK-1 §4) — "plan" altı dilde de okunaklı, tek slug yeterli
 export const PLAN_SLUG: Cevirili = { tr: 'plan', en: 'plan', ru: 'plan', de: 'plan', pl: 'plan', ro: 'plan' };
 
+// Havalimanı transferi — "transfer" altı dilde de aynı okunur, tek slug yeterli
+export const TRANSFER_SLUG: Cevirili = { tr: 'transfer', en: 'transfer', ru: 'transfer', de: 'transfer', pl: 'transfer', ro: 'transfer' };
+
 // Rehber sayfaları (EK-1 §5-6). Pratik slug'lar EK-1'de verildi;
 // ücretsiz slug'ların TR/EN'i verildi, kalanlar aynı mantıkla türetildi.
 export type RehberKodu = 'pratik' | 'ucretsiz';
@@ -46,6 +49,7 @@ export const sehirUrl = (dil: Dil, s: Taksonomi) => `/${dil}/${BOLUMLER.sehirler
 export const bolgeUrl = (dil: Dil, b: Taksonomi) => `/${dil}/${BOLUMLER.bolgeler[dil]}/${b.slug[dil]}/`;
 export const metinUrl = (dil: Dil, kod: MetinSayfaKodu) => `/${dil}/${METIN_SAYFALARI[kod][dil]}/`;
 export const planUrl = (dil: Dil) => `/${dil}/${PLAN_SLUG[dil]}/`;
+export const transferUrl = (dil: Dil) => `/${dil}/${TRANSFER_SLUG[dil]}/`;
 export const rehberUrl = (dil: Dil, kod: RehberKodu) => `/${dil}/${REHBER_SAYFALARI[kod][dil]}/`;
 
 // Her sayfanın 6 dildeki YOLU (göreli). Dil değiştirici bunu doğrudan kullanır;
@@ -90,7 +94,8 @@ export type SayfaTanimi =
   | { sablon: 'tur'; dil: Dil; yol: string; alternatifler: Record<Dil, string>; turId: string }
   | { sablon: 'metin'; dil: Dil; yol: string; alternatifler: Record<Dil, string>; metinKodu: MetinSayfaKodu }
   | { sablon: 'plan'; dil: Dil; yol: string; alternatifler: Record<Dil, string> }
-  | { sablon: 'rehber'; dil: Dil; yol: string; alternatifler: Record<Dil, string>; rehberKodu: RehberKodu };
+  | { sablon: 'rehber'; dil: Dil; yol: string; alternatifler: Record<Dil, string>; rehberKodu: RehberKodu }
+  | { sablon: 'transfer'; dil: Dil; yol: string; alternatifler: Record<Dil, string> };
 
 export function tumSayfalar(): SayfaTanimi[] {
   const sayfalar: SayfaTanimi[] = [];
@@ -134,6 +139,7 @@ export function tumSayfalar(): SayfaTanimi[] {
       });
 
     sayfalar.push({ sablon: 'plan', dil, yol: planUrl(dil), alternatifler: alternatifler(planUrl) });
+    sayfalar.push({ sablon: 'transfer', dil, yol: transferUrl(dil), alternatifler: alternatifler(transferUrl) });
 
     for (const kod of Object.keys(REHBER_SAYFALARI) as RehberKodu[])
       sayfalar.push({
