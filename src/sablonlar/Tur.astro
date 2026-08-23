@@ -4,13 +4,11 @@ import TemelSayfa from '../layouts/TemelSayfa.astro';
 import TurKart from '../components/TurKart.astro';
 import WhatsAppForm from '../components/WhatsAppForm.astro';
 import MobilCta from '../components/MobilCta.astro';
-import JourneyExperience from '../components/JourneyExperience.astro';
 import { MARKA } from '../config/marka';
 import { sozluk, yerlestir } from '../i18n/sozluk';
 import { KATEGORILER, TUM_KALKIS_NOKTALARI } from '../data/taksonomi';
 import { turBul, anaUrl, turlarUrl, mutlak } from '../lib/rotalar';
 import { euroTutar } from '../lib/fiyat';
-import { isJourneySupported } from '../lib/journey';
 
 interface Props {
   dil: Dil;
@@ -90,8 +88,6 @@ const heroBilgileri = [
   tur.transfer_dahil ? s.transfer_dahil : s.transfer_haric,
   ogleDahil ? s.tur_hero_ogle : null,
 ].filter((m): m is string => !!m).slice(0, 4);
-
-const journeyDestekli = isJourneySupported(tur.id);
 
 // Program satırı "06:30 – 07:30 Otelden alınış" biçiminde geliyor.
 // Saat kısmı ayrılır ki zaman çizgisinde kendi sütununda dursun;
@@ -221,8 +217,6 @@ const jsonLd = [{
             {tur.aciklama[dil].split('\n\n').map((p) => <p>{p}</p>)}
           </section>
         )}
-
-        {journeyDestekli && <JourneyExperience dil={dil} tur={tur} />}
 
         {tur.program?.[dil]?.length ? (
           <section class="tur-bolum">
