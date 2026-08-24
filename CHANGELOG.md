@@ -7,6 +7,50 @@ güncellemesi) tarihli olarak kaydeder. Şartname dosyaları değişmez; burası
 
 ---
 
+## 2026-08-24
+
+### Yeni özellik — Havalimanı Transfer sayfası
+
+Üst menüde "Turlar"ın yanına yeni bir "Transfer" bağlantısı eklendi;
+altı dilin tamamında (`/{dil}/transfer/`) yayında. Sayfa VIP Mercedes
+V-Class aracının fotoğraflarını, kısa özellik listesini (konforlu araç,
+uçuş takibi, profesyonel şoför, sabit fiyat) ve bölgeye göre fiyat
+tablosunu gösteriyor.
+
+- **Fiyat tablosu** iki gruba ayrıldı — Doğu (Kundu 30€ → Kargıcak 70€)
+  ve Batı (Konyaaltı/şehir merkezi 25€ → Tekirova 50€). Her satırın
+  kendi yuvarlak WhatsApp düğmesi var; tıklanınca güzergah ve fiyat
+  önceden doldurulmuş mesajla `wa.me` açılıyor (`TurKart.astro`'daki
+  statik link deseniyle aynı mantık — form yok, JS yok).
+- Fiyatlar **tek yön, araç başına** (maksimum 6 yolcu) — iş sahibiyle
+  doğrulandı.
+- Yeni veri dosyası: `src/data/transferler.ts` (`TRANSFER_DOGU`,
+  `TRANSFER_BATI`).
+- Yeni sayfa şablonu: `src/sablonlar/Transfer.astro`; rota
+  `src/lib/rotalar.ts`'e (`TRANSFER_SLUG`, `transferUrl`, `tumSayfalar()`)
+  ve dispatch `src/pages/[...yol].astro`'ya eklendi.
+- Ana sayfaya, "Antalya Destinasyonları" (mesafe haritası,
+  `MesafeHaritasi.astro`) bölümünden hemen önce bir tanıtım kartı
+  eklendi. `src/sablonlar/AnaSayfa.astro`
+- Menü bağlantısı masaüstü + mobil drawer'da: `src/components/Baslik.astro`
+- Altı dilin tamamı için yeni sözlük anahtarları (`nav_transfer`,
+  `transfer_*`) eklendi — Rusça yer adları `taksonomi.ts`'teki mevcut
+  Kiril çeviri kuralına uydu (`Konyaaltı` → `Коньяалты` vb.).
+  `src/i18n/sozluk.ts`
+- Araç fotoğrafları optimize edilip WebP'ye çevrildi (hero 2400×1350 /
+  1080×1350 mobil, kart 1200×900, galeri 1600×1200, kalite 80) —
+  `gorseller/havalimani-transferi/` ve
+  `public/gorseller/havalimani-transferi/`.
+
+### Doğrulama
+- `npm run build` — 206 sayfa (6 dil × yeni transfer sayfası dahil), hatasız.
+- Tarayıcıda test edildi: döviz çevirici (`data-eur`) transfer fiyat
+  satırlarında da çalışıyor, WhatsApp linkleri doğru dilde ve doğru
+  fiyatla açılıyor, 375px genişlikte yatay taşma yok, masaüstü ve mobil
+  menüde "Transfer" bağlantısı görünüyor.
+
+---
+
 ## 2026-08-19
 
 ### İçerik — tur ismi düzeltmesi
