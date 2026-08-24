@@ -20,8 +20,11 @@
   --kagit:       #F7F3EC;   /* sayfa arka planı */
   --beyaz:       #FFFFFF;   /* kart yüzeyi */
   --duman:       #6E6680;   /* süre, kalkış, ikincil metin */
-  --cizgi:       rgba(22,18,43,.10);
-  --cizgi-koyu:  rgba(22,18,43,.18);
+  /* .10/.18 kart, menü ve form ayraçlarında aydınlıkta neredeyse
+     kayboluyordu (1.1–1.5:1) — okunurluk için hafifçe koyultuldu,
+     marka tonu (gece) aynı kalıyor, sadece opaklık arttı. */
+  --cizgi:       rgba(22,18,43,.14);
+  --cizgi-koyu:  rgba(22,18,43,.24);
 
   /* --- Design System V2 semantic tokens ------------------- */
   --bg: var(--kagit);
@@ -1589,6 +1592,20 @@ body{
 .menu-btn span + span{ margin-top: -8px; }
 .menu-btn--kapat span:first-child{ transform: rotate(45deg); }
 .menu-btn--kapat span:last-child{ transform: rotate(-45deg); margin-top: -10px; }
+
+/* Kapatma tuşu panelin İÇİNDE — .menu-btn'nin devraldığı --nav-* tonları
+   (her zaman koyu üst bar'a göre) burada yanlış: panel aydınlıkta beyaza
+   dönünce ikon beyaz-üstüne-beyaz oluyordu (1:1 kontrast, görünmez).
+   Panelin kendi yüzey tonlarına (--text-primary / --border) bağlanır. */
+.menu-btn--kapat{
+  border-color: var(--border);
+  background: color-mix(in srgb, var(--text-primary) 6%, transparent);
+  color: var(--text-primary);
+}
+.menu-btn--kapat:hover{
+  background: color-mix(in srgb, var(--text-primary) 11%, transparent);
+  border-color: var(--border-strong);
+}
 
 .mobil-menu{
   position: fixed;
