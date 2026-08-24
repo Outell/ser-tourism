@@ -2,6 +2,7 @@
 import type { Dil } from '../lib/tipler';
 import TemelSayfa from '../layouts/TemelSayfa.astro';
 import TurKart from '../components/TurKart.astro';
+import RamsesTanitimKart from '../components/RamsesTanitimKart.astro';
 import HavaDurumu from '../components/HavaDurumu.astro';
 import MesafeHaritasi from '../components/MesafeHaritasi.astro';
 import { MARKA, SLOGAN } from '../config/marka';
@@ -75,7 +76,7 @@ const baslik = `${MARKA} · ${s.meta_ana_baslik}`;
     </div>
   </section>
 
-  <!-- 3. Öne çıkan turlar -->
+  <!-- 3. Öne çıkan hizmetler — turlar + Ramses Ink (gerçek bir tur değil, en sonda) -->
   <section class="kap bolum ana-bolum ana-bolum--one">
     <div class="bolum-baslik">
       <h2>{s.b_one_cikan}</h2>
@@ -83,6 +84,7 @@ const baslik = `${MARKA} · ${s.meta_ana_baslik}`;
     </div>
     <div class="grid">
       {oneCikanlar.map((t, i) => <TurKart dil={dil} tur={t} oncelikli={i < 3} />)}
+      <RamsesTanitimKart dil={dil} />
     </div>
   </section>
 
