@@ -12,6 +12,7 @@ import Metin from '../sablonlar/Metin.astro';
 import Plan from '../sablonlar/Plan.astro';
 import Rehber from '../sablonlar/Rehber.astro';
 import Transfer from '../sablonlar/Transfer.astro';
+import RamsesInk from '../sablonlar/RamsesInk.astro';
 
 export function getStaticPaths() {
   return tumSayfalar().map((sayfa) => ({
@@ -36,3 +37,4 @@ const { sayfa } = Astro.props;
   <Rehber dil={sayfa.dil} alternatifler={sayfa.alternatifler} rehberKodu={sayfa.rehberKodu} />
 )}
 {sayfa.sablon === 'transfer' && <Transfer dil={sayfa.dil} alternatifler={sayfa.alternatifler} />}
+{sayfa.sablon === 'ramses' && <RamsesInk dil={sayfa.dil} alternatifler={sayfa.alternatifler} />}

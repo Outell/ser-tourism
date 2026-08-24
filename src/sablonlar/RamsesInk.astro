@@ -1,0 +1,523 @@
+---
+// Ramses Ink Dövme & Piercing — turlar bölümü altında yaşayan ortak sayfa.
+// Tur.astro'dan farklı olarak fiyat/iptal politikası bloğu yok (§11 "boş alan
+// sessizdir"); tek aksiyon WhatsApp. Galeri + ışık kutusu deseni Tur.astro ile
+// aynı (kanıtlanmış, erişilebilir) — burada tek [data-galeri] kabı hem hero
+// şeridini hem alttaki "stüdyodan çalışmalar" gridini paylaşıyor.
+import type { Dil } from '../lib/tipler';
+import TemelSayfa from '../layouts/TemelSayfa.astro';
+import WaIkon from '../components/WaIkon.astro';
+import { MARKA, RAMSES_WA_NUMBERS } from '../config/marka';
+import { sozluk, yerlestir } from '../i18n/sozluk';
+import { anaUrl, turlarUrl, mutlak, ramsesUrl } from '../lib/rotalar';
+import {
+  RAMSES_GALERI, RAMSES_LOGO,
+  RAMSES_YORUMLAR, RAMSES_PUAN, RAMSES_DEGERLENDIRME_SAYISI,
+} from '../data/ramsesInk';
+
+interface Props {
+  dil: Dil;
+  alternatifler: Record<Dil, string>;
+}
+
+const { dil, alternatifler: alt } = Astro.props;
+const s = sozluk[dil];
+const numara = RAMSES_WA_NUMBERS[dil];
+
+const waMesaj = [s.m_selamlama, '', s.ramses_wa_konu, '', s.m_kapanis].join('\n');
+const waLink = `https://wa.me/${numara}?text=${encodeURIComponent(waMesaj)}`;
+
+const heroGaleri = RAMSES_GALERI.slice(0, 6);
+const digerGaleri = RAMSES_GALERI.slice(6);
+const galeriAlt = s.ramses_galeri_alt;
+
+const sayfaBaslik = `${s.ramses_baslik} | ${MARKA}`;
+
+const jsonLd = [{
+  '@context': 'https://schema.org',
+  '@type': 'TattooParlor',
+  name: 'Ramses Ink',
+  description: s.ramses_ozet,
+  image: mutlak(RAMSES_GALERI[0]),
+  url: mutlak(alt[dil]),
+  address: { '@type': 'PostalAddress', addressLocality: 'Manavgat', addressRegion: 'Antalya', addressCountry: 'TR' },
+  aggregateRating: {
+    '@type': 'AggregateRating',
+    ratingValue: RAMSES_PUAN,
+    reviewCount: 500,
+  },
+  review: RAMSES_YORUMLAR.map((y) => ({
+    '@type': 'Review',
+    author: { '@type': 'Person', name: y.isim },
+    reviewBody: y.metin,
+    reviewRating: { '@type': 'Rating', ratingValue: 5, bestRating: 5 },
+  })),
+}];
+---
+<TemelSayfa dil={dil} baslik={sayfaBaslik} aciklama={s.ramses_ozet} alternatifler={alt} jsonLd={jsonLd}>
+  <div class="kap">
+    <nav class="kirinti" aria-label="breadcrumb">
+      <ol>
+        <li><a href={anaUrl(dil)}>{s.ana_sayfa}</a></li>
+        <li><a href={turlarUrl(dil)}>{s.tum_turlar}</a></li>
+        <li>{s.ramses_baslik}</li>
+      </ol>
+    </nav>
+
+    <div class="ramses-yerlesim bolum--dar">
+      <div class="galeri" data-adet={heroGaleri.length} data-galeri>
+        <button type="button" class="tur-hero" data-galeri-ac="0" aria-label={galeriAlt}>
+          <img
+            src={heroGaleri[0]}
+            alt={galeriAlt}
+            width="1600" height="1200"
+            fetchpriority="high" decoding="async"
+          />
+          <span class="tur-hero__golge" aria-hidden="true"></span>
+          <span class="tur-hero__icerik">
+            <span class="tur-hero__rozet">{s.ramses_eyebrow}</span>
+            <span class="tur-hero__baslik">{s.ramses_baslik}</span>
+            <span class="tur-hero__ozet">{s.ramses_h1_alt}</span>
+            <span class="tur-hero__meta">
+              <span>{s.ramses_lokasyon}</span>
+              <span>{s.ramses_badge_tasarim}</span>
+              <span>{s.ramses_badge_alis}</span>
+            </span>
+          </span>
+        </button>
+
+        <div class="galeri__serit">
+          {heroGaleri.slice(1).map((g, i) => (
+            <button type="button" class="galeri__mini" data-galeri-ac={i + 1} aria-label={galeriAlt}>
+              <img src={g} alt="" width="1600" height="1200" loading="lazy" decoding="async" />
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <!-- Animasyonlu puan bloğu — 5 yıldız + değerlendirme sayısı -->
+      <div class="puan-blok" role="img" aria-label={`${s.ramses_puan_sr} — ${yerlestir(s.ramses_puan_metin, { n: RAMSES_DEGERLENDIRME_SAYISI })}`}>
+        <span class="puan-blok__yildizlar" aria-hidden="true">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <svg class="yildiz" style={`--gecikme:${i * 60}ms`} width="26" height="26" viewBox="0 0 24 24" aria-hidden="true">
+              <path fill="currentColor" d="M12 2.5l2.79 6.62 7.16.61-5.44 4.72 1.65 7.05L12 17.77l-6.16 3.73 1.65-7.05-5.44-4.72 7.16-.61z" />
+            </svg>
+          ))}
+        </span>
+        <span class="puan-blok__sayi">{yerlestir(s.ramses_puan_metin, { n: RAMSES_DEGERLENDIRME_SAYISI })}</span>
+      </div>
+
+      <!-- Hakkında + logo -->
+      <section class="ramses-hakkinda">
+        <div class="ramses-hakkinda__metin">
+          <h2>{s.s_hakkimizda}</h2>
+          <p>{s.ramses_hakkinda_p1}</p>
+          <p>{s.ramses_hakkinda_p2}</p>
+        </div>
+        <aside class="ramses-etiket">
+          <img src={RAMSES_LOGO} alt="Ramses Ink" width="440" height="110" loading="lazy" decoding="async" />
+          <p class="ramses-etiket__tagline">{s.ramses_tagline}</p>
+          <p class="ramses-etiket__metin">{s.ramses_tagline_metin}</p>
+        </aside>
+      </section>
+
+      <!-- Google yorumları -->
+      <section class="ramses-bolum">
+        <h2>{s.ramses_yorumlar_baslik}</h2>
+        <div class="yorum-grid">
+          {RAMSES_YORUMLAR.map((y) => (
+            <article class="yorum-kart">
+              <span class="yorum-kart__yildizlar" aria-hidden="true">
+                {Array.from({ length: 5 }).map(() => (
+                  <svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true">
+                    <path fill="currentColor" d="M12 2.5l2.79 6.62 7.16.61-5.44 4.72 1.65 7.05L12 17.77l-6.16 3.73 1.65-7.05-5.44-4.72 7.16-.61z" />
+                  </svg>
+                ))}
+              </span>
+              <p class="yorum-kart__metin">“{y.metin}”</p>
+              <p class="yorum-kart__isim">{y.isim} <span class="ikincil">· {s.ramses_yorum_kaynagi}</span></p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <!-- Stüdyodan çalışmalar (kalan galeri, aynı ışık kutusu) -->
+      {digerGaleri.length > 0 && (
+        <section class="ramses-bolum" data-galeri>
+          <h2>{s.ramses_galeri_baslik}</h2>
+          <div class="calisma-grid">
+            {digerGaleri.map((g, i) => (
+              <button type="button" class="calisma-grid__ogr" data-galeri-ac={i + heroGaleri.length} aria-label={galeriAlt}>
+                <img src={g} alt="" width="1600" height="1200" loading="lazy" decoding="async" />
+              </button>
+            ))}
+          </div>
+        </section>
+      )}
+
+      <!-- Kapanış CTA — fiyat yok, tek aksiyon WhatsApp -->
+      <section class="ramses-cta">
+        <h2>{s.ramses_cta_baslik}</h2>
+        <p class="ikincil">{s.ramses_cta_metin}</p>
+        <a class="wa-buton wa-buton--genis" style="max-width:340px" href={waLink} target="_blank" rel="noopener">
+          <WaIkon boyut={18} />
+          {s.transfer_cta_wa}
+        </a>
+      </section>
+    </div>
+  </div>
+
+  {RAMSES_GALERI.length > 0 && (
+    <dialog class="isik" data-isik aria-label={galeriAlt}>
+      <button type="button" class="isik__kapat" data-isik-kapat aria-label={s.galeri_kapat}>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="1.5" stroke-linecap="round" aria-hidden="true">
+          <path d="M6 6l12 12M18 6L6 18" />
+        </svg>
+      </button>
+
+      <figure class="isik__cerceve">
+        <img data-isik-gorsel src={RAMSES_GALERI[0]} alt={galeriAlt} width="1600" height="1200" />
+        <figcaption class="isik__sayac" data-isik-sayac></figcaption>
+      </figure>
+
+      <button type="button" class="isik__ok isik__ok--sol" data-isik-yon="-1" aria-label={s.galeri_onceki}>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M15 5l-7 7 7 7" />
+        </svg>
+      </button>
+      <button type="button" class="isik__ok isik__ok--sag" data-isik-yon="1" aria-label={s.galeri_sonraki}>
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M9 5l7 7-7 7" />
+        </svg>
+      </button>
+    </dialog>
+  )}
+</TemelSayfa>
+
+<style>
+  .ramses-yerlesim{ display: grid; gap: clamp(32px, 5vw, 56px); }
+
+  /* ---- Hero galerisi — Tur.astro ile aynı desen ------------------- */
+
+  .galeri{ display: grid; gap: 8px; }
+
+  .tur-hero{
+    position: relative;
+    display: block;
+    width: 100%;
+    min-height: clamp(420px, 58vh, 680px);
+    padding: 0;
+    border: 0;
+    border-radius: var(--r-kart);
+    overflow: hidden;
+    background: var(--surface-strong);
+    cursor: pointer;
+    text-align: left;
+    color: var(--text-inverse);
+    box-shadow: 0 20px 60px rgba(22,18,43,.16);
+  }
+  .tur-hero img{
+    width: 100%;
+    height: 100%;
+    min-height: inherit;
+    object-fit: cover;
+    filter: saturate(.96) contrast(1.05);
+    transition: transform .24s ease-out;
+  }
+  .tur-hero:hover img{ transform: scale(1.025); }
+  .tur-hero__golge{
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(180deg, rgba(22,18,43,.10) 0%, rgba(22,18,43,.36) 46%, rgba(22,18,43,.78) 100%),
+      linear-gradient(90deg, rgba(22,18,43,.40) 0%, rgba(22,18,43,.04) 54%);
+    pointer-events: none;
+  }
+  .tur-hero__icerik{
+    position: absolute;
+    left: clamp(20px, 4vw, 42px);
+    right: clamp(20px, 4vw, 42px);
+    bottom: clamp(22px, 4vw, 42px);
+    display: grid;
+    gap: 12px;
+    max-width: 720px;
+  }
+  .tur-hero__rozet{
+    width: max-content;
+    border: 1px solid rgba(247,243,236,.42);
+    border-radius: var(--r-rozet);
+    padding: 7px 12px;
+    color: var(--text-inverse);
+    background: rgba(22,18,43,.36);
+    font-size: 12px;
+  }
+  .tur-hero__baslik{
+    display: block;
+    font-family: var(--font-baslik);
+    font-size: clamp(36px, 5.2vw, 60px);
+    line-height: 1;
+    font-weight: 500;
+  }
+  .tur-hero__ozet{
+    display: block;
+    max-width: 620px;
+    font-size: clamp(15px, 1.5vw, 18px);
+    line-height: 1.55;
+    color: rgba(247,243,236,.88);
+  }
+  .tur-hero__meta{ display: flex; flex-wrap: wrap; gap: 8px; }
+  .tur-hero__meta span{
+    border-radius: var(--r-rozet);
+    background: rgba(247,243,236,.12);
+    border: 1px solid rgba(247,243,236,.20);
+    color: rgba(247,243,236,.92);
+    padding: 7px 10px;
+    font-size: 12px;
+    backdrop-filter: blur(8px);
+  }
+  .tur-hero:focus-visible{ outline: 3px solid var(--focus-ring); outline-offset: 3px; }
+
+  .galeri__mini{
+    padding: 0; border: 0;
+    background: var(--surface-strong);
+    border-radius: var(--r-kart);
+    overflow: hidden;
+    cursor: pointer;
+    display: block;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+  }
+  .galeri__mini img{
+    width: 100%; height: 100%;
+    object-fit: cover;
+    filter: saturate(.92) contrast(1.06);
+    transition: transform .2s ease-out;
+  }
+  .galeri__mini:hover img{ transform: scale(1.04); }
+  .galeri__mini:focus-visible{ outline: 3px solid var(--focus-ring); outline-offset: 3px; }
+
+  .galeri__serit{
+    display: grid;
+    gap: 8px;
+    grid-template-columns: repeat(var(--serit-adet, 5), 1fr);
+  }
+  .galeri[data-adet="6"] .galeri__serit{ --serit-adet: 5; }
+
+  /* ---- Puan bloğu — animasyonlu 5 yıldız --------------------------- */
+
+  .puan-blok{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    text-align: center;
+    padding: 8px 0 4px;
+  }
+  .puan-blok__yildizlar{ display: flex; gap: 6px; }
+  .yildiz{
+    color: var(--accent-hover);
+    animation: yildizGir .42s cubic-bezier(.34, 1.56, .64, 1) both;
+    animation-delay: var(--gecikme, 0ms);
+  }
+  @keyframes yildizGir{
+    from{ opacity: 0; transform: scale(.3) rotate(-14deg); }
+    to{ opacity: 1; transform: none; }
+  }
+  .puan-blok__sayi{
+    font-family: var(--font-baslik);
+    font-size: 17px;
+    color: var(--text-primary);
+  }
+
+  /* ---- Hakkında + marka etiketi ------------------------------------ */
+
+  .ramses-hakkinda{
+    display: grid;
+    gap: 28px;
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 860px){
+    .ramses-hakkinda{ grid-template-columns: 1.5fr 1fr; align-items: start; }
+  }
+  .ramses-hakkinda__metin p{ color: var(--text-secondary); }
+
+  .ramses-etiket{
+    background: var(--surface-strong);
+    border-radius: var(--r-card);
+    padding: 28px 24px;
+    display: grid;
+    gap: 10px;
+    box-shadow: var(--shadow-md);
+  }
+  .ramses-etiket img{ width: min(200px, 100%); height: auto; }
+  .ramses-etiket__tagline{
+    font-family: var(--font-baslik);
+    font-size: 20px;
+    color: var(--text-inverse);
+    margin: 6px 0 0;
+  }
+  .ramses-etiket__metin{
+    font-size: 14px;
+    line-height: 1.6;
+    color: rgba(247,243,236,.82);
+    margin: 0;
+  }
+
+  /* ---- Google yorumları --------------------------------------------- */
+
+  .ramses-bolum h2{ margin-bottom: 20px; }
+
+  .yorum-grid{
+    display: grid;
+    gap: 16px;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  }
+  .yorum-kart{
+    background: var(--surface-elevated);
+    border: 0.5px solid var(--border);
+    border-radius: var(--r-card);
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .yorum-kart__yildizlar{ display: flex; gap: 3px; color: var(--accent-hover); }
+  .yorum-kart__metin{ font-size: 14.5px; line-height: 1.6; margin: 0; flex: 1; }
+  .yorum-kart__isim{ font-size: 13px; font-weight: 500; margin: 0; }
+
+  /* ---- Stüdyodan çalışmalar grid ------------------------------------ */
+
+  .calisma-grid{
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: clamp(10px, 2vw, 16px);
+  }
+  .calisma-grid__ogr{
+    position: relative;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    border-radius: var(--r-media);
+    background: var(--surface-strong);
+    padding: 0; border: 0;
+    display: block; width: 100%;
+    cursor: pointer;
+  }
+  .calisma-grid__ogr img{
+    width: 100%; height: 100%;
+    object-fit: cover;
+    filter: saturate(.96) contrast(1.04);
+    transition: transform .4s ease;
+  }
+  .calisma-grid__ogr:hover img{ transform: scale(1.04); }
+  .calisma-grid__ogr:focus-visible{ outline: 3px solid var(--focus-ring); outline-offset: 3px; }
+
+  /* ---- Kapanış CTA ---------------------------------------------------- */
+
+  .ramses-cta{
+    text-align: center;
+    padding: clamp(28px, 5vw, 44px);
+    background: var(--bg-soft);
+    border-radius: var(--r-card);
+    display: grid;
+    justify-items: center;
+    gap: 6px;
+  }
+  .ramses-cta h2{ margin-bottom: 0; }
+  .ramses-cta .wa-buton{ margin-top: 14px; }
+
+  /* ---- Tam ekran görüntüleyici (Tur.astro ile aynı desen) ---------- */
+
+  .isik{
+    border: 0; padding: 0;
+    max-width: 100vw; max-height: 100vh;
+    width: 100%; height: 100%;
+    background: var(--surface-strong);
+    color: var(--text-inverse);
+  }
+  .isik::backdrop{ background: rgba(22,18,43,.92); }
+  .isik__cerceve{
+    margin: 0; height: 100%;
+    display: grid; place-items: center; gap: 12px;
+    padding: 48px 16px;
+  }
+  .isik__cerceve img{
+    max-width: min(1200px, 92vw);
+    max-height: 78vh;
+    width: auto; height: auto;
+    object-fit: contain;
+    border-radius: var(--r-buton);
+  }
+  .isik__sayac{ font-size: 13px; color: rgba(247,243,236,.7); font-variant-numeric: tabular-nums; }
+  .isik__kapat, .isik__ok{
+    position: absolute;
+    background: rgba(247,243,236,.1);
+    color: var(--kagit);
+    border: 0;
+    border-radius: var(--r-buton);
+    cursor: pointer;
+    display: inline-flex; align-items: center; justify-content: center;
+    transition: background .2s ease-out;
+  }
+  .isik__kapat:hover, .isik__ok:hover{ background: rgba(247,243,236,.2); }
+  .isik__kapat:focus-visible, .isik__ok:focus-visible{ outline: 3px solid var(--focus-ring); outline-offset: 2px; }
+  .isik__kapat{ top: 12px; right: 12px; width: 40px; height: 40px; }
+  .isik__ok{ top: 50%; transform: translateY(-50%); width: 44px; height: 56px; }
+  .isik__ok--sol{ left: 12px; }
+  .isik__ok--sag{ right: 12px; }
+
+  @media (max-width: 520px){
+    .tur-hero{ min-height: 430px; border-radius: var(--r-kart); }
+    .tur-hero__icerik{ gap: 10px; }
+    .tur-hero__meta span{ font-size: 11px; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .galeri img, .calisma-grid__ogr img, .isik__kapat, .isik__ok{ transition: none; }
+    .galeri__mini:hover img, .calisma-grid__ogr:hover img{ transform: none; }
+    .yildiz{ animation: none; }
+  }
+</style>
+
+<script is:inline define:vars={{ fotograflar: RAMSES_GALERI, altMetin: galeriAlt }}>
+  (function () {
+    var kaplar = document.querySelectorAll('[data-galeri]');
+    var isik = document.querySelector('[data-isik]');
+    if (!kaplar.length || !isik || !isik.showModal) return;
+
+    var gorsel = isik.querySelector('[data-isik-gorsel]');
+    var sayac = isik.querySelector('[data-isik-sayac]');
+    var indeks = 0;
+
+    function goster(i) {
+      indeks = (i + fotograflar.length) % fotograflar.length;
+      gorsel.src = fotograflar[indeks];
+      gorsel.alt = altMetin;
+      if (sayac) sayac.textContent = (indeks + 1) + ' / ' + fotograflar.length;
+    }
+
+    kaplar.forEach(function (kap) {
+      kap.addEventListener('click', function (e) {
+        var dugme = e.target.closest('[data-galeri-ac]');
+        if (!dugme) return;
+        goster(parseInt(dugme.getAttribute('data-galeri-ac'), 10) || 0);
+        isik.showModal();
+      });
+    });
+
+    isik.addEventListener('click', function (e) {
+      var yon = e.target.closest('[data-isik-yon]');
+      if (yon) { goster(indeks + parseInt(yon.getAttribute('data-isik-yon'), 10)); return; }
+      if (e.target.closest('[data-isik-kapat]')) { isik.close(); return; }
+      if (!e.target.closest('.isik__cerceve img')) isik.close();
+    });
+
+    isik.addEventListener('keydown', function (e) {
+      if (fotograflar.length < 2) return;
+      if (e.key === 'ArrowRight') { e.preventDefault(); goster(indeks + 1); }
+      if (e.key === 'ArrowLeft') { e.preventDefault(); goster(indeks - 1); }
+    });
+  })();
+</script>

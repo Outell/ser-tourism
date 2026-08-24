@@ -1,0 +1,56 @@
+---
+// Turlar listesinde (yalnızca "tüm turlar" sayfasında) görünen ortak kartı.
+// TurKart.astro ile aynı .tur-kart görsel dilini kullanır ama gerçek bir tur
+// değildir: fiyat yok, iptal politikası yok — filtre veri özniteliklerinin
+// hepsi kasıtlı boş bırakılır (Liste.astro'daki filtre script'i kategori/bölge/
+// süre filtresi uygulanınca kartı otomatik gizler, fiyat filtresinde etkilenmez).
+import type { Dil } from '../lib/tipler';
+import { ramsesUrl } from '../lib/rotalar';
+import { sozluk } from '../i18n/sozluk';
+import { RAMSES_KART_GORSEL, RAMSES_DEGERLENDIRME_SAYISI } from '../data/ramsesInk';
+import WaIkon from './WaIkon.astro';
+import { RAMSES_WA_NUMBERS } from '../config/marka';
+
+interface Props { dil: Dil }
+
+const { dil } = Astro.props;
+const s = sozluk[dil];
+const numara = RAMSES_WA_NUMBERS[dil];
+
+const kartMesaj = [s.m_selamlama, '', s.ramses_wa_konu, '', s.m_kapanis].join('\n');
+const waLink = `https://wa.me/${numara}?text=${encodeURIComponent(kartMesaj)}`;
+---
+<article class="tur-kart" data-ad={s.ramses_baslik.toLowerCase()}>
+  <div class="tur-kart__gorsel">
+    <span class="tur-kart__rozet">{s.ramses_eyebrow}</span>
+    <img
+      src={RAMSES_KART_GORSEL}
+      alt={s.ramses_galeri_alt}
+      width="1200" height="900"
+      loading="lazy"
+      decoding="async"
+    />
+  </div>
+  <div class="tur-kart__govde">
+    <h3 class="tur-kart__baslik">
+      <a href={ramsesUrl(dil)}>{s.ramses_baslik}</a>
+    </h3>
+    <p class="tur-kart__ozet">{s.ramses_h1_alt}</p>
+    <div class="tur-kart__meta"><span>{s.ramses_lokasyon}</span></div>
+    <div class="tur-kart__alt">
+      <div class="tur-kart__fiyat ramses-kart__puan">
+        <span class="ramses-kart__yildiz" aria-hidden="true">★</span> 5.0
+        <small>{RAMSES_DEGERLENDIRME_SAYISI}</small>
+      </div>
+      <a class="wa-buton wa-buton--kucuk" href={waLink} target="_blank" rel="noopener">
+        <WaIkon boyut={14} />
+        WhatsApp
+      </a>
+    </div>
+  </div>
+</article>
+
+<style>
+  .ramses-kart__puan{ display: flex; align-items: baseline; gap: 5px; }
+  .ramses-kart__yildiz{ font-size: 16px; line-height: 1; }
+</style>

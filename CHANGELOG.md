@@ -7,6 +7,59 @@ güncellemesi) tarihli olarak kaydeder. Şartname dosyaları değişmez; burası
 
 ---
 
+## 2026-08-25
+
+### Yeni özellik — Ramses Ink Dövme & Piercing sayfası
+
+Turlar bölümünün altına, gerçek bir tur olmayan ilk ortak/hizmet sayfası
+eklendi: `/{dil}/{turlar}/ramses-ink-...` (altı dilin tamamında yayında,
+her dilde ayrı çevrilmiş slug — `RAMSES_SLUG`, `src/lib/rotalar.ts`).
+Havalimanı Transferi sayfasındaki gibi ayrı bir şablon (`Tur.astro`'nun
+fiyat/iptal politikası bloklarını miras almıyor); tek aksiyon WhatsApp.
+
+- **Yeni şablon**: `src/sablonlar/RamsesInk.astro` — Tur.astro'nun galeri +
+  ışık kutusu (lightbox) desenini birebir kullanıyor (hero: büyük görsel +
+  5'li şerit), altında ayrı bir "stüdyodan çalışmalar" gridi aynı ışık
+  kutusunu paylaşıyor (tek `[data-galeri]` deseni, tek script). Animasyonlu
+  5 yıldız + "500+ Değerlendirme" bloğu, 3 gerçek Google Haritalar yorumu
+  (orijinal İngilizce metinleriyle, çevrilmeden), marka sesiyle yazılmış
+  "Hakkımızda" bölümü (3. şahıs anlatım — MASTER-PROMPT §15 yasak liste
+  gözetilerek: ünlem yok, "muhteşem/eşsiz" gibi kelimeler yok), Ücretsiz
+  Tasarım / Ücretsiz Alış / Manavgat, Antalya rozetleri.
+- **Fiyat ve iptal politikası bloğu kasıtlı olarak yok** (§11 "boş alan
+  sessizdir") — iş sahibinin talebi, tek CTA WhatsApp'a gidiyor.
+- **Turlar listesinde kart**: `src/components/RamsesTanitimKart.astro`,
+  yalnızca `/turlar/` ana liste sayfasında (kategori/şehir/bölge
+  sayfalarında değil) `TurKart.astro` ile aynı `.tur-kart` görsel dilini
+  kullanarak son kart olarak görünüyor; fiyat yerine ★ puan gösteriyor.
+  Liste filtreleme script'i (kategori/bölge/süre) kartı otomatik gizliyor
+  çünkü gerçek bir tur değil. `src/sablonlar/Liste.astro`
+- **Yeni veri/config**: `src/data/ramsesInk.ts` (galeri, yorumlar, puan),
+  `RAMSES_WA_NUMBERS` `src/config/marka.ts`'te — WA_NUMBERS'tan bağımsız,
+  aynı geçici (yer tutucu) numarayı kullanıyor; gerçek numara verilince
+  tek satır değişecek.
+- Altı dilin tamamı için yeni sözlük anahtarları (`ramses_*`) eklendi —
+  Rusça'da yer adları taksonomideki mevcut Kiril çevirisiyle tutarlı
+  (Manavgat → Манавгат, Antalya → Анталья). `src/i18n/sozluk.ts`
+- Görseller: `D:\Side Hustle\Images\Ramses Tattoo` klasöründen 11 dövme/
+  piercing fotoğrafı + logo, site standardına göre işlendi (4:3 kırpma,
+  1600×1200 galeri / 1200×900 kart, WebP) — `gorseller/ramses-ink/` ve
+  `public/gorseller/ramses-ink/`. Logo şeffaf PNG'den lossless WebP'ye
+  çevrildi (beyaz metin içerdiği için yalnızca koyu zeminde kullanılıyor).
+- `TattooParlor` + `AggregateRating` + `Review` JSON-LD şeması eklendi
+  (sayfada zaten görünen puan/yorum içeriğiyle birebir).
+
+### Doğrulama
+- `npm run build` — 212 sayfa (6 dil × yeni Ramses Ink sayfası dahil), hatasız.
+- Tarayıcıda test edildi: TR ve RU sayfa metinleri doğru render oluyor,
+  konsol hatası yok, tüm görseller 200 dönüyor, galeri/ışık kutusu (hero +
+  "stüdyodan çalışmalar" ortak indeks) doğru çalışıyor, WhatsApp linki
+  doğru dilde ve doğru mesaj kalıbıyla açılıyor, Turlar listesinde kategori
+  filtresi uygulanınca kart doğru şekilde gizleniyor, 375px genişlikte
+  yatay taşma yok (ölçüldü: `scrollWidth - clientWidth = 0`).
+
+---
+
 ## 2026-08-24
 
 ### Yeni özellik — Havalimanı Transfer sayfası

@@ -27,6 +27,18 @@ export const WA_NUMBERS: Record<Dil, string> = {
   ro: '905000000000',
 };
 
+// Ramses Ink Dövme & Piercing — SER TOURISM'ın kendi turlarından ayrı, bağımsız
+// bir ortak işletme. Aynı geçici numarayı kullanıyor (iş sahibinin isteği);
+// gerçek numara verilince yalnızca burası değişecek, WA_NUMBERS'a dokunulmaz.
+export const RAMSES_WA_NUMBERS: Record<Dil, string> = {
+  tr: '905000000000',
+  en: '905000000000',
+  ru: '905000000000',
+  de: '905000000000',
+  pl: '905000000000',
+  ro: '905000000000',
+};
+
 // Lead webhook'u (Google Sheets) — henüz kurulmadı (BASLA.md sonraki adım 5).
 // Boş bırakılırsa sendBeacon çağrısı sessizce atlanır.
 export const LEAD_ENDPOINT = '';

@@ -23,6 +23,17 @@ export const PLAN_SLUG: Cevirili = { tr: 'plan', en: 'plan', ru: 'plan', de: 'pl
 // Havalimanı transferi — "transfer" altı dilde de aynı okunur, tek slug yeterli
 export const TRANSFER_SLUG: Cevirili = { tr: 'transfer', en: 'transfer', ru: 'transfer', de: 'transfer', pl: 'transfer', ro: 'transfer' };
 
+// Ramses Ink Dövme & Piercing — turlar bölümünün altında yer alan ortak sayfa.
+// Marka adı sabit kalır, yalnızca tanımlayıcı ek dile göre çevrilir.
+export const RAMSES_SLUG: Cevirili = {
+  tr: 'ramses-ink-dovme-piercing',
+  en: 'ramses-ink-tattoo-piercing',
+  ru: 'ramses-ink-tatuirovki-i-pirsing',
+  de: 'ramses-ink-tattoo-piercing',
+  pl: 'ramses-ink-tatuaz-i-piercing',
+  ro: 'ramses-ink-tatuaje-si-piercing',
+};
+
 // Rehber sayfaları (EK-1 §5-6). Pratik slug'lar EK-1'de verildi;
 // ücretsiz slug'ların TR/EN'i verildi, kalanlar aynı mantıkla türetildi.
 export type RehberKodu = 'pratik' | 'ucretsiz';
@@ -50,6 +61,9 @@ export const bolgeUrl = (dil: Dil, b: Taksonomi) => `/${dil}/${BOLUMLER.bolgeler
 export const metinUrl = (dil: Dil, kod: MetinSayfaKodu) => `/${dil}/${METIN_SAYFALARI[kod][dil]}/`;
 export const planUrl = (dil: Dil) => `/${dil}/${PLAN_SLUG[dil]}/`;
 export const transferUrl = (dil: Dil) => `/${dil}/${TRANSFER_SLUG[dil]}/`;
+// Turlar bölümünün altında yaşar (turlar/ramses-ink-... ) — tumSayfalar()'daki
+// 'tur' listesine değil, ayrı 'ramses' şablonuna bağlı (fiyat/iptal alanı yok).
+export const ramsesUrl = (dil: Dil) => `${turlarUrl(dil)}${RAMSES_SLUG[dil]}/`;
 export const rehberUrl = (dil: Dil, kod: RehberKodu) => `/${dil}/${REHBER_SAYFALARI[kod][dil]}/`;
 
 // Her sayfanın 6 dildeki YOLU (göreli). Dil değiştirici bunu doğrudan kullanır;
@@ -95,7 +109,8 @@ export type SayfaTanimi =
   | { sablon: 'metin'; dil: Dil; yol: string; alternatifler: Record<Dil, string>; metinKodu: MetinSayfaKodu }
   | { sablon: 'plan'; dil: Dil; yol: string; alternatifler: Record<Dil, string> }
   | { sablon: 'rehber'; dil: Dil; yol: string; alternatifler: Record<Dil, string>; rehberKodu: RehberKodu }
-  | { sablon: 'transfer'; dil: Dil; yol: string; alternatifler: Record<Dil, string> };
+  | { sablon: 'transfer'; dil: Dil; yol: string; alternatifler: Record<Dil, string> }
+  | { sablon: 'ramses'; dil: Dil; yol: string; alternatifler: Record<Dil, string> };
 
 export function tumSayfalar(): SayfaTanimi[] {
   const sayfalar: SayfaTanimi[] = [];
@@ -140,6 +155,7 @@ export function tumSayfalar(): SayfaTanimi[] {
 
     sayfalar.push({ sablon: 'plan', dil, yol: planUrl(dil), alternatifler: alternatifler(planUrl) });
     sayfalar.push({ sablon: 'transfer', dil, yol: transferUrl(dil), alternatifler: alternatifler(transferUrl) });
+    sayfalar.push({ sablon: 'ramses', dil, yol: ramsesUrl(dil), alternatifler: alternatifler(ramsesUrl) });
 
     for (const kod of Object.keys(REHBER_SAYFALARI) as RehberKodu[])
       sayfalar.push({
