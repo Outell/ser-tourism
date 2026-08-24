@@ -55,6 +55,7 @@ interface Sozluk {
   nav_transfer: string;
   ana_sayfa: string;
   tum_turlar: string;
+  tum_hizmetler: string;  // yalnızca ana sayfadaki "Öne çıkan hizmetler" teaser linki
   dil_secici_etiket: string;
   para_secici_etiket: string;
   menu_ac: string;
@@ -375,6 +376,7 @@ export const sozluk: Record<Dil, Sozluk> = {
     nav_transfer: 'Transfer',
     ana_sayfa: 'Ana sayfa',
     tum_turlar: 'Tüm turlar',
+    tum_hizmetler: 'Tüm hizmetler',
     dil_secici_etiket: 'Dil',
     para_secici_etiket: 'Para birimi',
     menu_ac: 'Menüyü aç',
@@ -677,6 +679,7 @@ export const sozluk: Record<Dil, Sozluk> = {
     nav_transfer: 'Transfer',
     ana_sayfa: 'Home',
     tum_turlar: 'All tours',
+    tum_hizmetler: 'All services',
     dil_secici_etiket: 'Language',
     para_secici_etiket: 'Currency',
     menu_ac: 'Open menu',
@@ -979,6 +982,7 @@ export const sozluk: Record<Dil, Sozluk> = {
     nav_transfer: 'Трансфер',
     ana_sayfa: 'Главная',
     tum_turlar: 'Все экскурсии',
+    tum_hizmetler: 'Все услуги',
     dil_secici_etiket: 'Язык',
     para_secici_etiket: 'Валюта',
     menu_ac: 'Открыть меню',
@@ -1281,6 +1285,7 @@ export const sozluk: Record<Dil, Sozluk> = {
     nav_transfer: 'Transfer',
     ana_sayfa: 'Startseite',
     tum_turlar: 'Alle Touren',
+    tum_hizmetler: 'Alle Angebote',
     dil_secici_etiket: 'Sprache',
     para_secici_etiket: 'Währung',
     menu_ac: 'Menü öffnen',
@@ -1583,6 +1588,7 @@ export const sozluk: Record<Dil, Sozluk> = {
     nav_transfer: 'Transfer',
     ana_sayfa: 'Strona główna',
     tum_turlar: 'Wszystkie wycieczki',
+    tum_hizmetler: 'Wszystkie usługi',
     dil_secici_etiket: 'Język',
     para_secici_etiket: 'Waluta',
     menu_ac: 'Otwórz menu',
@@ -1890,6 +1896,7 @@ export const sozluk: Record<Dil, Sozluk> = {
     nav_transfer: 'Transfer',
     ana_sayfa: 'Acasă',
     tum_turlar: 'Toate excursiile',
+    tum_hizmetler: 'Toate serviciile',
     dil_secici_etiket: 'Limbă',
     para_secici_etiket: 'Monedă',
     menu_ac: 'Deschide meniul',

@@ -33,6 +33,11 @@ export const KATEGORILER: Taksonomi[] = [
     ad: { tr: 'Şehir ve konfor', en: 'City and comfort', ru: 'Город и комфорт', de: 'Stadt und Komfort', pl: 'Miasto i komfort', ro: 'Oraș și confort' },
     slug: { tr: 'konfor', en: 'comfort', ru: 'komfort', de: 'komfort', pl: 'komfort', ro: 'confort' },
   },
+  {
+    kod: 'hamam',
+    ad: { tr: 'Hamam', en: 'Hamam', ru: 'Хаммам', de: 'Hamam', pl: 'Hamam', ro: 'Hamam' },
+    slug: { tr: 'hamam', en: 'hamam', ru: 'khammam', de: 'hamam', pl: 'hamam', ro: 'hamam' },
+  },
 ];
 
 // 4 şehir (veri-modeli.md `sehir` alanı).
