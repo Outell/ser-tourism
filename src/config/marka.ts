@@ -8,12 +8,12 @@ export const MARKA = 'SER TOURISM & TRAVEL';
 export const SITE = 'https://ser-tourism.tapsync.cc';
 
 export const SLOGAN: Record<Dil, string> = {
-  tr: 'Tek mesaj yeter.',
-  en: 'One message away.',
-  ru: 'Одно сообщение — и всё.',
-  de: 'Eine Nachricht genügt.',
-  pl: 'Wystarczy jedna wiadomość.',
-  ro: 'Un singur mesaj e de ajuns.',
+  tr: 'All for a smile.',
+  en: 'All for a smile.',
+  ru: 'All for a smile.',
+  de: 'All for a smile.',
+  pl: 'All for a smile.',
+  ro: 'All for a smile.',
 };
 
 // Tek numara (§7.4). İleride dil başına ayrılabilsin diye obje olarak duruyor.

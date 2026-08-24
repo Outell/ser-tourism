@@ -4,7 +4,7 @@ import TemelSayfa from '../layouts/TemelSayfa.astro';
 import TurKart from '../components/TurKart.astro';
 import HavaDurumu from '../components/HavaDurumu.astro';
 import MesafeHaritasi from '../components/MesafeHaritasi.astro';
-import { MARKA } from '../config/marka';
+import { MARKA, SLOGAN } from '../config/marka';
 import { sozluk } from '../i18n/sozluk';
 import { KATEGORILER, BOLGELER } from '../data/taksonomi';
 import {
@@ -56,6 +56,7 @@ const baslik = `${MARKA} · ${s.meta_ana_baslik}`;
     </picture>
     <div class="hero__icerik">
       <p class="hero__eyebrow">{MARKA} · {s.nav_turlar}</p>
+      <p class="hero__slogan">{SLOGAN[dil]}</p>
       <h1>{s.hero_h1}</h1>
       <p class="hero__alt">{s.hero_alt}</p>
       <div class="hero__aksiyonlar">

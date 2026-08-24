@@ -100,14 +100,41 @@ const baslik = `${s.transfer_baslik} | ${MARKA}`;
 
   <!-- Araç galerisi -->
   <section class="kap bolum--dar">
-    <div class="transfer-galeri">
-      {galeri.map((src) => (
-        <div class="transfer-galeri__ogr">
+    <div class="transfer-galeri" data-galeri>
+      {galeri.map((src, i) => (
+        <button type="button" class="transfer-galeri__ogr" data-galeri-ac={i} aria-label={s.transfer_galeri_alt}>
           <img src={src} alt={s.transfer_galeri_alt} width="1600" height="1200" loading="lazy" decoding="async" />
-        </div>
+        </button>
       ))}
     </div>
   </section>
+
+  <dialog class="isik" data-isik aria-label={s.transfer_galeri_alt}>
+    <button type="button" class="isik__kapat" data-isik-kapat aria-label={s.galeri_kapat}>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="1.5" stroke-linecap="round" aria-hidden="true">
+        <path d="M6 6l12 12M18 6L6 18" />
+      </svg>
+    </button>
+
+    <figure class="isik__cerceve">
+      <img data-isik-gorsel src={galeri[0]} alt={s.transfer_galeri_alt} width="1600" height="1200" />
+      <figcaption class="isik__sayac" data-isik-sayac></figcaption>
+    </figure>
+
+    <button type="button" class="isik__ok isik__ok--sol" data-isik-yon="-1" aria-label={s.galeri_onceki}>
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M15 5l-7 7 7 7" />
+      </svg>
+    </button>
+    <button type="button" class="isik__ok isik__ok--sag" data-isik-yon="1" aria-label={s.galeri_sonraki}>
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+           stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M9 5l7 7-7 7" />
+      </svg>
+    </button>
+  </dialog>
 
   <!-- Fiyat tablosu -->
   <section id="transfer-fiyatlar" class="kap bolum">
@@ -174,6 +201,11 @@ const baslik = `${s.transfer_baslik} | ${MARKA}`;
     overflow: hidden;
     border-radius: var(--r-media);
     background: var(--surface-strong);
+    padding: 0;
+    border: 0;
+    display: block;
+    width: 100%;
+    cursor: pointer;
   }
   .transfer-galeri__ogr img{
     width: 100%; height: 100%;
@@ -182,6 +214,73 @@ const baslik = `${s.transfer_baslik} | ${MARKA}`;
     transition: transform .4s ease;
   }
   .transfer-galeri__ogr:hover img{ transform: scale(1.04); }
+  .transfer-galeri__ogr:focus-visible{ outline: 3px solid var(--focus-ring); outline-offset: 3px; }
+
+  /* ---- Tam ekran görüntüleyici (Tur.astro ile aynı desen) ---------- */
+
+  .isik{
+    border: 0;
+    padding: 0;
+    max-width: 100vw;
+    max-height: 100vh;
+    width: 100%;
+    height: 100%;
+    background: var(--surface-strong);
+    color: var(--text-inverse);
+  }
+  .isik::backdrop{ background: rgba(22,18,43,.92); }
+
+  .isik__cerceve{
+    margin: 0;
+    height: 100%;
+    display: grid;
+    place-items: center;
+    gap: 12px;
+    padding: 48px 16px;
+  }
+  .isik__cerceve img{
+    max-width: min(1200px, 92vw);
+    max-height: 78vh;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    border-radius: var(--r-buton);
+  }
+  .isik__sayac{
+    font-size: 13px;
+    color: rgba(247,243,236,.7);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .isik__kapat,
+  .isik__ok{
+    position: absolute;
+    background: rgba(247,243,236,.1);
+    color: var(--kagit);
+    border: 0;
+    border-radius: var(--r-buton);
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: background .2s ease-out;
+  }
+  .isik__kapat:hover,
+  .isik__ok:hover{ background: rgba(247,243,236,.2); }
+  .isik__kapat:focus-visible,
+  .isik__ok:focus-visible{ outline: 3px solid var(--focus-ring); outline-offset: 2px; }
+
+  .isik__kapat{ top: 12px; right: 12px; width: 40px; height: 40px; }
+  .isik__ok{ top: 50%; transform: translateY(-50%); width: 44px; height: 56px; }
+  .isik__ok--sol{ left: 12px; }
+  .isik__ok--sag{ right: 12px; }
+
+  @media (prefers-reduced-motion: reduce){
+    .transfer-galeri__ogr img,
+    .isik__kapat,
+    .isik__ok{ transition: none; }
+    .transfer-galeri__ogr:hover img{ transform: none; }
+  }
 
   .transfer-tablolar{
     display: grid;
@@ -253,3 +352,43 @@ const baslik = `${s.transfer_baslik} | ${MARKA}`;
 
   .wa-buton--hero{ padding: 13px 22px; font-size: 15px; }
 </style>
+
+<script is:inline define:vars={{ fotograflar: galeri, altMetin: s.transfer_galeri_alt }}>
+  (function () {
+    var kap = document.querySelector('[data-galeri]');
+    var isik = document.querySelector('[data-isik]');
+    if (!kap || !isik || !isik.showModal) return;      // desteklemeyen tarayıcıda galeri statik kalır
+
+    var gorsel = isik.querySelector('[data-isik-gorsel]');
+    var sayac = isik.querySelector('[data-isik-sayac]');
+    var indeks = 0;
+
+    function goster(i) {
+      indeks = (i + fotograflar.length) % fotograflar.length;
+      gorsel.src = fotograflar[indeks];
+      gorsel.alt = altMetin;
+      if (sayac) sayac.textContent = (indeks + 1) + ' / ' + fotograflar.length;
+    }
+
+    kap.addEventListener('click', function (e) {
+      var dugme = e.target.closest('[data-galeri-ac]');
+      if (!dugme) return;
+      goster(parseInt(dugme.getAttribute('data-galeri-ac'), 10) || 0);
+      isik.showModal();
+    });
+
+    isik.addEventListener('click', function (e) {
+      var yon = e.target.closest('[data-isik-yon]');
+      if (yon) { goster(indeks + parseInt(yon.getAttribute('data-isik-yon'), 10)); return; }
+      if (e.target.closest('[data-isik-kapat]')) { isik.close(); return; }
+      // görselin dışına tıklama kapatır (Esc'i dialog kendi hallediyor)
+      if (!e.target.closest('.isik__cerceve img')) isik.close();
+    });
+
+    isik.addEventListener('keydown', function (e) {
+      if (fotograflar.length < 2) return;
+      if (e.key === 'ArrowRight') { e.preventDefault(); goster(indeks + 1); }
+      if (e.key === 'ArrowLeft') { e.preventDefault(); goster(indeks - 1); }
+    });
+  })();
+</script>
