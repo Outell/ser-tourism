@@ -7,7 +7,7 @@ import { MARKA, WA_NUMBERS } from '../config/marka';
 import { sozluk, yerlestir } from '../i18n/sozluk';
 import { euroTutar } from '../lib/fiyat';
 import { anaUrl } from '../lib/rotalar';
-import { TRANSFER_DOGU, TRANSFER_BATI } from '../data/transferler';
+import { TRANSFER_DOGU, TRANSFER_BATI, TRANSFER_ARACLARI } from '../data/transferler';
 
 interface Props {
   dil: Dil;
@@ -35,7 +35,17 @@ function bolgeWaLink(b: TransferBolgesi) {
 }
 
 const G = '/gorseller/havalimani-transferi/havalimani-transferi-';
-const galeri = [G + '03-galeri.webp', G + '04-galeri.webp', G + '06-galeri.webp', G + '07-galeri.webp', G + '08-galeri.webp', G + '09-galeri.webp'];
+
+// Araç seçenekleri: standart VIP (V-Class) + büyük grup VIP (Sprinter, 2026-08-26
+// eklendi). İkisi de tek [data-galeri]/[data-isik] çiftini paylaşır — dizinler
+// (ofset) araçlar arka arkaya eklenerek hesaplanır, script değişmez.
+const araclar = TRANSFER_ARACLARI.map((a, i, arr) => ({
+  ...a,
+  ad: a.kod === 'standart' ? s.transfer_arac_standart_ad : s.transfer_arac_buyuk_ad,
+  aciklama: a.kod === 'standart' ? s.transfer_arac_standart_aciklama : s.transfer_arac_buyuk_aciklama,
+  ofset: arr.slice(0, i).reduce((n, x) => n + x.galeri.length, 0),
+}));
+const galeri = araclar.flatMap((a) => a.galeri);
 
 const baslik = `${s.transfer_baslik} | ${MARKA}`;
 ---
@@ -98,13 +108,39 @@ const baslik = `${s.transfer_baslik} | ${MARKA}`;
     </div>
   </section>
 
-  <!-- Araç galerisi -->
+  <!-- Araç seçenekleri: standart VIP + büyük grup VIP -->
   <section class="kap bolum--dar">
-    <div class="transfer-galeri" data-galeri>
-      {galeri.map((src, i) => (
-        <button type="button" class="transfer-galeri__ogr" data-galeri-ac={i} aria-label={s.transfer_galeri_alt}>
-          <img src={src} alt={s.transfer_galeri_alt} width="1600" height="1200" loading="lazy" decoding="async" />
-        </button>
+    <div class="bolum-baslik">
+      <h2>{s.transfer_arac_baslik}</h2>
+    </div>
+    <div class="arac-secenekleri">
+      {araclar.map((a) => (
+        <article class="arac-kart">
+          <div class="arac-kart__gorsel">
+            <img src={a.kapak} alt="" width="1200" height="900" loading="lazy" decoding="async" />
+            <span class="arac-kart__rozet">{yerlestir(s.transfer_arac_kapasite, { n: a.kapasite })}</span>
+          </div>
+          <div class="arac-kart__govde">
+            <h3>{a.ad}</h3>
+            <p>{a.aciklama}</p>
+          </div>
+        </article>
+      ))}
+    </div>
+
+    <!-- Araç galerisi — tek ışık kutusu, araca göre alt başlıklı -->
+    <div data-galeri>
+      {araclar.map((a) => (
+        <Fragment>
+          <h3 class="transfer-galeri__altbaslik">{a.ad}</h3>
+          <div class="transfer-galeri">
+            {a.galeri.map((src, i) => (
+              <button type="button" class="transfer-galeri__ogr" data-galeri-ac={a.ofset + i} aria-label={s.transfer_galeri_alt}>
+                <img src={src} alt={s.transfer_galeri_alt} width="1600" height="1200" loading="lazy" decoding="async" />
+              </button>
+            ))}
+          </div>
+        </Fragment>
       ))}
     </div>
   </section>
@@ -190,11 +226,63 @@ const baslik = `${s.transfer_baslik} | ${MARKA}`;
 <style>
   .hero--transfer .hero__icerik{ max-width: 620px; }
 
+  /* ---- Araç seçenekleri: standart VIP + büyük grup VIP ------------- */
+
+  .arac-secenekleri{
+    display: grid;
+    gap: 20px;
+    grid-template-columns: 1fr;
+    margin-bottom: clamp(32px, 5vw, 48px);
+  }
+  @media (min-width: 640px){
+    .arac-secenekleri{ grid-template-columns: 1fr 1fr; }
+  }
+  .arac-kart{
+    background: var(--surface-elevated);
+    border: 0.5px solid var(--border);
+    border-radius: var(--r-card);
+    overflow: hidden;
+    box-shadow: var(--shadow-sm);
+  }
+  .arac-kart__gorsel{
+    position: relative;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    background: var(--surface-strong);
+  }
+  .arac-kart__gorsel img{
+    width: 100%; height: 100%;
+    object-fit: cover;
+    filter: saturate(.96) contrast(1.04);
+  }
+  .arac-kart__rozet{
+    position: absolute;
+    left: 12px;
+    top: 12px;
+    background: rgba(22,18,43,.72);
+    color: var(--beyaz);
+    font-size: 12px;
+    padding: 6px 12px;
+    border-radius: var(--r-rozet);
+    backdrop-filter: blur(6px);
+  }
+  .arac-kart__govde{ padding: 18px 20px 22px; }
+  .arac-kart__govde h3{ margin: 0 0 6px; font-size: 19px; }
+  .arac-kart__govde p{ margin: 0; color: var(--text-secondary); font-size: 14px; line-height: 1.55; }
+
+  .transfer-galeri__altbaslik{
+    margin: 0 0 12px;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text-secondary);
+  }
   .transfer-galeri{
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
     gap: clamp(10px, 2vw, 16px);
+    margin-bottom: clamp(24px, 4vw, 32px);
   }
+  .transfer-galeri:last-child{ margin-bottom: 0; }
   .transfer-galeri__ogr{
     position: relative;
     aspect-ratio: 4 / 3;

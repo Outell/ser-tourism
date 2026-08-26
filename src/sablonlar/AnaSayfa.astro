@@ -89,6 +89,12 @@ const transferWaLink = `https://wa.me/${WA_NUMBERS[dil]}?text=${encodeURICompone
        (kullanıcı isteği: yarınki görüşmede Transferler öne çıkarılacak). -->
   <section class="kap bolum--dar ana-bolum ana-bolum--transfer">
     <div class="transfer-oncelik">
+      <a
+        class="transfer-oncelik__stretch"
+        href={transferUrl(dil)}
+        aria-hidden="true"
+        tabindex="-1"
+      ></a>
       <img
         class="transfer-oncelik__gorsel"
         src="/gorseller/havalimani-transferi/havalimani-transferi-02-kart.webp"
@@ -237,6 +243,18 @@ const transferWaLink = `https://wa.me/${WA_NUMBERS[dil]}?text=${encodeURICompone
     overflow: hidden;
     background: var(--surface-strong);
     box-shadow: var(--shadow-lg);
+    transition: box-shadow .3s ease-out;
+  }
+  /* Tüm kart tıklanabilir: görünmez, tam kaplayan bağlantı (foto dahil her
+     yere tıklamak Transfer sayfasını açar). Erişilebilir isim gerekmez —
+     alttaki "Transfer Fiyatlarını Gör" butonu klavye/ekran okuyucu için
+     zaten gerçek, odaklanabilir bağlantı; bu katman yalnızca fare/dokunma
+     kolaylığı (kullanıcı isteği). */
+  .transfer-oncelik__stretch{
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    cursor: pointer;
   }
   .transfer-oncelik__gorsel{
     position: absolute;
@@ -244,6 +262,15 @@ const transferWaLink = `https://wa.me/${WA_NUMBERS[dil]}?text=${encodeURICompone
     width: 100%; height: 100%;
     object-fit: cover;
     filter: saturate(.94) contrast(1.05);
+    transition: transform .4s ease-out;
+  }
+  .transfer-oncelik:hover .transfer-oncelik__gorsel,
+  .transfer-oncelik:focus-within .transfer-oncelik__gorsel{
+    transform: scale(1.035);
+  }
+  .transfer-oncelik:hover,
+  .transfer-oncelik:focus-within{
+    box-shadow: 0 32px 80px rgba(22,18,43,.24);
   }
   .transfer-oncelik__golge{
     position: absolute;
@@ -255,12 +282,14 @@ const transferWaLink = `https://wa.me/${WA_NUMBERS[dil]}?text=${encodeURICompone
   }
   .transfer-oncelik__icerik{
     position: absolute;
+    z-index: 2;
     left: clamp(20px, 4vw, 44px);
     right: clamp(20px, 4vw, 44px);
     bottom: clamp(22px, 4vw, 44px);
     display: grid;
     gap: 10px;
     max-width: 640px;
+    pointer-events: none;
   }
   .transfer-oncelik__rozet{
     width: max-content;
@@ -296,6 +325,9 @@ const transferWaLink = `https://wa.me/${WA_NUMBERS[dil]}?text=${encodeURICompone
     flex-wrap: wrap;
     gap: 10px;
     margin-top: 6px;
+    /* İçerik katmanı (üstteki .icerik) tıklamayı yayılan bağlantıya bırakır
+       (pointer-events:none); gerçek butonlar burada tekrar etkinleştirilir. */
+    pointer-events: auto;
   }
 
   @media (max-width: 520px){
@@ -303,5 +335,12 @@ const transferWaLink = `https://wa.me/${WA_NUMBERS[dil]}?text=${encodeURICompone
     .transfer-oncelik__aksiyonlar{ flex-direction: column; align-items: stretch; }
     .transfer-oncelik__aksiyonlar .buton-govde,
     .transfer-oncelik__aksiyonlar .wa-buton{ justify-content: center; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .transfer-oncelik,
+    .transfer-oncelik__gorsel{ transition: none; }
+    .transfer-oncelik:hover .transfer-oncelik__gorsel,
+    .transfer-oncelik:focus-within .transfer-oncelik__gorsel{ transform: none; }
   }
 </style>
