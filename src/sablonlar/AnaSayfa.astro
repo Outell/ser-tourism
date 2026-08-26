@@ -25,22 +25,13 @@ interface Props {
 const { dil, alternatifler: alt } = Astro.props;
 const s = sozluk[dil];
 
-// Ana sayfa merchandising: one_cikan adaylarını önce, ardından kalan tüm aktif
-// turları sabit sırayla ekler — ana sayfada tüm aktif turlar listelenir (3 ile sınırlı değil).
+// Ana sayfa merchandising: sabit 3 tur, bu sırayla (kullanıcı isteği).
+// Mevsim dışına çıkan bir tur varsa listelenebilirTurlar() onu otomatik eler.
 const listelenebilir = listelenebilirTurlar();
-const oneCikanAdaylari = listelenebilir.filter((t) => t.one_cikan);
-const oneCikanTamamlayiciSirasi = [
-  'aksu-dolphin-experience',
-  'jeep-kaiser',
-  'jeep-kaiser-night-safari',
-  'peloid-hamam-spa',
-];
-const oneCikanlar = [
-  ...oneCikanAdaylari,
-  ...oneCikanTamamlayiciSirasi
-    .map((id) => listelenebilir.find((t) => t.id === id))
-    .filter((t): t is (typeof listelenebilir)[number] => !!t && !oneCikanAdaylari.some((o) => o.id === t.id)),
-];
+const ONE_CIKAN_TUR_SIRASI = ['adventure-combo', 'aksu-dolphin-experience', 'jeep-kaiser'] as const;
+const oneCikanlar = ONE_CIKAN_TUR_SIRASI
+  .map((id) => listelenebilir.find((t) => t.id === id))
+  .filter((t): t is (typeof listelenebilir)[number] => !!t);
 
 const baslik = `${MARKA} · ${s.meta_ana_baslik}`;
 
