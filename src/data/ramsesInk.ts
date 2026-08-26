@@ -1,4 +1,5 @@
-// Ramses Ink Dövme & Piercing — turlar bölümü altında yaşayan ortak sayfa.
+// Dövme & Piercing stüdyosu — turlar bölümü altında yaşayan ortak sayfa,
+// marka ismi/logo/konum belirtilmeden jenerik hizmet olarak sunulur.
 // Fiyat/iptal alanı kasıtlı olarak yok (MASTER-PROMPT §11 "boş alan sessizdir");
 // tek aksiyon WhatsApp. Yorumlar Google Haritalar'dan alınmış gerçek metinler,
 // çevrilmeden orijinal dilinde (İngilizce) tutulur.
@@ -22,7 +23,6 @@ export const RAMSES_GALERI = [
 ];
 
 export const RAMSES_KART_GORSEL = G + '00-kart.webp';
-export const RAMSES_LOGO = G + 'logo.webp';
 
 export interface RamsesYorum {
   isim: string;

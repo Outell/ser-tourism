@@ -73,6 +73,7 @@ interface Sozluk {
   rozet_transfer: string;
   rozet_iptal: string;
   b_one_cikan: string;
+  b_one_cikan_eyebrow: string;
   b_kategoriler: string;
   b_neden: string;
   b_bolgeler: string;
@@ -328,22 +329,17 @@ interface Sozluk {
   transfer_ana_teaser_metin: string;
   transfer_ana_teaser_buton: string;
 
-  // Ramses Ink Dövme & Piercing (turlar altında ortak sayfa — fiyat/iptal alanı yok)
+  // Dövme & Piercing stüdyosu (turlar altında ortak sayfa — fiyat/iptal alanı yok,
+  // marka ismi/logo/konum yok — jenerik hizmet tanıtımı)
   ramses_baslik: string;
-  ramses_eyebrow: string;
   ramses_ozet: string;
   ramses_h1_alt: string;
-  ramses_lokasyon: string;
   ramses_badge_tasarim: string;
   ramses_badge_alis: string;
   ramses_puan_metin: string;
   ramses_puan_sr: string;
   ramses_yorumlar_baslik: string;
   ramses_yorum_kaynagi: string;
-  ramses_hakkinda_p1: string;
-  ramses_hakkinda_p2: string;
-  ramses_tagline: string;
-  ramses_tagline_metin: string;
   ramses_galeri_baslik: string;
   ramses_cta_baslik: string;
   ramses_cta_metin: string;
@@ -393,6 +389,7 @@ export const sozluk: Record<Dil, Sozluk> = {
     rozet_transfer: 'Otel transferi dahil',
     rozet_iptal: '24 saate kadar ücretsiz iptal',
     b_one_cikan: 'Öne çıkan hizmetler',
+    b_one_cikan_eyebrow: 'Deneyimler',
     b_kategoriler: 'Kategoriler',
     b_neden: 'Neden biz',
     b_bolgeler: 'Nereden kalkıyorsunuz?',
@@ -636,26 +633,20 @@ export const sozluk: Record<Dil, Sozluk> = {
     transfer_ana_teaser_metin: 'Antalya Havalimanı ile oteliniz arasında Mercedes V-Class VIP araçla konforlu, sabit fiyatlı özel transfer.',
     transfer_ana_teaser_buton: 'Transfer Fiyatlarını Gör',
 
-    ramses_baslik: 'Ramses Ink Dövme & Piercing',
-    ramses_eyebrow: 'Dövme & Piercing Stüdyosu',
-    ramses_ozet: 'Manavgat, Antalya’da dövme ve piercing hizmeti. Tasarım ve otelden alış ücretsiz, randevu WhatsApp üzerinden.',
-    ramses_h1_alt: 'Manavgat, Antalya’da deneyimli sanatçılarla dövme ve piercing. Tasarım ücretsiz, otelden alış ücretsiz.',
-    ramses_lokasyon: 'Manavgat, Antalya',
+    ramses_baslik: 'Dövme & Piercing Stüdyosu',
+    ramses_ozet: 'Antalya’da dövme ve piercing hizmeti. Tasarım ve otelden alış ücretsiz, randevu WhatsApp üzerinden.',
+    ramses_h1_alt: 'Antalya’da deneyimli sanatçılarla dövme ve piercing. Tasarım ücretsiz, otelden alış ücretsiz.',
     ramses_badge_tasarim: 'Ücretsiz Tasarım',
     ramses_badge_alis: 'Ücretsiz Alış',
     ramses_puan_metin: '{n} Değerlendirme',
     ramses_puan_sr: '5 üzerinden 5 yıldız',
     ramses_yorumlar_baslik: 'Google Yorumları',
     ramses_yorum_kaynagi: 'Google Yorumu',
-    ramses_hakkinda_p1: 'Ramses Ink, sanatın bedende bıraktığı izi önemseyen bir dövme ve piercing stüdyosu. Ekibin dövme sanatçıları, yılların deneyimi ve tutkusuyla her tasarımı müşterinin hayalindeki dövmeye dönüştürüyor. Aynı özenle piercing alanında da hizmet veriliyor; bedeni ifade eden takılarla stile özgünlük katılıyor.',
-    ramses_hakkinda_p2: 'Manavgat, Antalya’da yer alan stüdyoda tasarım aşaması ücretsiz sunuluyor, otelden ücretsiz alış imkânı tanınıyor. Randevu ve detaylar WhatsApp üzerinden planlanıyor.',
-    ramses_tagline: 'Tarzın için en iyisini hak ediyorsun',
-    ramses_tagline_metin: 'Tarz ve isteklere uygun dövme tasarımı hazırlanır. Deneyimli dövme sanatçılarıyla özenli, ayrıntılı sonuçlar elde edilir.',
     ramses_galeri_baslik: 'Stüdyodan çalışmalar',
     ramses_cta_baslik: 'Randevu ve detaylar için WhatsApp’tan yazın',
     ramses_cta_metin: 'Tasarım ve otelden alış ücretsizdir.',
-    ramses_galeri_alt: 'Ramses Ink dövme ve piercing çalışması',
-    ramses_wa_konu: 'Ramses Ink dövme/piercing hakkında bilgi almak istiyorum.',
+    ramses_galeri_alt: 'Dövme ve piercing çalışması',
+    ramses_wa_konu: 'Dövme/piercing hakkında bilgi almak istiyorum.',
 
     s_biz: 'Biz',
     s_hakkimizda: 'Hakkımızda',
@@ -696,6 +687,7 @@ export const sozluk: Record<Dil, Sozluk> = {
     rozet_transfer: 'Hotel transfer included',
     rozet_iptal: 'Free cancellation up to 24 hours',
     b_one_cikan: 'Featured services',
+    b_one_cikan_eyebrow: 'Experiences',
     b_kategoriler: 'Categories',
     b_neden: 'Why us',
     b_bolgeler: 'Where are you staying?',
@@ -939,26 +931,20 @@ export const sozluk: Record<Dil, Sozluk> = {
     transfer_ana_teaser_metin: 'Comfortable, fixed-price private transfer between Antalya Airport and your hotel in a Mercedes V-Class VIP vehicle.',
     transfer_ana_teaser_buton: 'See Transfer Prices',
 
-    ramses_baslik: 'Ramses Ink Tattoo & Piercing',
-    ramses_eyebrow: 'Tattoo & Piercing Studio',
-    ramses_ozet: 'Tattoo and piercing in Manavgat, Antalya. Free design and free hotel pickup, book on WhatsApp.',
-    ramses_h1_alt: 'Tattoo and piercing with experienced artists in Manavgat, Antalya. Free design, free hotel pickup.',
-    ramses_lokasyon: 'Manavgat, Antalya',
+    ramses_baslik: 'Tattoo & Piercing Studio',
+    ramses_ozet: 'Tattoo and piercing in Antalya. Free design and free hotel pickup, book on WhatsApp.',
+    ramses_h1_alt: 'Tattoo and piercing with experienced artists in Antalya. Free design, free hotel pickup.',
     ramses_badge_tasarim: 'Free Design',
     ramses_badge_alis: 'Free Pickup',
     ramses_puan_metin: '{n} Reviews',
     ramses_puan_sr: '5 out of 5 stars',
     ramses_yorumlar_baslik: 'Google Reviews',
     ramses_yorum_kaynagi: 'Google Review',
-    ramses_hakkinda_p1: 'Ramses Ink is a tattoo and piercing studio built around the mark art leaves on the body. Its tattoo artists bring years of experience and dedication to turning each client’s idea into a finished design. Piercing is handled with the same care, with jewellery that expresses personal style.',
-    ramses_hakkinda_p2: 'Based in Manavgat, Antalya, the studio offers a free design consultation and free hotel pickup. Appointments and details are arranged over WhatsApp.',
-    ramses_tagline: 'You deserve the best for your style',
-    ramses_tagline_metin: 'The design is shaped around your style and wishes. Working with experienced tattoo artists gives careful, detailed results.',
     ramses_galeri_baslik: 'Work from the studio',
     ramses_cta_baslik: 'Message on WhatsApp for appointments and details',
     ramses_cta_metin: 'Design and hotel pickup are free.',
-    ramses_galeri_alt: 'Ramses Ink tattoo and piercing work',
-    ramses_wa_konu: 'I would like information about Ramses Ink tattoo/piercing.',
+    ramses_galeri_alt: 'Tattoo and piercing work',
+    ramses_wa_konu: 'I would like information about tattoo/piercing.',
 
     s_biz: 'Company',
     s_hakkimizda: 'About us',
@@ -999,6 +985,7 @@ export const sozluk: Record<Dil, Sozluk> = {
     rozet_transfer: 'Трансфер из отеля включён',
     rozet_iptal: 'Бесплатная отмена за 24 часа',
     b_one_cikan: 'Популярные услуги',
+    b_one_cikan_eyebrow: 'Впечатления',
     b_kategoriler: 'Категории',
     b_neden: 'Почему мы',
     b_bolgeler: 'Откуда вы выезжаете?',
@@ -1242,26 +1229,20 @@ export const sozluk: Record<Dil, Sozluk> = {
     transfer_ana_teaser_metin: 'Комфортный трансфер по фиксированной цене между аэропортом Анталии и вашим отелем на VIP-автомобиле Mercedes V-Class.',
     transfer_ana_teaser_buton: 'Смотреть цены на трансфер',
 
-    ramses_baslik: 'Ramses Ink — тату и пирсинг',
-    ramses_eyebrow: 'Студия тату и пирсинга',
-    ramses_ozet: 'Тату и пирсинг в Манавгате, Анталья. Бесплатный дизайн и бесплатный трансфер из отеля, запись через WhatsApp.',
-    ramses_h1_alt: 'Тату и пирсинг у опытных мастеров в Манавгате, Анталья. Бесплатный дизайн, бесплатный трансфер из отеля.',
-    ramses_lokasyon: 'Манавгат, Анталья',
+    ramses_baslik: 'Студия тату и пирсинга',
+    ramses_ozet: 'Тату и пирсинг в Анталье. Бесплатный дизайн и бесплатный трансфер из отеля, запись через WhatsApp.',
+    ramses_h1_alt: 'Тату и пирсинг у опытных мастеров в Анталье. Бесплатный дизайн, бесплатный трансфер из отеля.',
     ramses_badge_tasarim: 'Бесплатный дизайн',
     ramses_badge_alis: 'Бесплатный трансфер',
     ramses_puan_metin: '{n} отзывов',
     ramses_puan_sr: '5 из 5 звёзд',
     ramses_yorumlar_baslik: 'Отзывы Google',
     ramses_yorum_kaynagi: 'Отзыв Google',
-    ramses_hakkinda_p1: 'Ramses Ink — студия татуировки и пирсинга, где ценят след, который искусство оставляет на теле. Мастера студии, обладая многолетним опытом, воплощают идею клиента в готовый эскиз. С такой же тщательностью здесь занимаются пирсингом, подбирая украшения, которые подчёркивают индивидуальный стиль.',
-    ramses_hakkinda_p2: 'Студия расположена в Манавгате, Анталья. Консультация по дизайну бесплатна, предусмотрен бесплатный трансфер из отеля. Запись и детали обсуждаются через WhatsApp.',
-    ramses_tagline: 'Ваш стиль заслуживает лучшего',
-    ramses_tagline_metin: 'Эскиз создаётся с учётом вашего стиля и пожеланий. Опытные мастера обеспечивают тщательный, детальный результат.',
     ramses_galeri_baslik: 'Работы студии',
     ramses_cta_baslik: 'Напишите в WhatsApp, чтобы записаться и узнать детали',
     ramses_cta_metin: 'Дизайн и трансфер из отеля бесплатны.',
-    ramses_galeri_alt: 'Работа студии Ramses Ink — тату и пирсинг',
-    ramses_wa_konu: 'Хотел(а) бы узнать подробнее о тату/пирсинге в Ramses Ink.',
+    ramses_galeri_alt: 'Работа студии — тату и пирсинг',
+    ramses_wa_konu: 'Хотел(а) бы узнать подробнее о тату/пирсинге.',
 
     s_biz: 'Компания',
     s_hakkimizda: 'О нас',
@@ -1302,6 +1283,7 @@ export const sozluk: Record<Dil, Sozluk> = {
     rozet_transfer: 'Hoteltransfer inklusive',
     rozet_iptal: 'Kostenlose Stornierung bis 24 Stunden vorher',
     b_one_cikan: 'Beliebte Angebote',
+    b_one_cikan_eyebrow: 'Erlebnisse',
     b_kategoriler: 'Kategorien',
     b_neden: 'Warum wir',
     b_bolgeler: 'Von wo starten Sie?',
@@ -1545,26 +1527,20 @@ export const sozluk: Record<Dil, Sozluk> = {
     transfer_ana_teaser_metin: 'Komfortabler Privattransfer zum Festpreis zwischen dem Flughafen Antalya und Ihrem Hotel im Mercedes V-Class VIP-Fahrzeug.',
     transfer_ana_teaser_buton: 'Transferpreise ansehen',
 
-    ramses_baslik: 'Ramses Ink Tattoo & Piercing',
-    ramses_eyebrow: 'Tattoo- & Piercingstudio',
-    ramses_ozet: 'Tattoo und Piercing in Manavgat, Antalya. Kostenlose Designberatung und kostenlose Hotelabholung, Termin über WhatsApp.',
-    ramses_h1_alt: 'Tattoo und Piercing bei erfahrenen Künstlern in Manavgat, Antalya. Kostenlose Designberatung, kostenlose Hotelabholung.',
-    ramses_lokasyon: 'Manavgat, Antalya',
+    ramses_baslik: 'Tattoo- & Piercingstudio',
+    ramses_ozet: 'Tattoo und Piercing in Antalya. Kostenlose Designberatung und kostenlose Hotelabholung, Termin über WhatsApp.',
+    ramses_h1_alt: 'Tattoo und Piercing bei erfahrenen Künstlern in Antalya. Kostenlose Designberatung, kostenlose Hotelabholung.',
     ramses_badge_tasarim: 'Kostenloses Design',
     ramses_badge_alis: 'Kostenlose Abholung',
     ramses_puan_metin: '{n} Bewertungen',
     ramses_puan_sr: '5 von 5 Sternen',
     ramses_yorumlar_baslik: 'Google-Bewertungen',
     ramses_yorum_kaynagi: 'Google-Bewertung',
-    ramses_hakkinda_p1: 'Ramses Ink ist ein Tattoo- und Piercingstudio, dem die Spur wichtig ist, die Kunst auf der Haut hinterlässt. Die Tätowierer des Studios bringen langjährige Erfahrung und Leidenschaft mit, um jede Idee in ein fertiges Design zu verwandeln. Mit derselben Sorgfalt wird auch Piercing angeboten — mit Schmuck, der den persönlichen Stil unterstreicht.',
-    ramses_hakkinda_p2: 'Das Studio liegt in Manavgat, Antalya. Die Designberatung ist kostenlos, ebenso die Abholung vom Hotel. Termine und Details werden über WhatsApp vereinbart.',
-    ramses_tagline: 'Für deinen Stil verdienst du das Beste',
-    ramses_tagline_metin: 'Das Tattoo-Design entsteht nach deinem Stil und deinen Wünschen. Erfahrene Tätowierer sorgen für sorgfältige, detailreiche Ergebnisse.',
     ramses_galeri_baslik: 'Arbeiten aus dem Studio',
     ramses_cta_baslik: 'Für Termine und Details auf WhatsApp schreiben',
     ramses_cta_metin: 'Design und Hotelabholung sind kostenlos.',
-    ramses_galeri_alt: 'Ramses Ink Tattoo- und Piercingarbeit',
-    ramses_wa_konu: 'Ich hätte gerne Informationen zu Tattoo/Piercing bei Ramses Ink.',
+    ramses_galeri_alt: 'Tattoo- und Piercingarbeit',
+    ramses_wa_konu: 'Ich hätte gerne Informationen zu Tattoo/Piercing.',
 
     s_biz: 'Unternehmen',
     s_hakkimizda: 'Über uns',
@@ -1605,6 +1581,7 @@ export const sozluk: Record<Dil, Sozluk> = {
     rozet_transfer: 'Transfer z hotelu w cenie',
     rozet_iptal: 'Bezpłatne odwołanie do 24 godzin',
     b_one_cikan: 'Polecane usługi',
+    b_one_cikan_eyebrow: 'Doświadczenia',
     b_kategoriler: 'Kategorie',
     b_neden: 'Dlaczego my',
     b_bolgeler: 'Skąd wyruszasz?',
@@ -1851,26 +1828,20 @@ export const sozluk: Record<Dil, Sozluk> = {
     transfer_ana_teaser_metin: 'Komfortowy transfer prywatny w stałej cenie między lotniskiem Antalya a Twoim hotelem, luksusowym Mercedesem V-Class.',
     transfer_ana_teaser_buton: 'Zobacz ceny transferu',
 
-    ramses_baslik: 'Ramses Ink Tatuaż i Piercing',
-    ramses_eyebrow: 'Studio tatuażu i piercingu',
-    ramses_ozet: 'Tatuaż i piercing w Manavgat, Antalya. Bezpłatny projekt i bezpłatny odbiór z hotelu, termin przez WhatsApp.',
-    ramses_h1_alt: 'Tatuaż i piercing u doświadczonych artystów w Manavgat, Antalya. Bezpłatny projekt, bezpłatny odbiór z hotelu.',
-    ramses_lokasyon: 'Manavgat, Antalya',
+    ramses_baslik: 'Studio tatuażu i piercingu',
+    ramses_ozet: 'Tatuaż i piercing w Antalyi. Bezpłatny projekt i bezpłatny odbiór z hotelu, termin przez WhatsApp.',
+    ramses_h1_alt: 'Tatuaż i piercing u doświadczonych artystów w Antalyi. Bezpłatny projekt, bezpłatny odbiór z hotelu.',
     ramses_badge_tasarim: 'Bezpłatny projekt',
     ramses_badge_alis: 'Bezpłatny odbiór',
     ramses_puan_metin: '{n} opinii',
     ramses_puan_sr: '5 na 5 gwiazdek',
     ramses_yorumlar_baslik: 'Opinie z Google',
     ramses_yorum_kaynagi: 'Opinia z Google',
-    ramses_hakkinda_p1: 'Ramses Ink to studio tatuażu i piercingu, w którym liczy się ślad, jaki sztuka pozostawia na ciele. Tatuażyści studia, z wieloletnim doświadczeniem i pasją, zamieniają pomysł klienta w gotowy projekt. Z taką samą starannością wykonywany jest piercing — z biżuterią podkreślającą indywidualny styl.',
-    ramses_hakkinda_p2: 'Studio znajduje się w Manavgat, Antalya. Konsultacja projektowa jest bezpłatna, podobnie jak odbiór z hotelu. Termin i szczegóły ustala się przez WhatsApp.',
-    ramses_tagline: 'Twój styl zasługuje na to, co najlepsze',
-    ramses_tagline_metin: 'Projekt tatuażu powstaje zgodnie z Twoim stylem i oczekiwaniami. Doświadczeni tatuażyści zapewniają staranny, dopracowany w szczegółach efekt.',
     ramses_galeri_baslik: 'Prace ze studia',
     ramses_cta_baslik: 'Napisz na WhatsApp, aby umówić termin i poznać szczegóły',
     ramses_cta_metin: 'Projekt i odbiór z hotelu są bezpłatne.',
-    ramses_galeri_alt: 'Praca studia Ramses Ink — tatuaż i piercing',
-    ramses_wa_konu: 'Chciałbym/Chciałabym dowiedzieć się więcej o tatuażu/piercingu w Ramses Ink.',
+    ramses_galeri_alt: 'Praca studia — tatuaż i piercing',
+    ramses_wa_konu: 'Chciałbym/Chciałabym dowiedzieć się więcej o tatuażu/piercingu.',
 
     s_biz: 'Firma',
     s_hakkimizda: 'O nas',
@@ -1913,6 +1884,7 @@ export const sozluk: Record<Dil, Sozluk> = {
     rozet_transfer: 'Preluare de la hotel inclusă',
     rozet_iptal: 'Anulare gratuită până cu 24 de ore înainte',
     b_one_cikan: 'Servicii recomandate',
+    b_one_cikan_eyebrow: 'Experiențe',
     b_kategoriler: 'Categorii',
     b_neden: 'De ce noi',
     b_bolgeler: 'De unde plecați?',
@@ -2162,26 +2134,20 @@ export const sozluk: Record<Dil, Sozluk> = {
     transfer_ana_teaser_metin: 'Transfer privat confortabil, la preț fix, între Aeroportul Antalya și hotelul dumneavoastră, cu un Mercedes V-Class VIP.',
     transfer_ana_teaser_buton: 'Vezi prețurile transferului',
 
-    ramses_baslik: 'Ramses Ink Tatuaje și Piercing',
-    ramses_eyebrow: 'Studio de tatuaje și piercing',
-    ramses_ozet: 'Tatuaje și piercing în Manavgat, Antalya. Design gratuit și preluare gratuită de la hotel, programare pe WhatsApp.',
-    ramses_h1_alt: 'Tatuaje și piercing cu artiști experimentați în Manavgat, Antalya. Design gratuit, preluare gratuită de la hotel.',
-    ramses_lokasyon: 'Manavgat, Antalya',
+    ramses_baslik: 'Studio de tatuaje și piercing',
+    ramses_ozet: 'Tatuaje și piercing în Antalya. Design gratuit și preluare gratuită de la hotel, programare pe WhatsApp.',
+    ramses_h1_alt: 'Tatuaje și piercing cu artiști experimentați în Antalya. Design gratuit, preluare gratuită de la hotel.',
     ramses_badge_tasarim: 'Design gratuit',
     ramses_badge_alis: 'Preluare gratuită',
     ramses_puan_metin: '{n} recenzii',
     ramses_puan_sr: '5 din 5 stele',
     ramses_yorumlar_baslik: 'Recenzii Google',
     ramses_yorum_kaynagi: 'Recenzie Google',
-    ramses_hakkinda_p1: 'Ramses Ink este un studio de tatuaje și piercing preocupat de urma pe care arta o lasă pe piele. Artiștii studioului, cu ani de experiență și pasiune, transformă ideea fiecărui client într-un design finalizat. Piercingul este realizat cu aceeași atenție, cu bijuterii care exprimă stilul personal.',
-    ramses_hakkinda_p2: 'Studioul este situat în Manavgat, Antalya. Consultația de design este gratuită, la fel și preluarea de la hotel. Programările și detaliile se stabilesc prin WhatsApp.',
-    ramses_tagline: 'Meriți ce e mai bun pentru stilul tău',
-    ramses_tagline_metin: 'Designul tatuajului este realizat după stilul și dorințele tale. Artiști cu experiență asigură rezultate atente, lucrate în detaliu.',
     ramses_galeri_baslik: 'Lucrări din studio',
     ramses_cta_baslik: 'Scrieți pe WhatsApp pentru programare și detalii',
     ramses_cta_metin: 'Designul și preluarea de la hotel sunt gratuite.',
-    ramses_galeri_alt: 'Lucrare Ramses Ink — tatuaj și piercing',
-    ramses_wa_konu: 'Aș dori informații despre tatuaje/piercing la Ramses Ink.',
+    ramses_galeri_alt: 'Lucrare — tatuaj și piercing',
+    ramses_wa_konu: 'Aș dori informații despre tatuaje/piercing.',
 
     s_biz: 'Compania',
     s_hakkimizda: 'Despre noi',

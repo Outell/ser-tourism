@@ -1,6 +1,6 @@
 ---
 import type { Dil, Tur } from '../lib/tipler';
-import { aktifTurlar } from '../lib/rotalar';
+import { aktifTurlar, turUrl } from '../lib/rotalar';
 import { sozluk } from '../i18n/sozluk';
 import { WA_NUMBERS, LEAD_ENDPOINT } from '../config/marka';
 import WaIkon from './WaIkon.astro';
@@ -36,6 +36,7 @@ const formVeri = {
   harf: TARIH_HARF[dil],
   turlar: Object.fromEntries(aktifTurlar.map((t) => [t.id, {
     kod: t.kod,
+    url: turUrl(dil, t),
     ad: t.baslik[dil],
     fiyat: t.fiyat_eur,
     yetiskinFiyat: t.adult_price_eur ?? t.fiyat_eur,
@@ -619,6 +620,72 @@ const formVeri = {
     form.addEventListener('input', guncelle);
     form.addEventListener('change', guncelle);
     guncelle();
+
+    // ---------------------------------------------------------------
+    // 5 · TUR DEĞİŞİNCE SAYFA GEÇİŞİ
+    // Statik sitede her tur ayrı sayfa: galeri, program, fiyat bloğu hep
+    // o sayfanın kendi verisinden gelir. Eskiden "Tur" alanı yalnızca bu
+    // formun WhatsApp mesajını güncelliyordu, sayfanın geri kalanı hep
+    // ilk açılan turda kalıyordu. Artık seçilince o turun sayfasına
+    // gidilir; doldurulmuş alanlar sorgu dizesiyle yeni sayfaya taşınır.
+    // ---------------------------------------------------------------
+    function sorguKur(deger) {
+      var parcalar = [];
+      Object.keys(deger).forEach(function (anahtar) {
+        var v = deger[anahtar];
+        if (v) parcalar.push(encodeURIComponent(anahtar) + '=' + encodeURIComponent(v));
+      });
+      return parcalar.join('&');
+    }
+
+    alanlar.tur.addEventListener('change', function () {
+      var hedef = V.turlar[alanlar.tur.value];
+      if (!hedef || !hedef.url) return;
+      var sorgu = sorguKur({
+        tarih: alanlar.tarih.value,
+        yetiskin: alanlar.yetiskin.value,
+        cocuk: alanlar.cocuk.value,
+        yaslar: alanlar.yaslar.value.trim(),
+        otel: alanlar.otel.value.trim(),
+        ad: alanlar.ad.value.trim(),
+        not: alanlar.not.value.trim(),
+      });
+      window.location.href = hedef.url + (sorgu ? '?' + sorgu : '');
+    });
+
+    // ---------------------------------------------------------------
+    // 6 · BAŞKA TURDAN GELEN ALANLARI GERİ YÜKLE (yukarıdaki geçişin karşılığı)
+    // ---------------------------------------------------------------
+    (function sorguyuOku() {
+      if (!window.location.search) return;
+      var parametreler = {};
+      window.location.search.replace(/^\?/, '').split('&').forEach(function (parca) {
+        if (!parca) return;
+        var ikili = parca.split('=');
+        parametreler[decodeURIComponent(ikili[0])] = decodeURIComponent((ikili[1] || '').replace(/\+/g, ' '));
+      });
+      if (!Object.keys(parametreler).length) return;
+
+      if (parametreler.tarih && /^\d{4}-\d{2}-\d{2}$/.test(parametreler.tarih) && parametreler.tarih >= bugunISO) {
+        gunSec(parametreler.tarih);
+      }
+      if (parametreler.yetiskin) {
+        alanlar.yetiskin.value = parametreler.yetiskin;
+        sayiSinirla(alanlar.yetiskin.closest('[data-sayi]'));
+      }
+      if (parametreler.cocuk) {
+        alanlar.cocuk.value = parametreler.cocuk;
+        sayiSinirla(alanlar.cocuk.closest('[data-sayi]'));
+      }
+      if (parametreler.yaslar) alanlar.yaslar.value = parametreler.yaslar;
+      if (parametreler.otel) alanlar.otel.value = parametreler.otel;
+      if (parametreler.ad) alanlar.ad.value = parametreler.ad;
+      if (parametreler.not) { alanlar.not.value = parametreler.not; notGuncelle(); }
+
+      guncelle();
+      // URL'i temizle: geri/ileri tuşları ve paylaşım linki eski verilerle kirlenmesin
+      window.history.replaceState(null, '', window.location.pathname);
+    })();
 
     form.addEventListener('submit', function (e) {
       e.preventDefault();

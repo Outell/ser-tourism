@@ -5,9 +5,12 @@ import TurKart from '../components/TurKart.astro';
 import RamsesTanitimKart from '../components/RamsesTanitimKart.astro';
 import HavaDurumu from '../components/HavaDurumu.astro';
 import MesafeHaritasi from '../components/MesafeHaritasi.astro';
-import { MARKA, SLOGAN } from '../config/marka';
-import { sozluk } from '../i18n/sozluk';
+import WaIkon from '../components/WaIkon.astro';
+import { MARKA, SLOGAN, WA_NUMBERS } from '../config/marka';
+import { sozluk, yerlestir } from '../i18n/sozluk';
 import { KATEGORILER, BOLGELER } from '../data/taksonomi';
+import { TRANSFER_DOGU, TRANSFER_BATI } from '../data/transferler';
+import { euroTutar } from '../lib/fiyat';
 import {
   listelenebilirTurlar, kategorininTurlari, bolgeninTurlari,
   kategoriUrl, bolgeUrl, turlarUrl, planUrl, rehberUrl, transferUrl,
@@ -27,9 +30,9 @@ const listelenebilir = listelenebilirTurlar();
 const oneCikanAdaylari = listelenebilir.filter((t) => t.one_cikan);
 const oneCikanTamamlayiciSirasi = [
   'aksu-dolphin-experience',
+  'jeep-kaiser',
   'jeep-kaiser-night-safari',
   'peloid-hamam-spa',
-  'jeep-kaiser',
 ];
 const oneCikanlar = [
   ...oneCikanAdaylari,
@@ -39,6 +42,12 @@ const oneCikanlar = [
 ];
 
 const baslik = `${MARKA} · ${s.meta_ana_baslik}`;
+
+// Transfer öncelik kartı — en düşük bölge fiyatı "…€'dan başlayan" rozetinde,
+// tek yön WhatsApp mesajı TurKart.astro'daki kalıpla aynı (build zamanında hazır).
+const transferEnDusukFiyat = Math.min(...TRANSFER_DOGU.map((b) => b.fiyat_eur), ...TRANSFER_BATI.map((b) => b.fiyat_eur));
+const transferWaMesaj = `${s.m_selamlama}\n\n${s.m_tur}: ${s.transfer_ana_teaser_baslik}\n\n${s.m_kapanis}`;
+const transferWaLink = `https://wa.me/${WA_NUMBERS[dil]}?text=${encodeURIComponent(transferWaMesaj)}`;
 ---
 <TemelSayfa dil={dil} baslik={baslik} aciklama={s.meta_ana_aciklama} alternatifler={alt}>
   <!-- 1. Hero: tek fotoğraf, video yok (alan hazır, boş — §4.5) -->
@@ -76,34 +85,46 @@ const baslik = `${MARKA} · ${s.meta_ana_baslik}`;
     </div>
   </section>
 
+  <!-- Havalimanı transferi — Öne çıkan hizmetler'in üstünde, en yüksek vurguda
+       (kullanıcı isteği: yarınki görüşmede Transferler öne çıkarılacak). -->
+  <section class="kap bolum--dar ana-bolum ana-bolum--transfer">
+    <div class="transfer-oncelik">
+      <img
+        class="transfer-oncelik__gorsel"
+        src="/gorseller/havalimani-transferi/havalimani-transferi-02-kart.webp"
+        alt=""
+        width="1200" height="900"
+        loading="eager" decoding="async"
+      />
+      <span class="transfer-oncelik__golge" aria-hidden="true"></span>
+      <div class="transfer-oncelik__icerik">
+        <span class="transfer-oncelik__rozet">{s.transfer_eyebrow}</span>
+        <h2>{s.transfer_ana_teaser_baslik}</h2>
+        <p>{s.transfer_ana_teaser_metin}</p>
+        <div class="transfer-oncelik__fiyat">{yerlestir(s.fiyat_baslayan, { f: euroTutar(transferEnDusukFiyat, dil) })}</div>
+        <div class="transfer-oncelik__aksiyonlar">
+          <a class="buton-govde" href={transferUrl(dil)}>{s.transfer_ana_teaser_buton}</a>
+          <a class="wa-buton" href={transferWaLink} target="_blank" rel="noopener">
+            <WaIkon boyut={16} />
+            {s.transfer_cta_wa}
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- 3. Öne çıkan hizmetler — turlar + Ramses Ink (gerçek bir tur değil, en sonda) -->
   <section class="kap bolum ana-bolum ana-bolum--one">
     <div class="bolum-baslik">
-      <h2>{s.b_one_cikan}</h2>
+      <div class="bolum-baslik__grup">
+        <p class="bolum-baslik__eyebrow">{s.b_one_cikan_eyebrow}</p>
+        <h2>{s.b_one_cikan}</h2>
+      </div>
       <a class="metin-link" href={turlarUrl(dil)}>{s.tum_hizmetler}</a>
     </div>
     <div class="grid">
       {oneCikanlar.map((t, i) => <TurKart dil={dil} tur={t} oncelikli={i < 3} />)}
       <RamsesTanitimKart dil={dil} />
-    </div>
-  </section>
-
-  <!-- Havalimanı transferi — Antalya Destinasyonları (mesafe haritası) bölümünden önce (kullanıcı isteği) -->
-  <section class="kap bolum--dar ana-bolum">
-    <div class="transfer-teaser">
-      <div class="transfer-teaser__gorsel">
-        <img
-          src="/gorseller/havalimani-transferi/havalimani-transferi-02-kart.webp"
-          alt=""
-          width="1200" height="900"
-          loading="lazy" decoding="async"
-        />
-      </div>
-      <div class="transfer-teaser__govde">
-        <h2>{s.transfer_ana_teaser_baslik}</h2>
-        <p class="ikincil">{s.transfer_ana_teaser_metin}</p>
-        <a class="buton-govde" href={transferUrl(dil)}>{s.transfer_ana_teaser_buton}</a>
-      </div>
     </div>
   </section>
 
@@ -189,38 +210,98 @@ const baslik = `${MARKA} · ${s.meta_ana_baslik}`;
 </TemelSayfa>
 
 <style>
-  .transfer-teaser{
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 0;
-    background: var(--surface-elevated);
-    border: 0.5px solid var(--border);
-    border-radius: var(--r-card);
-    overflow: hidden;
-    box-shadow: var(--shadow-sm);
+  /* ---- "Öne çıkan hizmetler" başlığı: eyebrow + büyütülmüş serif -----
+     Ana sayfadaki diğer bölüm başlıklarından bilinçli olarak daha
+     dikkat çekici (kullanıcı isteği — bu bölüm en üstte, en görünür). */
+  .bolum-baslik__grup{ display: flex; flex-direction: column; gap: 6px; }
+  .bolum-baslik__eyebrow{
+    margin: 0;
+    color: var(--accent-hover);
+    font-family: var(--font-govde);
+    font-size: 12.5px;
+    font-weight: 600;
+    letter-spacing: .16em;
+    text-transform: uppercase;
   }
-  @media (min-width: 700px){
-    .transfer-teaser{ grid-template-columns: 1fr 1.2fr; }
-  }
-  .transfer-teaser__gorsel{
+  .ana-bolum--one .bolum-baslik h2{ font-size: clamp(32px, 4.2vw, 48px); }
+
+  /* ---- Transfer öncelik kartı ----------------------------------------
+     Tur.astro'daki .tur-hero deseniyle aynı dil: tam kare görsel +
+     karanlık degrade + üzerine metin. Ana sayfada bu üsluba sahip tek
+     bölüm olduğu için kendiliğinden öne çıkar (kullanıcı isteği). */
+  .transfer-oncelik{
     position: relative;
-    aspect-ratio: 4 / 3;
+    display: block;
+    min-height: clamp(360px, 48vw, 520px);
+    border-radius: var(--r-kart);
     overflow: hidden;
     background: var(--surface-strong);
+    box-shadow: var(--shadow-lg);
   }
-  .transfer-teaser__gorsel img{
+  .transfer-oncelik__gorsel{
+    position: absolute;
+    inset: 0;
     width: 100%; height: 100%;
     object-fit: cover;
     filter: saturate(.94) contrast(1.05);
   }
-  .transfer-teaser__govde{
-    padding: clamp(24px, 3.5vw, 40px);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: 4px;
+  .transfer-oncelik__golge{
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(180deg, rgba(22,18,43,.14) 0%, rgba(22,18,43,.42) 48%, rgba(22,18,43,.86) 100%),
+      linear-gradient(90deg, rgba(22,18,43,.46) 0%, rgba(22,18,43,.02) 58%);
+    pointer-events: none;
   }
-  .transfer-teaser__govde h2{ margin: 0 0 4px; }
-  .transfer-teaser__govde p{ margin: 0 0 4px; }
-  .transfer-teaser__govde .buton-govde{ align-self: flex-start; margin-top: 12px; }
+  .transfer-oncelik__icerik{
+    position: absolute;
+    left: clamp(20px, 4vw, 44px);
+    right: clamp(20px, 4vw, 44px);
+    bottom: clamp(22px, 4vw, 44px);
+    display: grid;
+    gap: 10px;
+    max-width: 640px;
+  }
+  .transfer-oncelik__rozet{
+    width: max-content;
+    border: 1px solid rgba(247,243,236,.42);
+    border-radius: var(--r-rozet);
+    padding: 7px 12px;
+    color: var(--text-inverse);
+    background: rgba(22,18,43,.36);
+    font-size: 12px;
+    letter-spacing: .02em;
+  }
+  .transfer-oncelik__icerik h2{
+    margin: 0;
+    color: var(--beyaz);
+    font-size: clamp(28px, 4vw, 44px);
+    line-height: 1.04;
+  }
+  .transfer-oncelik__icerik p{
+    margin: 0;
+    max-width: 520px;
+    color: rgba(247,243,236,.88);
+    font-size: clamp(14px, 1.3vw, 16px);
+    line-height: 1.5;
+  }
+  .transfer-oncelik__fiyat{
+    font-family: var(--font-baslik);
+    font-weight: 500;
+    font-size: clamp(17px, 1.8vw, 20px);
+    color: var(--pirinc);
+  }
+  .transfer-oncelik__aksiyonlar{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 6px;
+  }
+
+  @media (max-width: 520px){
+    .transfer-oncelik{ min-height: 440px; }
+    .transfer-oncelik__aksiyonlar{ flex-direction: column; align-items: stretch; }
+    .transfer-oncelik__aksiyonlar .buton-govde,
+    .transfer-oncelik__aksiyonlar .wa-buton{ justify-content: center; }
+  }
 </style>

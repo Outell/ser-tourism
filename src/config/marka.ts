@@ -27,9 +27,10 @@ export const WA_NUMBERS: Record<Dil, string> = {
   ro: '905000000000',
 };
 
-// Ramses Ink Dövme & Piercing — SER TOURISM'ın kendi turlarından ayrı, bağımsız
-// bir ortak işletme. Aynı geçici numarayı kullanıyor (iş sahibinin isteği);
-// gerçek numara verilince yalnızca burası değişecek, WA_NUMBERS'a dokunulmaz.
+// Dövme & Piercing stüdyosu — SER TOURISM'ın kendi turlarından ayrı, bağımsız
+// bir ortak işletme (marka ismi sitede gösterilmiyor). Aynı geçici numarayı
+// kullanıyor (iş sahibinin isteği); gerçek numara verilince yalnızca burası
+// değişecek, WA_NUMBERS'a dokunulmaz.
 export const RAMSES_WA_NUMBERS: Record<Dil, string> = {
   tr: '905000000000',
   en: '905000000000',

@@ -16,9 +16,10 @@ export const TRANSFER_DOGU: TransferBolgesi[] = [
   { kod: 'belek', ad: { tr: 'Belek', en: 'Belek', ru: 'Белек', de: 'Belek', pl: 'Belek', ro: 'Belek' }, fiyat_eur: 50 },
   { kod: 'bogazkent', ad: { tr: 'Boğazkent', en: 'Boğazkent', ru: 'Богазкент', de: 'Boğazkent', pl: 'Boğazkent', ro: 'Boğazkent' }, fiyat_eur: 55 },
   { kod: 'side-sorgun', ad: { tr: 'Side / Sorgun', en: 'Side / Sorgun', ru: 'Сиде / Соргун', de: 'Side / Sorgun', pl: 'Side / Sorgun', ro: 'Side / Sorgun' }, fiyat_eur: 60 },
-  { kod: 'kizilagac', ad: { tr: 'Kızılağaç (K. Ağaç)', en: 'Kızılağaç (K. Ağaç)', ru: 'Кызылагач (K. Ağaç)', de: 'Kızılağaç (K. Ağaç)', pl: 'Kızılağaç (K. Ağaç)', ro: 'Kızılağaç (K. Ağaç)' }, fiyat_eur: 65 },
-  { kod: 'incekum-payallar', ad: { tr: 'İncekum / Payallar', en: 'İncekum / Payallar', ru: 'Инджекум / Паяллар', de: 'İncekum / Payallar', pl: 'İncekum / Payallar', ro: 'İncekum / Payallar' }, fiyat_eur: 70 },
-  { kod: 'kargicak', ad: { tr: 'Kargıcak', en: 'Kargıcak', ru: 'Каргыджак', de: 'Kargıcak', pl: 'Kargıcak', ro: 'Kargıcak' }, fiyat_eur: 85 },
+  { kod: 'kizilagac-okurcalar', ad: { tr: 'Kızılağaç / Okurcalar', en: 'Kızılağaç / Okurcalar', ru: 'Кызылагач / Окурджалар', de: 'Kızılağaç / Okurcalar', pl: 'Kızılağaç / Okurcalar', ro: 'Kızılağaç / Okurcalar' }, fiyat_eur: 65 },
+  { kod: 'incekum-turkler', ad: { tr: 'İncekum / Türkler', en: 'İncekum / Türkler', ru: 'Инджекум / Тюрклер', de: 'İncekum / Türkler', pl: 'İncekum / Türkler', ro: 'İncekum / Türkler' }, fiyat_eur: 70 },
+  { kod: 'konakli-alanya-merkez', ad: { tr: 'Konaklı / Alanya Merkez', en: 'Konaklı / Alanya Merkez', ru: 'Конаклы / центр Аланьи', de: 'Konaklı / Alanya Merkez', pl: 'Konaklı / Alanya Merkez', ro: 'Konaklı / Alanya Merkez' }, fiyat_eur: 75 },
+  { kod: 'mahmutlar-kargicak', ad: { tr: 'Mahmutlar / Kargıcak', en: 'Mahmutlar / Kargıcak', ru: 'Махмутлар / Каргыджак', de: 'Mahmutlar / Kargıcak', pl: 'Mahmutlar / Kargıcak', ro: 'Mahmutlar / Kargıcak' }, fiyat_eur: 85 },
 ];
 
 // Batı bölgesi — Konyaaltı/şehir merkezi havalimanına en yakın, sonra Kemer yönü.
@@ -26,6 +27,6 @@ export const TRANSFER_BATI: TransferBolgesi[] = [
   { kod: 'konyaalti-merkez', ad: { tr: 'Konyaaltı ve şehir merkezi içi oteller', en: 'Konyaaltı and city-centre hotels', ru: 'Коньяалты и отели в центре города', de: 'Konyaaltı und Hotels im Stadtzentrum', pl: 'Konyaaltı i hotele w centrum miasta', ro: 'Konyaaltı și hoteluri din centrul orașului' }, fiyat_eur: 40 },
   { kod: 'beldibi', ad: { tr: 'Beldibi', en: 'Beldibi', ru: 'Бельдиби', de: 'Beldibi', pl: 'Beldibi', ro: 'Beldibi' }, fiyat_eur: 50 },
   { kod: 'kemer', ad: { tr: 'Kemer', en: 'Kemer', ru: 'Кемер', de: 'Kemer', pl: 'Kemer', ro: 'Kemer' }, fiyat_eur: 55 },
-  { kod: 'camyuva', ad: { tr: 'Çamyuva', en: 'Çamyuva', ru: 'Чамьюва', de: 'Çamyuva', pl: 'Çamyuva', ro: 'Çamyuva' }, fiyat_eur: 60 },
+  { kod: 'camyuva-kiris', ad: { tr: 'Çamyuva Kiriş', en: 'Çamyuva Kiriş', ru: 'Чамьюва Кириш', de: 'Çamyuva Kiriş', pl: 'Çamyuva Kiriş', ro: 'Çamyuva Kiriş' }, fiyat_eur: 60 },
   { kod: 'tekirova', ad: { tr: 'Tekirova', en: 'Tekirova', ru: 'Текирова', de: 'Tekirova', pl: 'Tekirova', ro: 'Tekirova' }, fiyat_eur: 65 },
 ];

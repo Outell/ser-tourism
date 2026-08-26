@@ -11,7 +11,7 @@ import { MARKA, RAMSES_WA_NUMBERS } from '../config/marka';
 import { sozluk, yerlestir } from '../i18n/sozluk';
 import { anaUrl, turlarUrl, mutlak, ramsesUrl } from '../lib/rotalar';
 import {
-  RAMSES_GALERI, RAMSES_LOGO,
+  RAMSES_GALERI,
   RAMSES_YORUMLAR, RAMSES_PUAN, RAMSES_DEGERLENDIRME_SAYISI,
 } from '../data/ramsesInk';
 
@@ -36,11 +36,11 @@ const sayfaBaslik = `${s.ramses_baslik} | ${MARKA}`;
 const jsonLd = [{
   '@context': 'https://schema.org',
   '@type': 'TattooParlor',
-  name: 'Ramses Ink',
+  name: s.ramses_baslik,
   description: s.ramses_ozet,
   image: mutlak(RAMSES_GALERI[0]),
   url: mutlak(alt[dil]),
-  address: { '@type': 'PostalAddress', addressLocality: 'Manavgat', addressRegion: 'Antalya', addressCountry: 'TR' },
+  address: { '@type': 'PostalAddress', addressRegion: 'Antalya', addressCountry: 'TR' },
   aggregateRating: {
     '@type': 'AggregateRating',
     ratingValue: RAMSES_PUAN,
@@ -75,12 +75,10 @@ const jsonLd = [{
           />
           <span class="tur-hero__golge" aria-hidden="true"></span>
           <span class="tur-hero__icerik">
-            <span class="tur-hero__rozet">{s.ramses_eyebrow}</span>
+            <span class="tur-hero__rozet">{s.ramses_badge_tasarim}</span>
             <span class="tur-hero__baslik">{s.ramses_baslik}</span>
             <span class="tur-hero__ozet">{s.ramses_h1_alt}</span>
             <span class="tur-hero__meta">
-              <span>{s.ramses_lokasyon}</span>
-              <span>{s.ramses_badge_tasarim}</span>
               <span>{s.ramses_badge_alis}</span>
             </span>
           </span>
@@ -106,20 +104,6 @@ const jsonLd = [{
         </span>
         <span class="puan-blok__sayi">{yerlestir(s.ramses_puan_metin, { n: RAMSES_DEGERLENDIRME_SAYISI })}</span>
       </div>
-
-      <!-- Hakkında + logo -->
-      <section class="ramses-hakkinda">
-        <div class="ramses-hakkinda__metin">
-          <h2>{s.s_hakkimizda}</h2>
-          <p>{s.ramses_hakkinda_p1}</p>
-          <p>{s.ramses_hakkinda_p2}</p>
-        </div>
-        <aside class="ramses-etiket">
-          <img src={RAMSES_LOGO} alt="Ramses Ink" width="440" height="110" loading="lazy" decoding="async" />
-          <p class="ramses-etiket__tagline">{s.ramses_tagline}</p>
-          <p class="ramses-etiket__metin">{s.ramses_tagline_metin}</p>
-        </aside>
-      </section>
 
       <!-- Google yorumları -->
       <section class="ramses-bolum">
@@ -330,40 +314,6 @@ const jsonLd = [{
     font-family: var(--font-baslik);
     font-size: 17px;
     color: var(--text-primary);
-  }
-
-  /* ---- Hakkında + marka etiketi ------------------------------------ */
-
-  .ramses-hakkinda{
-    display: grid;
-    gap: 28px;
-    grid-template-columns: 1fr;
-  }
-  @media (min-width: 860px){
-    .ramses-hakkinda{ grid-template-columns: 1.5fr 1fr; align-items: start; }
-  }
-  .ramses-hakkinda__metin p{ color: var(--text-secondary); }
-
-  .ramses-etiket{
-    background: var(--surface-strong);
-    border-radius: var(--r-card);
-    padding: 28px 24px;
-    display: grid;
-    gap: 10px;
-    box-shadow: var(--shadow-md);
-  }
-  .ramses-etiket img{ width: min(200px, 100%); height: auto; }
-  .ramses-etiket__tagline{
-    font-family: var(--font-baslik);
-    font-size: 20px;
-    color: var(--text-inverse);
-    margin: 6px 0 0;
-  }
-  .ramses-etiket__metin{
-    font-size: 14px;
-    line-height: 1.6;
-    color: rgba(247,243,236,.82);
-    margin: 0;
   }
 
   /* ---- Google yorumları --------------------------------------------- */

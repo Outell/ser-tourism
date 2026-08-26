@@ -23,15 +23,15 @@ export const PLAN_SLUG: Cevirili = { tr: 'plan', en: 'plan', ru: 'plan', de: 'pl
 // Havalimanı transferi — "transfer" altı dilde de aynı okunur, tek slug yeterli
 export const TRANSFER_SLUG: Cevirili = { tr: 'transfer', en: 'transfer', ru: 'transfer', de: 'transfer', pl: 'transfer', ro: 'transfer' };
 
-// Ramses Ink Dövme & Piercing — turlar bölümünün altında yer alan ortak sayfa.
-// Marka adı sabit kalır, yalnızca tanımlayıcı ek dile göre çevrilir.
+// Dövme & Piercing stüdyosu — turlar bölümünün altında yer alan ortak sayfa,
+// jenerik hizmet adı kullanılır (marka ismi yok), yalnızca dile göre çevrilir.
 export const RAMSES_SLUG: Cevirili = {
-  tr: 'ramses-ink-dovme-piercing',
-  en: 'ramses-ink-tattoo-piercing',
-  ru: 'ramses-ink-tatuirovki-i-pirsing',
-  de: 'ramses-ink-tattoo-piercing',
-  pl: 'ramses-ink-tatuaz-i-piercing',
-  ro: 'ramses-ink-tatuaje-si-piercing',
+  tr: 'dovme-piercing-studyosu',
+  en: 'tattoo-piercing-studio',
+  ru: 'tatuirovki-i-pirsing',
+  de: 'tattoo-piercing-studio',
+  pl: 'tatuaz-i-piercing',
+  ro: 'tatuaje-si-piercing',
 };
 
 // Rehber sayfaları (EK-1 §5-6). Pratik slug'lar EK-1'de verildi;
@@ -61,7 +61,7 @@ export const bolgeUrl = (dil: Dil, b: Taksonomi) => `/${dil}/${BOLUMLER.bolgeler
 export const metinUrl = (dil: Dil, kod: MetinSayfaKodu) => `/${dil}/${METIN_SAYFALARI[kod][dil]}/`;
 export const planUrl = (dil: Dil) => `/${dil}/${PLAN_SLUG[dil]}/`;
 export const transferUrl = (dil: Dil) => `/${dil}/${TRANSFER_SLUG[dil]}/`;
-// Turlar bölümünün altında yaşar (turlar/ramses-ink-... ) — tumSayfalar()'daki
+// Turlar bölümünün altında yaşar (turlar/dovme-piercing-studyosu/ ) — tumSayfalar()'daki
 // 'tur' listesine değil, ayrı 'ramses' şablonuna bağlı (fiyat/iptal alanı yok).
 export const ramsesUrl = (dil: Dil) => `${turlarUrl(dil)}${RAMSES_SLUG[dil]}/`;
 export const rehberUrl = (dil: Dil, kod: RehberKodu) => `/${dil}/${REHBER_SAYFALARI[kod][dil]}/`;

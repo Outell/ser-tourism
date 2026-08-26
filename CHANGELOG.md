@@ -7,6 +7,80 @@ güncellemesi) tarihli olarak kaydeder. Şartname dosyaları değişmez; burası
 
 ---
 
+## 2026-08-26
+
+### Kritik düzeltme — Tur detay sayfasında "Tur" seçici sayfa içeriğini değiştirmiyordu
+Rezervasyon panelindeki "Tur" alanından başka bir tur seçildiğinde yalnızca
+WhatsApp mesajı için tutulan veri güncelleniyordu; galeri, fiyat bloğu,
+program ve diğer tüm içerik hep ilk açılan turda kalıyordu (statik sitede
+her tur ayrı bir sayfa olduğu için). Artık seçim değişince gerçekten o
+turun sayfasına yönlendiriliyor; doldurulmuş tarih/yetişkin/çocuk/otel/
+isim/not alanları sorgu dizesiyle yeni sayfaya taşınıp otomatik geri
+yükleniyor, sonra adres çubuğu temizleniyor. `src/components/WhatsAppForm.astro`
+
+### Düzeltme — Ana sayfada Transfer bölümü öne alındı, "Öne çıkan hizmetler" başlığı büyütüldü
+- Havalimanı Transferi tanıtım bloğu artık hero'nun hemen altında, "Öne
+  çıkan hizmetler"den önce. Kart düzeni Tur.astro'daki galeri-hero desenine
+  (görsel + karanlık degrade + üzerine metin) çevrildi; "Özel VIP Transfer"
+  rozeti, "…€'dan başlayan" fiyat teaser'ı ve WhatsApp hızlı iletişim
+  butonu eklendi. `src/sablonlar/AnaSayfa.astro`
+- "Öne çıkan hizmetler" başlığının üstüne küçük bir eyebrow etiketi
+  (`b_one_cikan_eyebrow`, altı dilde) eklendi, başlık boyutu büyütüldü.
+  `src/sablonlar/AnaSayfa.astro`, `src/i18n/sozluk.ts`
+- Kart sırası: Jeep Kaizer artık Jeep Kaizer Night Safari'den önce
+  geliyor. `src/sablonlar/AnaSayfa.astro`
+
+### Düzeltme — Transfer sayfası galeri ve bölge fiyat tablosu
+- Araç galerisinden otel girişini gösteren fotoğraf kaldırıldı (7 → 6
+  görsel). `src/sablonlar/Transfer.astro`
+- Doğu bölgesi fiyat tablosundaki yer adları düzeltildi — eskiden
+  "X / Y" biçimi aynı ilçenin iki yazılışı sanılıyordu, oysa X'ten Y'ye
+  transfer anlamına geliyordu: Kızılağaç → Okurcalar (65€), İncekum →
+  Türkler (70€), Mahmutlar → Kargıcak (85€, eskiden yalnız "Kargıcak").
+  Konaklı → Alanya Merkez (75€) yeni satır olarak eklendi. Batı
+  bölgesinde Çamyuva → Çamyuva Kiriş oldu. `src/data/transferler.ts`
+
+### Yeniden markalama — Ramses Ink sayfası jenerik "Dövme & Piercing Stüdyosu" oldu
+İş sahibinin talebiyle, turlar altındaki dövme/piercing tanıtım sayfası ve
+kartından "Ramses Ink" marka ismi, logosu ve "Manavgat" konum bilgisi
+tamamen kaldırıldı; sayfa artık jenerik bir hizmet olarak sunuluyor.
+
+- **Yeniden adlandırma**: Kart başlığı, sayfa başlığı, `<title>` ve
+  JSON-LD `name` alanı altı dilde jenerik isme döndü (tr: "Dövme &
+  Piercing Stüdyosu", en: "Tattoo & Piercing Studio", vb.). URL
+  `/turlar/ramses-ink-dovme-piercing/` → `/turlar/dovme-piercing-studyosu/`
+  (her dilde kendi karşılığıyla). `src/lib/rotalar.ts`, `src/i18n/sozluk.ts`
+- **Manavgat referansları kaldırıldı**: sayfa metni, hero alt yazısı, meta
+  açıklama ve JSON-LD `address.addressLocality` alanından silindi; adres
+  artık yalnızca "Antalya" bölgesini belirtiyor. `src/sablonlar/RamsesInk.astro`
+- **"Hakkımızda" bölümü ve logo/slogan kutusu tamamen kaldırıldı** —
+  ilgili metin, görsel ve CSS silindi (`RAMSES_LOGO` veri/kullanımı dahil).
+  `src/sablonlar/RamsesInk.astro`, `src/data/ramsesInk.ts`
+- Rozet artık "Ücretsiz Tasarım" gösteriyor (eskiden marka adını tekrar
+  eden "Dövme & Piercing Stüdyosu" rozetiydi) — hem markasız hem daha
+  faydalı bir bilgi. `src/components/RamsesTanitimKart.astro`
+- İş sahibinin kararıyla **değiştirilmedi**: Google yorumları, 5.0/500+
+  puanı (isimli gerçek yorumcularla birlikte olduğu gibi bırakıldı) ve
+  WhatsApp numarası (`RAMSES_WA_NUMBERS`, aynı geçici numara).
+- Kullanılmayan çeviri anahtarları (`ramses_eyebrow`, `ramses_lokasyon`,
+  `ramses_hakkinda_p1/p2`, `ramses_tagline*`) altı dilde temizlendi.
+  `src/i18n/sozluk.ts`
+- İç klasör/dosya adları (`gorseller/ramses-ink/...`) kasıtlı olarak
+  değiştirilmedi — kullanıcıya görünmeyen dahili yol, kapsam dışı.
+
+### Doğrulama
+- `npm run build` — 218 sayfa, hatasız (yeni Ramses Ink URL'leri dahil,
+  her dilde jenerik slug'la).
+- Tarayıcıda canlı `npm run dev` üzerinde test edildi: Aksu Dolphin
+  sayfasındayken "Tur" seçiciden Jeep Kaizer seçilince gerçekten Jeep
+  Kaizer sayfasına gidip görselin değiştiği ve doldurulan otel/isim/
+  yetişkin alanlarının yeni sayfaya taşındığı doğrulandı; Transfer
+  sayfasında kaldırılan galeri görseli DOM'da yok, yeni fiyat tablosu
+  metinleri doğru; Dövme & Piercing sayfasında "Ramses"/"Manavgat"
+  geçmiyor, JSON-LD şeması güncel, kart yeni URL'e doğru bağlanıyor.
+
+---
+
 ## 2026-08-25
 
 ### Yeni özellik — Ramses Ink Dövme & Piercing sayfası
