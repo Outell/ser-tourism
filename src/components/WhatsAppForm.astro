@@ -78,6 +78,7 @@ const formVeri = {
     yetiskin: s.m_yetiskin, cocuk: s.m_cocuk, yas: s.m_yas,
     fiyatlar: s.fiyat_kategorileri, fiyatYetiskin: s.fiyat_yetiskin, fiyatCocuk: s.fiyat_cocuk,
     fiyatBebek: s.fiyat_bebek, fiyatUcretsiz: s.fiyat_ucretsiz, fiyatYas12: s.fiyat_yas_12,
+    fiyatBaslayan: s.fiyat_baslayan,
   },
 };
 ---
@@ -200,6 +201,15 @@ const formVeri = {
     var bookingOptionLabel = form.querySelector('[data-booking-option-label]');
     var bookingOptionSelect = form.querySelector('[data-booking-option-select]');
     var bookingOptionNote = form.querySelector('[data-booking-option-note]');
+
+    // Fiyat özeti paneli (.fiyat-blok, Tur.astro) form'un dışında, kardeş
+    // eleman olarak duruyor — "Seçenek" değişince orada da güncellenmesi
+    // gerekiyor (kullanıcı geri bildirimi: seçenek değişince fiyat panelde
+    // sabit kalıyordu).
+    var rezPanel = form.closest('.rez-panel');
+    var fiyatRakamEl = rezPanel ? rezPanel.querySelector('.fiyat-blok__rakam') : null;
+    var fiyatYaklasikEl = rezPanel ? rezPanel.querySelector('.fiyat-blok__yaklasik') : null;
+    var fiyatKatmanlariEl = rezPanel ? rezPanel.querySelector('.fiyat-katmanlari') : null;
 
     function iki(n) { return (n < 10 ? '0' : '') + n; }
     // Yerel ISO — toISOString() UTC'ye kaydırıp günü bir eksiltebiliyor
@@ -459,6 +469,45 @@ const formVeri = {
       } catch (e) { return v + ' €'; }
     }
 
+    function sayi(v) {
+      try {
+        return new Intl.NumberFormat(V.locale, {
+          minimumFractionDigits: Number.isInteger(v) ? 0 : 2,
+          maximumFractionDigits: 2,
+        }).format(v);
+      } catch (e) { return String(v); }
+    }
+
+    // Rezervasyon panelindeki fiyat özetini ("39 €'dan başlayan", ≈ yerel
+    // para birimi, Yetişkin/Çocuk/Bebek satırları) seçilen "Seçenek"e göre
+    // günceller. Sayfa ilk açıldığında ve booking_option değişince çağrılır.
+    function fiyatBlokGuncelle(turBilgi, option) {
+      if (!option || typeof option.yetiskinFiyat !== 'number') return;
+      var etiketler = turBilgi.fiyatEtiketleri || {};
+      var etiketAdult = etiketler.adult || (option.yetiskinYasMin ? V.m.fiyatYetiskin + ' / ' + V.m.fiyatYas12 : V.m.fiyatYetiskin);
+      var etiketChild = etiketler.child || V.m.fiyatCocuk;
+      var etiketInfant = etiketler.infant || V.m.fiyatBebek;
+      var bebekUcretsiz = option.bebekFiyat === 0;
+
+      if (fiyatRakamEl) fiyatRakamEl.textContent = V.m.fiyatBaslayan.replace('{f}', sayi(option.yetiskinFiyat));
+
+      if (fiyatYaklasikEl) {
+        fiyatYaklasikEl.setAttribute('data-eur', String(option.yetiskinFiyat));
+        window.dispatchEvent(new Event('limyra-fiyat-guncelle'));
+      }
+
+      if (fiyatKatmanlariEl) {
+        var satirlar = [{ etiket: etiketAdult, deger: option.yetiskinFiyat, ucretsiz: false }];
+        if (typeof option.cocukFiyat === 'number') satirlar.push({ etiket: etiketChild, deger: option.cocukFiyat, ucretsiz: false });
+        if (bebekUcretsiz) satirlar.push({ etiket: etiketInfant, deger: null, ucretsiz: true });
+        else if (typeof option.bebekFiyat === 'number') satirlar.push({ etiket: etiketInfant, deger: option.bebekFiyat, ucretsiz: false });
+        fiyatKatmanlariEl.innerHTML = satirlar.map(function (satir) {
+          var deger = satir.ucretsiz || satir.deger == null ? V.m.fiyatUcretsiz : sayi(satir.deger) + ' €';
+          return '<div class="fiyat-katmani"><span>' + satir.etiket + '</span><strong>' + deger + '</strong></div>';
+        }).join('');
+      }
+    }
+
     function yaslariOku(metin) {
       return (metin.match(/\d+/g) || []).map(function (n) { return parseInt(n, 10); }).filter(function (n) { return !isNaN(n); });
     }
@@ -610,6 +659,7 @@ const formVeri = {
             bookingOptionNote.hidden = !(secilen && secilen.note);
             bookingOptionNote.textContent = secilen && secilen.note ? secilen.note : '';
           }
+          fiyatBlokGuncelle(turBilgi, secilen);
         } else {
           bookingOptionAlani.hidden = true;
           bookingOptionSelect.innerHTML = '';

@@ -142,6 +142,9 @@ const LOCALE: Record<Dil, string> = { tr: 'tr-TR', en: 'en-GB', ru: 'ru-RU', de:
           });
         });
         yaz(para);
+        // Rezervasyon panelindeki "Seçenek" değişince fiyat özeti kendi
+        // data-eur değerini günceller ve bu olayı tetikler (WhatsAppForm.astro).
+        window.addEventListener('limyra-fiyat-guncelle', function () { yaz(para); });
       })();
     </script>
     <script is:inline>

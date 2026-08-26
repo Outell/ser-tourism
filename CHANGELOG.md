@@ -28,6 +28,33 @@ zaten tıklanabilir (fotoğraf dahil, Transfer sayfasını açar) ve hover'da
 görsel hafifçe büyüyor; bu davranış bir önceki oturumda eklenmişti, değişmedi.
 `src/sablonlar/AnaSayfa.astro`
 
+### Düzeltme — Tur detay sayfasında "Seçenek" değişince fiyat özeti güncellenmiyordu
+Aksu Dolphin Experience gibi `booking_options`'lı turlarda rezervasyon
+panelindeki "Seçenek" açılır menüsünden farklı bir seçenek (ör. "Dolphin
+Show — Side transfer dahil" veya "Swimming With Dolphins") seçildiğinde,
+formun üstündeki fiyat özeti ("39 €'dan başlayan", ≈ yerel para birimi
+tutarı, Yetişkin/Çocuk/Bebek satırları) hep ilk açılan seçeneğin
+fiyatlarında donuk kalıyordu — yalnızca WhatsApp mesajı doğru fiyatla
+gidiyordu. Kök neden: fiyat özeti (`.fiyat-blok`, `Tur.astro`) sayfa
+yüklenirken sunucu tarafında bir kez basılıyor, `WhatsAppForm.astro`'daki
+"Seçenek" script'i ise yalnızca kendi formunun içine bakıyordu.
+`WhatsAppForm.astro`'nun script'i artık "Seçenek" değişince (ve sayfa
+yüklendiğinde) `.fiyat-blok__rakam`, `.fiyat-blok__yaklasik` (`data-eur`)
+ve `.fiyat-katmanlari` satırlarını seçilen seçeneğin fiyatlarıyla yeniden
+yazıyor; döviz çevirici (`TemelSayfa.astro`) da yeni `data-eur` değerini
+anında ≈ tutarına çevirebilsin diye `limyra-fiyat-guncelle` olayını
+dinliyor. `src/components/WhatsAppForm.astro`, `src/layouts/TemelSayfa.astro`
+
+### Doğrulama
+- `npm run build` — 218 sayfa, hatasız.
+- Tarayıcıda canlı `npm run dev` üzerinde test edildi: Aksu Dolphin
+  sayfasında "Seçenek"ten "Swimming With Dolphins — Transfer Dahil"
+  seçilince özet "159 €'dan başlayan" / "≈ 8.745 ₺" / Yetişkin 159 € /
+  Çocuk 159 € (Bebek satırı doğru şekilde kayboluyor) gösterdi;
+  "Dolphin Show — Side transfer dahil" seçilince "55 €'dan başlayan" /
+  Yetişkin 55 € / Çocuk 35 € / Bebek Ücretsiz doğru şekilde göründü;
+  konsolda hata yok.
+
 ## 2026-08-26
 
 ### Kritik düzeltme — Tur detay sayfasında "Tur" seçici sayfa içeriğini değiştirmiyordu
