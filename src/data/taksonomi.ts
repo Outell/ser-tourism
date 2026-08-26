@@ -19,19 +19,9 @@ export const KATEGORILER: Taksonomi[] = [
     slug: { tr: 'kultur', en: 'culture', ru: 'kultura', de: 'kultur', pl: 'kultura', ro: 'cultura' },
   },
   {
-    kod: 'uzun',
-    ad: { tr: 'Uzun mesafe', en: 'Multi-day and long distance', ru: 'Дальние поездки', de: 'Mehrtägige Touren', pl: 'Wycieczki wielodniowe', ro: 'Excursii de mai multe zile' },
-    slug: { tr: 'uzun-mesafe', en: 'multi-day', ru: 'dalnie', de: 'mehrtaegig', pl: 'wielodniowe', ro: 'mai-multe-zile' },
-  },
-  {
     kod: 'aile',
     ad: { tr: 'Aile ve eğlence', en: 'Family and fun', ru: 'Семейный отдых', de: 'Familie und Freizeit', pl: 'Dla rodzin', ro: 'Familie și distracție' },
     slug: { tr: 'aile', en: 'family', ru: 'semeynye', de: 'familie', pl: 'rodzinne', ro: 'familie' },
-  },
-  {
-    kod: 'konfor',
-    ad: { tr: 'Şehir ve konfor', en: 'City and comfort', ru: 'Город и комфорт', de: 'Stadt und Komfort', pl: 'Miasto i komfort', ro: 'Oraș și confort' },
-    slug: { tr: 'konfor', en: 'comfort', ru: 'komfort', de: 'komfort', pl: 'komfort', ro: 'confort' },
   },
   {
     kod: 'hamam',
