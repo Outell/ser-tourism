@@ -7,6 +7,27 @@ güncellemesi) tarihli olarak kaydeder. Şartname dosyaları değişmez; burası
 
 ---
 
+## 2026-08-27
+
+### Düzeltme — Ana sayfa transfer kartı "yalnızca V-Class" izlenimi veriyordu
+Büyük Grup VIP (12 kişilik Mercedes Sprinter) eklendikten sonra hem ana
+sayfadaki transfer tanıtım kartı hem de Transfer sayfasının başlık altı
+metni, meta açıklaması ve ilk özellik kartı hâlâ yalnızca "Mercedes V-Class"
+diyordu; bu da hizmetin 6 kişiyle sınırlı olduğu izlenimi veriyordu. Altı
+dilin tamamında bu dört metin "V-Class ve Sprinter" olacak, 6-12 kişilik
+grup aralığını açıkça belirtecek şekilde güncellendi.
+`src/i18n/sozluk.ts` (`transfer_ozet`, `transfer_h1_alt`,
+`transfer_ozellik_1_metin`, `transfer_ana_teaser_metin`)
+
+### Düzeltme — Ana sayfa transfer kartındaki fotoğraf araç dışını gösteriyordu
+Kullanıcı geri bildirimi: kart görseli VIP aracın dışını (ön panjur/plaka)
+değil, iç mekânını göstermeliydi. Görsel, yıldızlı tavan + deri koltuklar +
+TV ekranını gösteren galeri fotoğrafıyla değiştirildi — metnin vaat ettiği
+"deri koltuklar, yıldızlı tavan" ile artık görsel de örtüşüyor. Kartın tamamı
+zaten tıklanabilir (fotoğraf dahil, Transfer sayfasını açar) ve hover'da
+görsel hafifçe büyüyor; bu davranış bir önceki oturumda eklenmişti, değişmedi.
+`src/sablonlar/AnaSayfa.astro`
+
 ## 2026-08-26
 
 ### Kritik düzeltme — Tur detay sayfasında "Tur" seçici sayfa içeriğini değiştirmiyordu
