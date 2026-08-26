@@ -72,6 +72,11 @@ interface Sozluk {
   rozet_odeme: string;
   rozet_transfer: string;
   rozet_iptal: string;
+  vitrin_bolum_etiket: string;
+  vitrin_genel_aciklama: string;
+  vitrin_rezervasyon_buton: string;
+  vitrin_kesfet_buton: string;
+  vitrin_slayt_git: string;
   b_one_cikan: string;
   b_one_cikan_eyebrow: string;
   b_kategoriler: string;
@@ -394,6 +399,11 @@ export const sozluk: Record<Dil, Sozluk> = {
     rozet_odeme: 'Ödeme turda',
     rozet_transfer: 'Otel transferi dahil',
     rozet_iptal: '24 saate kadar ücretsiz iptal',
+    vitrin_bolum_etiket: 'Öne çıkan turlar',
+    vitrin_genel_aciklama: '30 turdan birini seçin, hemen planlayın.',
+    vitrin_rezervasyon_buton: 'Rezervasyon Yaptır',
+    vitrin_kesfet_buton: 'Tüm Turları Gör',
+    vitrin_slayt_git: '{n}. slayta git',
     b_one_cikan: 'Öne çıkan hizmetler',
     b_one_cikan_eyebrow: 'Deneyimler',
     b_kategoriler: 'Kategoriler',
@@ -698,6 +708,11 @@ export const sozluk: Record<Dil, Sozluk> = {
     rozet_odeme: 'Pay on the day',
     rozet_transfer: 'Hotel transfer included',
     rozet_iptal: 'Free cancellation up to 24 hours',
+    vitrin_bolum_etiket: 'Featured tours',
+    vitrin_genel_aciklama: 'Pick one of 30 tours and plan it in minutes.',
+    vitrin_rezervasyon_buton: 'Book Now',
+    vitrin_kesfet_buton: 'See All Tours',
+    vitrin_slayt_git: 'Go to slide {n}',
     b_one_cikan: 'Featured services',
     b_one_cikan_eyebrow: 'Experiences',
     b_kategoriler: 'Categories',
@@ -1002,6 +1017,11 @@ export const sozluk: Record<Dil, Sozluk> = {
     rozet_odeme: 'Оплата в день тура',
     rozet_transfer: 'Трансфер из отеля включён',
     rozet_iptal: 'Бесплатная отмена за 24 часа',
+    vitrin_bolum_etiket: 'Популярные туры',
+    vitrin_genel_aciklama: 'Выберите один из 30 туров и спланируйте его за минуту.',
+    vitrin_rezervasyon_buton: 'Забронировать',
+    vitrin_kesfet_buton: 'Все туры',
+    vitrin_slayt_git: 'Перейти к слайду {n}',
     b_one_cikan: 'Популярные услуги',
     b_one_cikan_eyebrow: 'Впечатления',
     b_kategoriler: 'Категории',
@@ -1306,6 +1326,11 @@ export const sozluk: Record<Dil, Sozluk> = {
     rozet_odeme: 'Zahlung am Tag der Tour',
     rozet_transfer: 'Hoteltransfer inklusive',
     rozet_iptal: 'Kostenlose Stornierung bis 24 Stunden vorher',
+    vitrin_bolum_etiket: 'Beliebte Touren',
+    vitrin_genel_aciklama: 'Wählen Sie eine von 30 Touren und planen Sie sie in Minuten.',
+    vitrin_rezervasyon_buton: 'Jetzt buchen',
+    vitrin_kesfet_buton: 'Alle Touren ansehen',
+    vitrin_slayt_git: 'Zu Folie {n}',
     b_one_cikan: 'Beliebte Angebote',
     b_one_cikan_eyebrow: 'Erlebnisse',
     b_kategoriler: 'Kategorien',
@@ -1610,6 +1635,11 @@ export const sozluk: Record<Dil, Sozluk> = {
     rozet_odeme: 'Płatność w dniu wycieczki',
     rozet_transfer: 'Transfer z hotelu w cenie',
     rozet_iptal: 'Bezpłatne odwołanie do 24 godzin',
+    vitrin_bolum_etiket: 'Polecane wycieczki',
+    vitrin_genel_aciklama: 'Wybierz jedną z 30 wycieczek i zaplanuj ją w kilka minut.',
+    vitrin_rezervasyon_buton: 'Zarezerwuj teraz',
+    vitrin_kesfet_buton: 'Zobacz wszystkie wycieczki',
+    vitrin_slayt_git: 'Przejdź do slajdu {n}',
     b_one_cikan: 'Polecane usługi',
     b_one_cikan_eyebrow: 'Doświadczenia',
     b_kategoriler: 'Kategorie',
@@ -1919,6 +1949,11 @@ export const sozluk: Record<Dil, Sozluk> = {
     rozet_odeme: 'Plata în ziua excursiei',
     rozet_transfer: 'Preluare de la hotel inclusă',
     rozet_iptal: 'Anulare gratuită până cu 24 de ore înainte',
+    vitrin_bolum_etiket: 'Excursii recomandate',
+    vitrin_genel_aciklama: 'Alegeți una dintre cele 30 de excursii și planificați-o în câteva minute.',
+    vitrin_rezervasyon_buton: 'Rezervă acum',
+    vitrin_kesfet_buton: 'Vezi toate excursiile',
+    vitrin_slayt_git: 'Mergi la slide-ul {n}',
     b_one_cikan: 'Servicii recomandate',
     b_one_cikan_eyebrow: 'Experiențe',
     b_kategoriler: 'Categorii',

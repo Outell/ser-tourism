@@ -3,6 +3,7 @@ import type { Dil } from '../lib/tipler';
 import TemelSayfa from '../layouts/TemelSayfa.astro';
 import TurKart from '../components/TurKart.astro';
 import RamsesTanitimKart from '../components/RamsesTanitimKart.astro';
+import HeroVitrin from '../components/HeroVitrin.astro';
 import HavaDurumu from '../components/HavaDurumu.astro';
 import MesafeHaritasi from '../components/MesafeHaritasi.astro';
 import WaIkon from '../components/WaIkon.astro';
@@ -82,6 +83,7 @@ const transferWaLink = `https://wa.me/${WA_NUMBERS[dil]}?text=${encodeURICompone
         <li>{s.rozet_transfer}</li>
         <li>{s.rozet_iptal}</li>
       </ul>
+      <HeroVitrin dil={dil} />
     </div>
   </section>
 

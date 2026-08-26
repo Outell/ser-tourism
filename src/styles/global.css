@@ -1788,6 +1788,17 @@ body{
   border-color: rgba(255,255,255,.16);
 }
 
+/* Geniş masaüstünde .hero__icerik kutusu bölümün sağ kenarına kadar açılır
+   (metin kendi max-width'leriyle sınırlı kaldığı için görünüm değişmez) —
+   böylece HeroVitrin.astro içindeki kart, hero__icerik'e göre right/bottom
+   ile konumlanınca gerçekte bölümün sağ-alt köşesine hizalanır. */
+@media (min-width: 1360px){
+  .hero__icerik{
+    width: calc(100% - clamp(20px, 6vw, 96px));
+    max-width: none;
+  }
+}
+
 .ana-bolum--one{ padding-top: clamp(56px, 7vw, 76px); }
 .ana-bant{
   background:
