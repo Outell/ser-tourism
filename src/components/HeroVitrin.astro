@@ -1,12 +1,12 @@
 ---
 // src/components/HeroVitrin.astro
 //
-// Hero bölümünün öne çıkardığı 3 tur için 5 saniyede bir otomatik değişen,
+// Hero bölümünün öne çıkardığı 4 tur için 5 saniyede bir otomatik değişen,
 // tekli fotoğraf kartı. Masaüstünde hero görselinin sağ-alt köşesinde yüzer;
 // mobil/tablette hero içeriğinin altında normal akışta durur (kullanıcı
 // isteği: her cihazda görünsün).
 //
-// Sıra: Adventure Combo → Aksu Dolphin Experience → Jeep Kaizer.
+// Sıra: Adventure Combo → Aksu Dolphin Experience → Jeep Kaizer → Jeep Kaizer Night Safari.
 
 import type { Dil } from '../lib/tipler';
 import { sozluk, yerlestir } from '../i18n/sozluk';
@@ -16,7 +16,7 @@ interface Props { dil: Dil; }
 const { dil } = Astro.props;
 const s = sozluk[dil];
 
-const ONE_CIKAN_TUR_ID = ['adventure-combo', 'aksu-dolphin-experience', 'jeep-kaiser'] as const;
+const ONE_CIKAN_TUR_ID = ['adventure-combo', 'aksu-dolphin-experience', 'jeep-kaiser', 'jeep-kaiser-night-safari'] as const;
 
 const slaytlar = ONE_CIKAN_TUR_ID
   .map((id) => turBul(id))
