@@ -1,16 +1,16 @@
 ---
 // src/components/HeroVitrin.astro
 //
-// Hero bölümünün öne çıkardığı 3 tur (+ genel bir "tüm turlar" slaydı) için
-// 5 saniyede bir otomatik değişen, tekli fotoğraf kartı. Masaüstünde hero
-// görselinin sağ-alt köşesinde yüzer; mobil/tablette hero içeriğinin altında
-// normal akışta durur (kullanıcı isteği: her cihazda görünsün).
+// Hero bölümünün öne çıkardığı 3 tur için 5 saniyede bir otomatik değişen,
+// tekli fotoğraf kartı. Masaüstünde hero görselinin sağ-alt köşesinde yüzer;
+// mobil/tablette hero içeriğinin altında normal akışta durur (kullanıcı
+// isteği: her cihazda görünsün).
 //
-// Sıra: genel tanıtım → Adventure Combo → Aksu Dolphin Experience → Jeep Kaizer.
+// Sıra: Adventure Combo → Aksu Dolphin Experience → Jeep Kaizer.
 
 import type { Dil } from '../lib/tipler';
 import { sozluk, yerlestir } from '../i18n/sozluk';
-import { turBul, turUrl, turlarUrl } from '../lib/rotalar';
+import { turBul, turUrl } from '../lib/rotalar';
 
 interface Props { dil: Dil; }
 const { dil } = Astro.props;
@@ -18,7 +18,7 @@ const s = sozluk[dil];
 
 const ONE_CIKAN_TUR_ID = ['adventure-combo', 'aksu-dolphin-experience', 'jeep-kaiser'] as const;
 
-const turSlaytlari = ONE_CIKAN_TUR_ID
+const slaytlar = ONE_CIKAN_TUR_ID
   .map((id) => turBul(id))
   .filter((t): t is NonNullable<typeof t> => !!t)
   .map((t) => ({
@@ -29,18 +29,6 @@ const turSlaytlari = ONE_CIKAN_TUR_ID
     href: turUrl(dil, t),
     buton: s.vitrin_rezervasyon_buton,
   }));
-
-const slaytlar = [
-  {
-    baslik: s.hero_h1,
-    aciklama: s.vitrin_genel_aciklama,
-    gorsel: '/hero-antalya-sunset-2400.webp',
-    altMetin: '',
-    href: turlarUrl(dil),
-    buton: s.vitrin_kesfet_buton,
-  },
-  ...turSlaytlari,
-];
 ---
 
 <div class="hero-vitrin" data-hero-vitrin aria-roledescription="carousel" aria-label={s.vitrin_bolum_etiket}>
