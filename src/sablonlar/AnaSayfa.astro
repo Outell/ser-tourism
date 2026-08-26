@@ -2,7 +2,6 @@
 import type { Dil } from '../lib/tipler';
 import TemelSayfa from '../layouts/TemelSayfa.astro';
 import TurKart from '../components/TurKart.astro';
-import RamsesTanitimKart from '../components/RamsesTanitimKart.astro';
 import HeroVitrin from '../components/HeroVitrin.astro';
 import HavaDurumu from '../components/HavaDurumu.astro';
 import MesafeHaritasi from '../components/MesafeHaritasi.astro';
@@ -25,10 +24,10 @@ interface Props {
 const { dil, alternatifler: alt } = Astro.props;
 const s = sozluk[dil];
 
-// Ana sayfa merchandising: sabit 3 tur, bu sırayla (kullanıcı isteği).
+// Ana sayfa merchandising: sabit 4 tur, bu sırayla (kullanıcı isteği).
 // Mevsim dışına çıkan bir tur varsa listelenebilirTurlar() onu otomatik eler.
 const listelenebilir = listelenebilirTurlar();
-const ONE_CIKAN_TUR_SIRASI = ['adventure-combo', 'aksu-dolphin-experience', 'jeep-kaiser'] as const;
+const ONE_CIKAN_TUR_SIRASI = ['adventure-combo', 'aksu-dolphin-experience', 'jeep-kaiser', 'jeep-kaiser-night-safari'] as const;
 const oneCikanlar = ONE_CIKAN_TUR_SIRASI
   .map((id) => listelenebilir.find((t) => t.id === id))
   .filter((t): t is (typeof listelenebilir)[number] => !!t);
@@ -112,7 +111,7 @@ const transferWaLink = `https://wa.me/${WA_NUMBERS[dil]}?text=${encodeURICompone
     </div>
   </section>
 
-  <!-- 3. Öne çıkan hizmetler — turlar + Ramses Ink (gerçek bir tur değil, en sonda) -->
+  <!-- 3. Öne çıkan hizmetler — sabit 4 tur (kullanıcı isteği) -->
   <section class="kap bolum ana-bolum ana-bolum--one">
     <div class="bolum-baslik">
       <div class="bolum-baslik__grup">
@@ -123,7 +122,6 @@ const transferWaLink = `https://wa.me/${WA_NUMBERS[dil]}?text=${encodeURICompone
     </div>
     <div class="grid">
       {oneCikanlar.map((t, i) => <TurKart dil={dil} tur={t} oncelikli={i < 3} />)}
-      <RamsesTanitimKart dil={dil} />
     </div>
   </section>
 
