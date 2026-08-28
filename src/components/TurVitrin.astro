@@ -115,15 +115,19 @@ const slaytlar = ONE_CIKAN_TUR_ID
 <style>
   .tur-vitrin{ position: relative; }
 
+  /* Slaytlar viewport içinde mutlak konumla üst üste biner (kart tarzı
+     çapraz geçiş). Viewport'a SABİT bir yükseklik veriyoruz ki .tur-vitrin
+     ölçüsü içerikten değil bu değerden gelsin — aksi halde slaytlar
+     arası geçişte yükseklik oynayıp alttaki bölümlerle iç içe geçiyordu. */
   .tur-vitrin__viewport{
     position: relative;
-    display: grid;
+    height: clamp(360px, 40vw, 500px);
     border-radius: var(--r-kart);
   }
 
   .tur-vitrin__slayt{
-    grid-area: 1 / 1;
-    min-width: 0;
+    position: absolute;
+    inset: 0;
     opacity: 0;
     transition: opacity .5s ease-out;
     pointer-events: none;
@@ -137,7 +141,7 @@ const slaytlar = ONE_CIKAN_TUR_ID
     display: grid;
     grid-template-columns: 1fr minmax(150px, 240px);
     gap: 12px;
-    height: clamp(360px, 40vw, 500px);
+    height: 100%;
   }
 
   .tur-vitrin__buyuk{
@@ -306,18 +310,23 @@ const slaytlar = ONE_CIKAN_TUR_ID
   }
 
   @media (max-width: 767px){
+    /* Viewport'un mobil yüksekliği de sabit: büyük görsel + boşluk + küçük
+       görsel sırası toplamı — içerikten değil bu hesaptan gelir (yukarıdaki
+       nota bakınız). */
+    .tur-vitrin__viewport{
+      height: calc(clamp(260px, 82vw, 380px) + 12px + clamp(80px, 22vw, 110px));
+    }
     .tur-vitrin__medya{
       grid-template-columns: 1fr;
-      grid-template-rows: auto auto;
-      height: auto;
+      grid-template-rows: clamp(260px, 82vw, 380px) clamp(80px, 22vw, 110px);
+      height: 100%;
     }
-    .tur-vitrin__buyuk{ height: clamp(260px, 82vw, 380px); }
+    .tur-vitrin__buyuk{ height: 100%; }
     .tur-vitrin__kucukler{
       grid-template-rows: none;
       grid-template-columns: repeat(3, 1fr);
-      height: auto;
+      height: 100%;
     }
-    .tur-vitrin__kucuk{ aspect-ratio: 1 / 1; }
     .tur-vitrin__ok{ top: 36%; width: 44px; height: 44px; }
     .tur-vitrin__ok svg{ width: 18px; height: 18px; }
     .tur-vitrin__ok--sol{ left: 10px; }
