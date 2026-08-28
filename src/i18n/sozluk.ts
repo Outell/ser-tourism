@@ -75,6 +75,8 @@ interface Sozluk {
   vitrin_bolum_etiket: string;
   vitrin_rezervasyon_buton: string;
   vitrin_slayt_git: string;
+  vitrin_onceki_tur: string;
+  vitrin_sonraki_tur: string;
   b_one_cikan: string;
   b_one_cikan_eyebrow: string;
   b_kategoriler: string;
@@ -400,6 +402,8 @@ export const sozluk: Record<Dil, Sozluk> = {
     vitrin_bolum_etiket: 'Öne çıkan turlar',
     vitrin_rezervasyon_buton: 'Rezervasyon Yaptır',
     vitrin_slayt_git: '{n}. slayta git',
+    vitrin_onceki_tur: 'Önceki tur',
+    vitrin_sonraki_tur: 'Sonraki tur',
     b_one_cikan: 'Öne çıkan hizmetler',
     b_one_cikan_eyebrow: 'Deneyimler',
     b_kategoriler: 'Kategoriler',
@@ -707,6 +711,8 @@ export const sozluk: Record<Dil, Sozluk> = {
     vitrin_bolum_etiket: 'Featured tours',
     vitrin_rezervasyon_buton: 'Book Now',
     vitrin_slayt_git: 'Go to slide {n}',
+    vitrin_onceki_tur: 'Previous tour',
+    vitrin_sonraki_tur: 'Next tour',
     b_one_cikan: 'Featured services',
     b_one_cikan_eyebrow: 'Experiences',
     b_kategoriler: 'Categories',
@@ -1014,6 +1020,8 @@ export const sozluk: Record<Dil, Sozluk> = {
     vitrin_bolum_etiket: 'Популярные туры',
     vitrin_rezervasyon_buton: 'Забронировать',
     vitrin_slayt_git: 'Перейти к слайду {n}',
+    vitrin_onceki_tur: 'Предыдущий тур',
+    vitrin_sonraki_tur: 'Следующий тур',
     b_one_cikan: 'Популярные услуги',
     b_one_cikan_eyebrow: 'Впечатления',
     b_kategoriler: 'Категории',
@@ -1321,6 +1329,8 @@ export const sozluk: Record<Dil, Sozluk> = {
     vitrin_bolum_etiket: 'Beliebte Touren',
     vitrin_rezervasyon_buton: 'Jetzt buchen',
     vitrin_slayt_git: 'Zu Folie {n}',
+    vitrin_onceki_tur: 'Vorherige Tour',
+    vitrin_sonraki_tur: 'Nächste Tour',
     b_one_cikan: 'Beliebte Angebote',
     b_one_cikan_eyebrow: 'Erlebnisse',
     b_kategoriler: 'Kategorien',
@@ -1628,6 +1638,8 @@ export const sozluk: Record<Dil, Sozluk> = {
     vitrin_bolum_etiket: 'Polecane wycieczki',
     vitrin_rezervasyon_buton: 'Zarezerwuj teraz',
     vitrin_slayt_git: 'Przejdź do slajdu {n}',
+    vitrin_onceki_tur: 'Poprzednia wycieczka',
+    vitrin_sonraki_tur: 'Następna wycieczka',
     b_one_cikan: 'Polecane usługi',
     b_one_cikan_eyebrow: 'Doświadczenia',
     b_kategoriler: 'Kategorie',
@@ -1940,6 +1952,8 @@ export const sozluk: Record<Dil, Sozluk> = {
     vitrin_bolum_etiket: 'Excursii recomandate',
     vitrin_rezervasyon_buton: 'Rezervă acum',
     vitrin_slayt_git: 'Mergi la slide-ul {n}',
+    vitrin_onceki_tur: 'Excursia anterioară',
+    vitrin_sonraki_tur: 'Excursia următoare',
     b_one_cikan: 'Servicii recomandate',
     b_one_cikan_eyebrow: 'Experiențe',
     b_kategoriler: 'Categorii',

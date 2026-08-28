@@ -2,7 +2,7 @@
 import type { Dil } from '../lib/tipler';
 import TemelSayfa from '../layouts/TemelSayfa.astro';
 import TurKart from '../components/TurKart.astro';
-import HeroVitrin from '../components/HeroVitrin.astro';
+import TurVitrin from '../components/TurVitrin.astro';
 import HavaDurumu from '../components/HavaDurumu.astro';
 import MesafeHaritasi from '../components/MesafeHaritasi.astro';
 import WaIkon from '../components/WaIkon.astro';
@@ -73,7 +73,6 @@ const transferWaLink = `https://wa.me/${WA_NUMBERS[dil]}?text=${encodeURICompone
         <li>{s.rozet_transfer}</li>
         <li>{s.rozet_iptal}</li>
       </ul>
-      <HeroVitrin dil={dil} />
     </div>
   </section>
 
@@ -110,6 +109,11 @@ const transferWaLink = `https://wa.me/${WA_NUMBERS[dil]}?text=${encodeURICompone
       </div>
     </div>
   </section>
+
+  <!-- Tur vitrini — büyük fotoğraf galerisi, eskiden hero içindeki küçük
+       "story" kartıydı; kullanıcı isteğiyle büyütülüp Havalimanı Transferi
+       ile Öne Çıkan Hizmetler arasına taşındı. -->
+  <TurVitrin dil={dil} />
 
   <!-- 3. Öne çıkan hizmetler — sabit 4 tur (kullanıcı isteği) -->
   <section class="kap bolum ana-bolum ana-bolum--one">
