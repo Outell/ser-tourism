@@ -140,6 +140,12 @@ const slaytlar = ONE_CIKAN_TUR_ID
   .tur-vitrin__medya{
     display: grid;
     grid-template-columns: 1fr minmax(150px, 240px);
+    /* "1fr" (auto değil) satır: küçük görsel sütunundaki img'lerin kendi
+       en-boy oranından doğan içerik yüksekliği satırı büyütüp büyük
+       görseli taşırıyordu (yükseklik sabit görünse de içerik satırı
+       kendi payını content-size'a göre hesaplıyordu). 1fr, satırı doğrudan
+       medya'nın height'ına eşitliyor. */
+    grid-template-rows: minmax(0, 1fr);
     gap: 12px;
     height: 100%;
   }
