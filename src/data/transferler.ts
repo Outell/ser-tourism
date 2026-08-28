@@ -52,7 +52,7 @@ export const TRANSFER_ARACLARI: TransferAraci[] = [
     kod: 'standart',
     kapasite: 6,
     kapak: GV + '02-kart.webp',
-    galeri: [GV + '03-galeri.webp', GV + '04-galeri.webp', GV + '06-galeri.webp', GV + '07-galeri.webp', GV + '08-galeri.webp', GV + '09-galeri.webp'],
+    galeri: [GV + '03-galeri.webp', GV + '06-galeri.webp', GV + '07-galeri.webp', GV + '08-galeri.webp', GV + '09-galeri.webp'],
   },
   {
     kod: 'buyuk',
