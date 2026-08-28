@@ -1,0 +1,27 @@
+---
+import type { Dil } from '../lib/tipler';
+import { WA_NUMBERS } from '../config/marka';
+import { sozluk } from '../i18n/sozluk';
+import WaIkon from './WaIkon.astro';
+
+interface Props { dil: Dil }
+const { dil } = Astro.props;
+const s = sozluk[dil];
+
+// Karşılama mesajı SeyahatAsistani'nin "waGeneric" metniyle aynı tonda —
+// asistandan gelen kullanıcı da doğrudan giren kullanıcı da aynı ilk mesajı görsün.
+const mesaj: Record<Dil, string> = {
+  tr: 'Merhaba, Antalya turları hakkında bilgi almak istiyorum.',
+  en: 'Hello, I would like information about Antalya tours.',
+  ru: 'Здравствуйте, хочу получить информацию об экскурсиях в Анталье.',
+  de: 'Hallo, ich hätte gerne Informationen zu Antalya-Touren.',
+  pl: 'Dzień dobry, chciałbym uzyskać informacje o wycieczkach w Antalyi.',
+  ro: 'Bună, aș dori informații despre tururile din Antalya.',
+};
+
+const href = `https://wa.me/${WA_NUMBERS[dil]}?text=${encodeURIComponent(mesaj[dil])}`;
+---
+
+<a class="wa-float" href={href} target="_blank" rel="noopener" aria-label={s.whatsapp_etiket}>
+  <WaIkon boyut={30} />
+</a>

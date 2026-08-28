@@ -7,6 +7,7 @@ import kurlar from '../data/kurlar.json';
 import Baslik from '../components/Baslik.astro';
 import AltBilgi from '../components/AltBilgi.astro';
 import SeyahatAsistani from '../components/SeyahatAsistani.astro';
+import WhatsAppYuzen from '../components/WhatsAppYuzen.astro';
 import SerLogo from '../components/SerLogo.astro';
 import '../styles/global.css';
 
@@ -108,6 +109,7 @@ const LOCALE: Record<Dil, string> = { tr: 'tr-TR', en: 'en-GB', ru: 'ru-RU', de:
     <AltBilgi dil={dil} />
 
     <SeyahatAsistani dil={dil} />
+    <WhatsAppYuzen dil={dil} />
 
     <!-- Döviz seçici (MASTER-PROMPT §8): kurlar build'de JSON'a yazılır,
          client'ta API çağrısı yok. Seçim sessionStorage'da tutulur.
