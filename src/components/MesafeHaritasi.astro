@@ -44,6 +44,7 @@ const DESTINASYON_TERIMLERI: Record<string, string[]> = {
   serik: ['serik'],
   manavgat: ['manavgat'],
   alanya: ['alanya'],
+  havalimani: ['havalimanı', 'havalimani', 'antalya havalimanı', 'ayt airport'],
 };
 
 const normalize = (metin: string) =>
@@ -74,6 +75,14 @@ function destinasyonTurlari(destinasyonId: string) {
   });
 }
 
+// Merkez (ANTALYA) ve etiketlerin düğümden ışın boyunca dışa itildiği mesafe.
+// Etiketler düğümün hemen yanına değil, düğüm-merkez ışınının uzantısına
+// yerleştirilir: bu sayede sıkışık iç kümede (Muratpaşa/Havalimanı gibi)
+// etiketler hem birbirine hem komşu noktalara girmeden, açı arttıkça
+// büyüyen yay uzunluğundan yararlanarak yerleşir.
+const MERKEZ = { x: 350, y: 390 };
+const ETIKET_ITME = 60;
+
 // Her destinasyon için aktif tur sayısını hesapla.
 const dugumler = destinasyonlar
   .filter(d => d.haritadaGoster)
@@ -81,6 +90,10 @@ const dugumler = destinasyonlar
     const turlar = destinasyonTurlari(d.id);
     const href = turlar.length === 1 ? turUrl(lang, turlar[0]) : '';
     const detayMetni = turlar.length > 0 ? turMetni(turlar.length) : t.mesafe.aktifTurYok;
+    const dx = d.x - MERKEZ.x;
+    const dy = d.y - MERKEZ.y;
+    const uzaklik = Math.hypot(dx, dy);
+    const olcek = (uzaklik + ETIKET_ITME) / uzaklik;
     return {
       ...d,
       turSayisi: turlar.length,
@@ -88,10 +101,10 @@ const dugumler = destinasyonlar
       href,
       sureMetni: sureMetni(d.sure),
       turMetni: detayMetni,
+      labelX: MERKEZ.x + dx * olcek,
+      labelY: MERKEZ.y + dy * olcek,
     };
   });
-
-const listeSirali = [...dugumler].sort((a, b) => a.sure - b.sure);
 
 // Deniz dalgası — ayrı katmanda tam genişlik olduğu için yeterince uzun üretilir
 const dalga = (y: number) => `M0 ${y} q22 -5 44 0 ` + 't44 0 '.repeat(33);
@@ -102,6 +115,7 @@ const dalga = (y: number) => `M0 ${y} q22 -5 44 0 ` + 't44 0 '.repeat(33);
   <p class="mesafe__alt">{t.mesafe.altBaslik}</p>
 
   <div class="mesafe__sahne">
+   <div class="mesafe__scrollInner">
     {/* Deniz — SVG'nin dışında ayrı katman, soldan sağa tam kenara uzanır */}
     <div class="mesafe__deniz" aria-hidden="true">
       <svg viewBox="0 0 1440 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
@@ -119,7 +133,7 @@ const dalga = (y: number) => `M0 ${y} q22 -5 44 0 ` + 't44 0 '.repeat(33);
 
     <svg
       class="mesafe__svg"
-      viewBox="0 0 700 452"
+      viewBox="0 100 700 352"
       role="img"
       xmlns="http://www.w3.org/2000/svg"
     >
@@ -175,11 +189,14 @@ const dalga = (y: number) => `M0 ${y} q22 -5 44 0 ` + 't44 0 '.repeat(33);
                   <circle cx={d.x} cy={d.y} r="11" fill="var(--pirinc)" fill-opacity=".16" />
                 )}
                 <circle class="mesafe__nokta" cx={d.x} cy={d.y} r={d.konaklamali ? 6 : 5} />
+                {/* Etiket bağlayıcısı — noktadan itilmiş etiket konumuna kısa, ince çizgi */}
+                <line class="mesafe__lider" x1={d.x} y1={d.y} x2={d.labelX} y2={d.labelY} />
                 <text
                   class="mesafe__ad"
-                  x={d.saga ? d.x + 15 : d.x - 15}
-                  y={d.y - 2}
-                  text-anchor={d.saga ? 'start' : 'end'}
+                  x={d.labelX}
+                  y={d.labelY}
+                  text-anchor="middle"
+                  dominant-baseline="central"
                 >{d.ad}</text>
               </g>
             </>
@@ -208,24 +225,9 @@ const dalga = (y: number) => `M0 ${y} q22 -5 44 0 ` + 't44 0 '.repeat(33);
 
       <text class="mesafe__dipnot" x="350" y="447" text-anchor="middle">{t.mesafe.dipnot}</text>
     </svg>
+   </div>
   </div>
-
-  {/* Mobil: SVG gizlenir, liste görünür */}
-  <ul class="mesafe__liste">
-    {listeSirali.map(d => (
-      <li>
-        {d.href ? (
-          <a href={d.href}>
-            <span class="mesafe__listeAd">{d.ad}</span>
-          </a>
-        ) : (
-          <span class="mesafe__listeSatir">
-            <span class="mesafe__listeAd">{d.ad}</span>
-          </span>
-        )}
-      </li>
-    ))}
-  </ul>
+  <p class="mesafe__kaydirIpucu" aria-hidden="true">{t.mesafe.kaydirIpucu}</p>
 </section>
 
 <style>
@@ -254,18 +256,31 @@ const dalga = (y: number) => `M0 ${y} q22 -5 44 0 ` + 't44 0 '.repeat(33);
     padding-inline: 16px;
   }
 
+  /* Yükseklik, viewBox oranıyla (700x352) eşleşecek şekilde ölçeklenir —
+     üstteki boş kısım kırpıldığı için 452 yerine 352 baz alınır. */
   .mesafe__sahne{
     position: relative;
     width: 100%;
-    height: clamp(420px, 46vw, 560px);
+    height: clamp(327px, 35.8vw, 436px);
   }
 
-  /* Deniz katmanı: sahnenin alt %13,27'si — SVG'deki baseline ile aynı hizada
-     (viewBox'ta deniz 392→452, yani 60/452). Kenarlardan taşar, kıyı hissi verir. */
+  /* İç kapsayıcı: masaüstünde tam genişlik, mobilde ise metnin okunur
+     kalması için sabit bir min-width alır ve .mesafe__sahne onu yatay
+     kaydırır (bkz. mobil medya sorgusu) — harita küçültülüp
+     okunmaz hâle gelmez, aynı görsel öğe mobilde de kalır. */
+  .mesafe__scrollInner{
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* Deniz katmanı: iç kapsayıcının alt %17,05'i — SVG'deki baseline ile aynı
+     hizada (viewBox'ta deniz 392→452, yani 60/352). Kenarlardan taşar, kıyı
+     hissi verir; mobilde kaydırma içeriğiyle birlikte hareket eder. */
   .mesafe__deniz{
     position: absolute;
     left: 0; right: 0; bottom: 0;
-    height: 13.27%;
+    height: 17.05%;
     z-index: 0;
   }
   .mesafe__deniz svg{ display: block; width: 100%; height: 100%; }
@@ -308,6 +323,13 @@ const dalga = (y: number) => `M0 ${y} q22 -5 44 0 ` + 't44 0 '.repeat(33);
     stroke-opacity: .20;
     stroke-width: 1;
     transition: stroke .18s ease-out, stroke-width .18s ease-out, stroke-opacity .18s ease-out;
+  }
+
+  .mesafe__lider{
+    stroke: var(--gece);
+    stroke-opacity: .18;
+    stroke-width: .75;
+    transition: stroke-opacity .18s ease-out;
   }
 
   .mesafe__nokta{
@@ -361,6 +383,8 @@ const dalga = (y: number) => `M0 ${y} q22 -5 44 0 ` + 't44 0 '.repeat(33);
   .mesafe__dugum:focus-visible .mesafe__ad{ fill: var(--pirinc-koyu); }
   .mesafe__dugum:hover .mesafe__hale,
   .mesafe__dugum:focus-visible .mesafe__hale{ opacity: .18; }
+  .mesafe__dugum:hover .mesafe__lider,
+  .mesafe__dugum:focus-visible .mesafe__lider{ stroke-opacity: .5; }
 
   /* Tıklama onayı — SVG'de transform düğümü kaydırır, o yüzden r kullanılır */
   .mesafe__dugum:active .mesafe__nokta{ r: 9; }
@@ -401,39 +425,28 @@ const dalga = (y: number) => `M0 ${y} q22 -5 44 0 ` + 't44 0 '.repeat(33);
   @keyframes cizgiCiz{ to{ stroke-dashoffset: 0; } }
   @keyframes dugumBelir{ to{ opacity: 1; } }
 
-  /* Mobil liste — masaüstünde gizli */
-  .mesafe__liste{
+  .mesafe__kaydirIpucu{
     display: none;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    max-width: 460px;
-    margin-inline: auto;
-    padding-inline: 16px;
+    font-size: 12px;
+    color: var(--duman);
+    text-align: center;
+    margin: 6px 0 0;
   }
-  .mesafe__liste a,
-  .mesafe__listeSatir{
-    display: flex;
-    justify-content: space-between;
-    align-items: baseline;
-    gap: 12px;
-    padding: 13px 4px;
-    border-bottom: 0.5px solid var(--cizgi);
-    text-decoration: none;
-    transition: background .12s ease-out;
-  }
-  /* Dokunma geri bildirimi (EK-2 §A6) */
-  .mesafe__liste a:active{
-    background: color-mix(in srgb, var(--pirinc) 10%, transparent);
-  }
-  .mesafe__listeAd{ font-size: 15px; color: var(--gece); }
-  .mesafe__listeSure{ font-size: 12.5px; color: var(--duman); white-space: nowrap; }
 
-  /* SVG mobilde okunmuyor — listeye geç */
+  /* Mobilde harita küçültülüp okunmaz hâle gelmez: sahne yatay kaydırılan
+     bir pencereye dönüşür, iç kapsayıcı okunur bir min-width'te sabit
+     kalır (bkz. .mesafe__scrollInner). Kenarda hafif bir soluklaşma ve
+     altında kısa bir ipucu, kaydırılabilir olduğunu belli eder. */
   @media (max-width: 720px){
-    .mesafe__sahne{ display: none; }
-    .mesafe__liste{ display: block; }
-    .mesafe__alt{ margin-bottom: 18px; }
+    .mesafe__sahne{
+      overflow-x: auto;
+      overflow-y: hidden;
+      -webkit-overflow-scrolling: touch;
+      scroll-snap-type: x proximity;
+      mask-image: linear-gradient(to right, transparent, black 4%, black 92%, transparent);
+    }
+    .mesafe__scrollInner{ min-width: 680px; }
+    .mesafe__kaydirIpucu{ display: block; }
   }
 
   /* Hareket azaltma: animasyon ve geçiş yok, harita son hâliyle durur */
@@ -442,9 +455,7 @@ const dalga = (y: number) => `M0 ${y} q22 -5 44 0 ` + 't44 0 '.repeat(33);
     .mesafe__nokta,
     .mesafe__hale,
     .mesafe__ad,
-    .mesafe__dugum,
-    .mesafe__liste a,
-    .mesafe__listeSatir{ transition: none; }
+    .mesafe__dugum{ transition: none; }
 
     .mesafe--hazir .mesafe__cizgi{ stroke-dasharray: none; stroke-dashoffset: 0; }
     .mesafe--hazir .mesafe__dugumIc{ opacity: 1; }

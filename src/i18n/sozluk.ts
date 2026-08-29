@@ -195,6 +195,7 @@ interface Sozluk {
     aktifTurYok: string;
     turSec: string;
     dipnot: string;
+    kaydirIpucu: string;
   };
   journey: {
     locationBaslik: string;
@@ -509,9 +510,9 @@ export const sozluk: Record<Dil, Sozluk> = {
     hava_bugun: 'Bugün',
     mesafe: {
       baslik: 'Antalya Destinasyonları',
-      altBaslik: 'SER için seçilmiş 10 keşif noktası',
+      altBaslik: 'Sizin için seçilmiş 11 keşif noktası',
       svgBaslik: 'Antalya destinasyon keşif haritası',
-      svgAciklama: 'Harita, Antalya çevresindeki 10 destinasyon merkezini gösterir. Noktalar pickup, rota veya operasyon koordinatı değildir.',
+      svgAciklama: 'Harita, Antalya çevresindeki 11 destinasyon merkezini gösterir. Noktalar pickup, rota veya operasyon koordinatı değildir.',
       kuzey: 'KUZEY',
       konaklamali: 'konaklamalı',
       legendLabel: 'Harita açıklaması',
@@ -521,6 +522,7 @@ export const sozluk: Record<Dil, Sozluk> = {
       aktifTurYok: 'Keşif noktası',
       turSec: 'Tur seç',
       dipnot: 'Koordinatlar destinasyon merkezi referansıdır; pickup veya operasyon noktası değildir.',
+      kaydirIpucu: '← Kaydırarak tüm noktaları görün →',
     },
     journey: {
       locationBaslik: 'Antalya’da nerede kalıyorsunuz?',
@@ -818,9 +820,9 @@ export const sozluk: Record<Dil, Sozluk> = {
     hava_bugun: 'Today',
     mesafe: {
       baslik: 'Antalya Destinations',
-      altBaslik: '10 discovery points selected for SER',
+      altBaslik: '11 discovery points selected for you',
       svgBaslik: 'Antalya destination discovery map',
-      svgAciklama: 'The map shows 10 destination centres around Antalya. Points are not pickup, route or operation coordinates.',
+      svgAciklama: 'The map shows 11 destination centres around Antalya. Points are not pickup, route or operation coordinates.',
       kuzey: 'NORTH',
       konaklamali: 'overnight',
       legendLabel: 'Map legend',
@@ -830,6 +832,7 @@ export const sozluk: Record<Dil, Sozluk> = {
       aktifTurYok: 'Discovery point',
       turSec: 'Choose a tour',
       dipnot: 'Coordinates are destination-centre references, not pickup or operation points.',
+      kaydirIpucu: '← Swipe to see every point →',
     },
     journey: {
       locationBaslik: 'Where are you staying in Antalya?',
@@ -1127,9 +1130,9 @@ export const sozluk: Record<Dil, Sozluk> = {
     hava_bugun: 'Сегодня',
     mesafe: {
       baslik: 'Направления Антальи',
-      altBaslik: '10 точек для знакомства с регионом SER',
+      altBaslik: '11 точек, выбранных для вас',
       svgBaslik: 'Карта направлений Антальи',
-      svgAciklama: 'Карта показывает 10 центров направлений вокруг Антальи. Точки не являются местами трансфера, маршрутом или операционными координатами.',
+      svgAciklama: 'Карта показывает 11 центров направлений вокруг Антальи. Точки не являются местами трансфера, маршрутом или операционными координатами.',
       kuzey: 'СЕВЕР',
       konaklamali: 'с ночёвкой',
       legendLabel: 'Условные обозначения карты',
@@ -1139,6 +1142,7 @@ export const sozluk: Record<Dil, Sozluk> = {
       aktifTurYok: 'Точка для знакомства',
       turSec: 'Выбрать тур',
       dipnot: 'Координаты относятся к центру направления, а не к трансферу или операции.',
+      kaydirIpucu: '← Пролистайте, чтобы увидеть все точки →',
     },
     journey: {
       locationBaslik: 'В каком районе Антальи вы остановились?',
@@ -1436,9 +1440,9 @@ export const sozluk: Record<Dil, Sozluk> = {
     hava_bugun: 'Heute',
     mesafe: {
       baslik: 'Antalya-Destinationen',
-      altBaslik: '10 Entdeckungspunkte für SER',
+      altBaslik: '11 Entdeckungspunkte für Sie',
       svgBaslik: 'Entdeckungskarte der Antalya-Destinationen',
-      svgAciklama: 'Die Karte zeigt 10 Destinationszentren rund um Antalya. Die Punkte sind keine Abhol-, Routen- oder Betriebskoordinaten.',
+      svgAciklama: 'Die Karte zeigt 11 Destinationszentren rund um Antalya. Die Punkte sind keine Abhol-, Routen- oder Betriebskoordinaten.',
       kuzey: 'NORDEN',
       konaklamali: 'mit Übernachtung',
       legendLabel: 'Kartenlegende',
@@ -1448,6 +1452,7 @@ export const sozluk: Record<Dil, Sozluk> = {
       aktifTurYok: 'Entdeckungspunkt',
       turSec: 'Tour wählen',
       dipnot: 'Koordinaten beziehen sich auf das Destinationszentrum, nicht auf Abholung oder Betrieb.',
+      kaydirIpucu: '← Wischen Sie, um alle Punkte zu sehen →',
     },
     journey: {
       locationBaslik: 'Wo übernachten Sie in Antalya?',
@@ -1745,9 +1750,9 @@ export const sozluk: Record<Dil, Sozluk> = {
     hava_bugun: 'Dziś',
     mesafe: {
       baslik: 'Destynacje Antalyi',
-      altBaslik: '10 punktów odkrywania wybranych dla SER',
+      altBaslik: '11 punktów odkrywania wybranych dla Ciebie',
       svgBaslik: 'Mapa destynacji Antalyi',
-      svgAciklama: 'Mapa pokazuje 10 centrów destynacji wokół Antalyi. Punkty nie są miejscami odbioru, trasą ani koordynatami operacyjnymi.',
+      svgAciklama: 'Mapa pokazuje 11 centrów destynacji wokół Antalyi. Punkty nie są miejscami odbioru, trasą ani koordynatami operacyjnymi.',
       kuzey: 'PÓŁNOC',
       konaklamali: 'z noclegiem',
       legendLabel: 'Legenda mapy',
@@ -1757,6 +1762,7 @@ export const sozluk: Record<Dil, Sozluk> = {
       aktifTurYok: 'Punkt odkrywania',
       turSec: 'Wybierz wycieczkę',
       dipnot: 'Koordynaty odnoszą się do centrum destynacji, nie do odbioru ani operacji.',
+      kaydirIpucu: '← Przesuń, aby zobaczyć wszystkie punkty →',
     },
     journey: {
       locationBaslik: 'W którym rejonie Antalyi mieszkasz?',
@@ -2060,9 +2066,9 @@ export const sozluk: Record<Dil, Sozluk> = {
 
     mesafe: {
       baslik: 'Destinațiile Antalyei',
-      altBaslik: '10 puncte de explorare selectate pentru SER',
+      altBaslik: '11 puncte de explorare selectate pentru dumneavoastră',
       svgBaslik: 'Hartă de explorare a destinațiilor din Antalya',
-      svgAciklama: 'Harta arată 10 centre de destinație din jurul Antalyei. Punctele nu sunt coordonate de preluare, traseu sau operare.',
+      svgAciklama: 'Harta arată 11 centre de destinație din jurul Antalyei. Punctele nu sunt coordonate de preluare, traseu sau operare.',
       kuzey: 'NORD',
       konaklamali: 'cu cazare',
       legendLabel: 'Legendă hartă',
@@ -2072,6 +2078,7 @@ export const sozluk: Record<Dil, Sozluk> = {
       aktifTurYok: 'Punct de explorare',
       turSec: 'Alege turul',
       dipnot: 'Coordonatele sunt referințe ale centrului destinației, nu puncte de preluare sau operare.',
+      kaydirIpucu: '← Glisați pentru a vedea toate punctele →',
     },
     journey: {
       locationBaslik: 'În ce zonă din Antalya sunteți cazat?',
