@@ -724,7 +724,7 @@ export const sozluk: Record<Dil, Sozluk> = {
     ramses_galeri_alt: 'Dövme ve piercing çalışması',
     ramses_wa_konu: 'Dövme/piercing hakkında bilgi almak istiyorum.',
 
-    saglik_baslik: 'Sağlık Turizmi',
+    saglik_baslik: 'Sağlık Turizm',
     saglik_ozet: 'Türkiye’de saç ekimi, diş tedavisi, göz ameliyatı ve estetik işlemler için anlaşmalı kliniğe yönlendirme. Ön değerlendirme ücretsiz, randevu WhatsApp üzerinden.',
     saglik_h1_alt: 'Saç ekimi, diş tedavisi, göz ameliyatı ve estetik işlemler için anlaştığımız klinikle sizi buluşturuyoruz. Ön değerlendirme ücretsiz, randevu WhatsApp’tan.',
     saglik_badge_danisma: 'Ücretsiz Ön Değerlendirme',
@@ -770,7 +770,7 @@ export const sozluk: Record<Dil, Sozluk> = {
     saglik_wa_konu_dis: 'Diş tedavisi hakkında bilgi almak istiyorum.',
     saglik_wa_konu_goz: 'Göz tedavisi hakkında bilgi almak istiyorum.',
     saglik_wa_konu_estetik: 'Estetik işlemler hakkında bilgi almak istiyorum.',
-    saglik_ana_teaser_baslik: 'Sağlık Turizmi',
+    saglik_ana_teaser_baslik: 'Sağlık Turizm',
     saglik_ana_teaser_metin: 'Saç ekimi, diş tedavisi, göz ameliyatı ve estetik işlemler için anlaştığımız klinikle sizi buluşturuyoruz. Ön değerlendirme ücretsiz.',
     saglik_ana_teaser_buton: 'Hizmetleri İncele',
 
