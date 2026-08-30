@@ -48,7 +48,7 @@ export const LEAD_ENDPOINT = '';
 export const CALISMA_SAATLERI = '08:00–22:00';
 
 export const SOCIAL_LINKS = {
-  instagram: null,
+  instagram: 'https://www.instagram.com/sertourism.travel',
   tiktok: null,
   youtube: null,
   facebook: null,
