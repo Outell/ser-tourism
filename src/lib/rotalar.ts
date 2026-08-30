@@ -34,6 +34,18 @@ export const RAMSES_SLUG: Cevirili = {
   ro: 'tatuaje-si-piercing',
 };
 
+// Sağlık turizmi — anlaşmalı klinik yönlendirmesi, turlar bölümünün altında
+// yer alan ortak sayfa (Ramses Ink ile aynı desen): jenerik hizmet adı
+// kullanılır (klinik ismi yok), yalnızca dile göre çevrilir.
+export const SAGLIK_SLUG: Cevirili = {
+  tr: 'saglik-turizmi',
+  en: 'health-tourism',
+  ru: 'meditsinskiy-turizm',
+  de: 'gesundheitstourismus',
+  pl: 'turystyka-medyczna',
+  ro: 'turism-medical',
+};
+
 // Rehber sayfaları (EK-1 §5-6). Pratik slug'lar EK-1'de verildi;
 // ücretsiz slug'ların TR/EN'i verildi, kalanlar aynı mantıkla türetildi.
 export type RehberKodu = 'pratik' | 'ucretsiz';
@@ -64,6 +76,9 @@ export const transferUrl = (dil: Dil) => `/${dil}/${TRANSFER_SLUG[dil]}/`;
 // Turlar bölümünün altında yaşar (turlar/dovme-piercing-studyosu/ ) — tumSayfalar()'daki
 // 'tur' listesine değil, ayrı 'ramses' şablonuna bağlı (fiyat/iptal alanı yok).
 export const ramsesUrl = (dil: Dil) => `${turlarUrl(dil)}${RAMSES_SLUG[dil]}/`;
+// Turlar bölümünün altında yaşar (turlar/saglik-turizmi/ ) — ayrı 'saglik'
+// şablonuna bağlı (fiyat/iptal alanı yok, Ramses ile aynı mantık).
+export const saglikUrl = (dil: Dil) => `${turlarUrl(dil)}${SAGLIK_SLUG[dil]}/`;
 export const rehberUrl = (dil: Dil, kod: RehberKodu) => `/${dil}/${REHBER_SAYFALARI[kod][dil]}/`;
 
 // Her sayfanın 6 dildeki YOLU (göreli). Dil değiştirici bunu doğrudan kullanır;
@@ -110,7 +125,8 @@ export type SayfaTanimi =
   | { sablon: 'plan'; dil: Dil; yol: string; alternatifler: Record<Dil, string> }
   | { sablon: 'rehber'; dil: Dil; yol: string; alternatifler: Record<Dil, string>; rehberKodu: RehberKodu }
   | { sablon: 'transfer'; dil: Dil; yol: string; alternatifler: Record<Dil, string> }
-  | { sablon: 'ramses'; dil: Dil; yol: string; alternatifler: Record<Dil, string> };
+  | { sablon: 'ramses'; dil: Dil; yol: string; alternatifler: Record<Dil, string> }
+  | { sablon: 'saglik'; dil: Dil; yol: string; alternatifler: Record<Dil, string> };
 
 export function tumSayfalar(): SayfaTanimi[] {
   const sayfalar: SayfaTanimi[] = [];
@@ -156,6 +172,7 @@ export function tumSayfalar(): SayfaTanimi[] {
     sayfalar.push({ sablon: 'plan', dil, yol: planUrl(dil), alternatifler: alternatifler(planUrl) });
     sayfalar.push({ sablon: 'transfer', dil, yol: transferUrl(dil), alternatifler: alternatifler(transferUrl) });
     sayfalar.push({ sablon: 'ramses', dil, yol: ramsesUrl(dil), alternatifler: alternatifler(ramsesUrl) });
+    sayfalar.push({ sablon: 'saglik', dil, yol: saglikUrl(dil), alternatifler: alternatifler(saglikUrl) });
 
     for (const kod of Object.keys(REHBER_SAYFALARI) as RehberKodu[])
       sayfalar.push({

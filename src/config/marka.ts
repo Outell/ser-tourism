@@ -40,6 +40,18 @@ export const RAMSES_WA_NUMBERS: Record<Dil, string> = {
   ro: '905000000000',
 };
 
+// Sağlık turizmi — SER TOURISM'ın kendi turlarından ayrı, bağımsız bir anlaşmalı
+// klinik (klinik ismi/logo/konum sitede gösterilmiyor, RAMSES_WA_NUMBERS ile
+// aynı mantık). Gerçek numara verilince yalnızca burası değişecek.
+export const SAGLIK_WA_NUMBERS: Record<Dil, string> = {
+  tr: '905000000000',
+  en: '905000000000',
+  ru: '905000000000',
+  de: '905000000000',
+  pl: '905000000000',
+  ro: '905000000000',
+};
+
 // Lead webhook'u (Google Sheets) — henüz kurulmadı (BASLA.md sonraki adım 5).
 // Boş bırakılırsa sendBeacon çağrısı sessizce atlanır.
 export const LEAD_ENDPOINT = '';

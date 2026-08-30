@@ -1,0 +1,51 @@
+---
+// Sağlık turizmi kartı — turlar listesinde (yalnızca "tüm turlar" sayfasında)
+// RamsesTanitimKart.astro ile birlikte görünen ortak kart. Aynı .tur-kart
+// görsel dilini kullanır ama gerçek bir tur değildir: fiyat yok, iptal
+// politikası yok — filtre veri özniteliklerinin hepsi kasıtlı boş bırakılır.
+import type { Dil } from '../lib/tipler';
+import { saglikUrl } from '../lib/rotalar';
+import { sozluk } from '../i18n/sozluk';
+import { SAGLIK_KART_GORSEL } from '../data/saglikTurizmi';
+import WaIkon from './WaIkon.astro';
+import { SAGLIK_WA_NUMBERS } from '../config/marka';
+
+interface Props { dil: Dil }
+
+const { dil } = Astro.props;
+const s = sozluk[dil];
+const numara = SAGLIK_WA_NUMBERS[dil];
+
+const kartMesaj = [s.m_selamlama, '', s.saglik_wa_konu, '', s.m_kapanis].join('\n');
+const waLink = `https://wa.me/${numara}?text=${encodeURIComponent(kartMesaj)}`;
+---
+<article class="tur-kart" data-ad={s.saglik_baslik.toLowerCase()}>
+  <div class="tur-kart__gorsel">
+    <span class="tur-kart__rozet">{s.saglik_badge_danisma}</span>
+    <img
+      src={SAGLIK_KART_GORSEL}
+      alt={s.saglik_baslik}
+      width="1200" height="900"
+      loading="lazy"
+      decoding="async"
+    />
+  </div>
+  <div class="tur-kart__govde">
+    <h3 class="tur-kart__baslik">
+      <a href={saglikUrl(dil)}>{s.saglik_baslik}</a>
+    </h3>
+    <p class="tur-kart__ozet">{s.saglik_h1_alt}</p>
+    <div class="tur-kart__meta"><span>{s.saglik_badge_transfer}</span></div>
+    <div class="tur-kart__alt">
+      <a class="wa-buton wa-buton--kucuk" href={waLink} target="_blank" rel="noopener">
+        <WaIkon boyut={14} />
+        WhatsApp
+      </a>
+    </div>
+  </div>
+</article>
+
+<style>
+  /* Fiyat rozeti yok (bu bir tur değil) — buton tek başına sağa yaslanır */
+  .tur-kart__alt{ justify-content: flex-end; }
+</style>

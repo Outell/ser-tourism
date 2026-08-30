@@ -7,6 +7,40 @@ güncellemesi) tarihli olarak kaydeder. Şartname dosyaları değişmez; burası
 
 ---
 
+## 2026-08-30
+
+### Yeni — "Sağlık Turizmi" ortak hizmeti eklendi (Ramses Ink ile aynı desen)
+Dövme/piercing stüdyosuna ek olarak ikinci bağımsız ortak: anlaşmalı bir sağlık
+turizmi kliniği (saç ekimi, diş tedavisi, göz tedavileri, estetik işlemler).
+Klinik ismi/logo/konum sitede yok, fiyat/iptal alanı yok (§11 "boş alan
+sessizdir"), tek aksiyon WhatsApp — Ramses Ink ile birebir aynı prensip.
+Yeni sayfa `turlar/saglik-turizmi/` altında (6 dilde çevrilmiş slug), turlar
+listesinde Ramses kartının hemen yanında ikinci kart olarak çıkıyor, ayrıca
+kullanıcı isteğiyle ana sayfada da (Transfer önceliğiyle aynı görsel dilde,
+daha kısa) bir banner var.
+
+Görseller iş sahibinin onayıyla ortak klinik sitesinden alındı — ancak saç
+ekimi galerisindeki kaynak fotoğraflar profesyonel önce/sonra kompozisyonu
+değil, gerçek ve tanınabilir hastaların kişisel ortamlarda (banyo, araba, ev)
+çektiği selfie'lerdi; klinik izni olsa bile üçüncü bir işletmenin sitesinde
+yeniden yayınlamak hasta mahremiyeti açısından uygun görülmedi ve hiçbiri
+kullanılmadı. Yalnızca kimliği belli etmeyen, ağız bölgesine kırpılmış diş
+tedavisi öncesi/sonrası fotoğrafları (5 adet) ve jenerik/stok kategori
+görselleri (göz, estetik) kullanıldı. Yorum bölümü yok — yeni hizmet olduğu
+için gerçek referans henüz yok; onun yerine doğrulanabilir genel güven
+maddeleri var (lisanslı hekim, çok dilli koordinasyon, konaklama/transfer
+dahil, tek WhatsApp hattı).
+
+WhatsApp numarası Ramses ile aynı yöntemle yer tutucu (`905000000000`) —
+gerçek numara verilince yalnızca `SAGLIK_WA_NUMBERS` değişecek.
+
+`src/data/saglikTurizmi.ts` (yeni), `src/sablonlar/SaglikTurizmi.astro` (yeni),
+`src/components/SaglikTanitimKart.astro` (yeni), `src/config/marka.ts`
+(`SAGLIK_WA_NUMBERS`), `src/lib/rotalar.ts` (`SAGLIK_SLUG`, `saglikUrl`,
+`'saglik'` sayfa şablonu), `src/i18n/sozluk.ts` (6 dilde `saglik_*` anahtarları),
+`src/pages/[...yol].astro`, `src/sablonlar/Liste.astro`,
+`src/sablonlar/AnaSayfa.astro`, `gorseller/saglik-turizmi/` (10 görsel).
+
 ## 2026-08-27
 
 ### Düzeltme — Ana sayfa transfer kartı "yalnızca V-Class" izlenimi veriyordu

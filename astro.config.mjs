@@ -15,6 +15,6 @@ export default defineConfig({
   // Dev sunucusu IPv4+IPv6 dinlesin (yalnızca ::1 kalırsa tarayıcı 127.0.0.1'e bağlanamıyor)
   server: {
     host: true,
-    port: 4321,
+    port: Number(process.env.PORT) || 4321,
   },
 });

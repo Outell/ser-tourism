@@ -3,6 +3,7 @@ import type { Dil } from '../lib/tipler';
 import TemelSayfa from '../layouts/TemelSayfa.astro';
 import TurKart from '../components/TurKart.astro';
 import RamsesTanitimKart from '../components/RamsesTanitimKart.astro';
+import SaglikTanitimKart from '../components/SaglikTanitimKart.astro';
 import Secim from '../components/Secim.astro';
 import { MARKA } from '../config/marka';
 import { sozluk, yerlestir } from '../i18n/sozluk';
@@ -121,6 +122,7 @@ const aciklama = s.meta_ana_aciklama; // yer tutucu — sayfa başına özgün m
       <div class="grid" id="tur-grid">
         {turSeti.map((t, i) => <TurKart dil={dil} tur={t} oncelikli={i < 3} />)}
         {listeTipi === 'turlar' && anahtar === null && <RamsesTanitimKart dil={dil} />}
+        {listeTipi === 'turlar' && anahtar === null && <SaglikTanitimKart dil={dil} />}
       </div>
       <p class="sonuc-yok" id="sonuc-yok" hidden>{s.sonuc_yok}</p>
     </section>
