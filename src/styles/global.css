@@ -265,7 +265,7 @@ a{ color: inherit; }
   color: var(--beyaz);
   text-decoration: none;
 }
-.marka .ser-logo{ width: clamp(150px, 15vw, 198px); }
+.marka .ser-logo{ width: clamp(104px, 9vw, 132px); }
 .marka--footer .ser-logo{ width: 210px; max-width: 100%; }
 
 .ser-logo{
@@ -1637,7 +1637,7 @@ body{
   justify-content: space-between;
 }
 .mobil-menu__ust .marka{ color: var(--text-primary); }
-.mobil-menu__ust .marka .ser-logo{ width: 166px; }
+.mobil-menu__ust .marka .ser-logo{ width: 132px; }
 .mobil-menu__nav{
   display: grid;
   border-top: 1px solid var(--border);
@@ -2074,7 +2074,7 @@ body{
   }
   .menu-btn{ display: inline-grid; }
   .ustbar__ic{ min-height: 64px; gap: 12px; }
-  .marka .ser-logo{ width: 128px; }
+  .marka .ser-logo{ width: 96px; }
   .bolum-baslik{
     display: grid;
     align-items: start;
@@ -2260,8 +2260,8 @@ body{
 }
 
 @media (max-width: 420px){
-  .marka .ser-logo{ width: 138px; }
-  .mobil-menu__ust .marka .ser-logo{ width: 154px; }
+  .marka .ser-logo{ width: 88px; }
+  .mobil-menu__ust .marka .ser-logo{ width: 120px; }
 }
 @media (prefers-reduced-motion:reduce){
   .assistant__panel,.assistant__teaser-wrap,.assistant__typing span,.assistant__msg,.assistant__choices,.assistant__cards{ animation:none; }
