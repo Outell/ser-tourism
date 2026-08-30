@@ -9,6 +9,13 @@ güncellemesi) tarihli olarak kaydeder. Şartname dosyaları değişmez; burası
 
 ## 2026-08-30
 
+### Yeni — "Sağlık Turizmi" üst menüye (masaüstü + mobil) eklendi
+Kullanıcı isteğiyle, önceden yalnızca turlar listesinde kart olarak duran
+Sağlık Turizmi artık üst menüde de bir bağlantı: Turlar · Transfer ·
+Sağlık Turizmi · Plan yap sırasıyla, hem masaüstü çubuğunda hem mobil
+menüde. Taşma/kırılma yok (904px genişlikte test edildi).
+`src/components/Baslik.astro`
+
 ### Yeni — Sağlık turizmi galerisine "Saç Ekimi Sonuçları" grubu eklendi
 Kullanıcı `D:\Side Hustle\Images\Health` altına, yalnızca ense/saç çizgisi
 açısından çekilmiş (yüz göstermeyen) 2 gerçek öncesi/sonrası fotoğrafı koydu.
