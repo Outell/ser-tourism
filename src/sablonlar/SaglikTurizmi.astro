@@ -5,15 +5,19 @@
 // hizmet değil dört alt kategori (saç ekimi, diş, göz, estetik) olduğu için
 // bir "hizmetler" ızgarası var; yorum bloğu yok (yeni hizmet, henüz gerçek
 // referans yok) — onun yerine doğrulanabilir genel güven maddeleri var.
-// Galeri yalnızca diş tedavisi sonuçlarından oluşuyor (bkz. saglikTurizmi.ts
-// üstündeki not — saç ekimi kaynak görselleri kimliği belli ediyordu).
+// Sonuç galerisi iki ayrı başlıklı gruptan oluşuyor: diş tedavisi + rinoplasti.
+// Sonuç galerisi iki gruptan oluşuyor (diş tedavisi, rinoplasti) — bkz.
+// saglikTurizmi.ts üstündeki not: saç ekimi galerisi kasıtlı olarak yok,
+// o kaynak görseller kimliği belli ediyordu. Işık kutusu tek bir düz dizi
+// üzerinde çalışıyor; her grup kendi başlangıç indeksinden (galeriOfset)
+// başlıyor ki tek bir dialog iki grubu da gezebilsin.
 import type { Dil } from '../lib/tipler';
 import TemelSayfa from '../layouts/TemelSayfa.astro';
 import WaIkon from '../components/WaIkon.astro';
 import { MARKA, SAGLIK_WA_NUMBERS } from '../config/marka';
 import { sozluk } from '../i18n/sozluk';
 import { anaUrl, turlarUrl } from '../lib/rotalar';
-import { SAGLIK_KART_GORSEL, SAGLIK_GALERI, SAGLIK_KATEGORILER } from '../data/saglikTurizmi';
+import { SAGLIK_KART_GORSEL, SAGLIK_SONUC_GRUPLARI, SAGLIK_KATEGORILER } from '../data/saglikTurizmi';
 
 interface Props {
   dil: Dil;
@@ -56,6 +60,20 @@ const guvenler = [
   { baslik: s.saglik_guven3_baslik, metin: s.saglik_guven3_metin },
   { baslik: s.saglik_guven4_baslik, metin: s.saglik_guven4_metin },
 ];
+
+const galeriBasliklari: Record<string, string> = {
+  dis: s.saglik_galeri_baslik,
+  rinoplasti: s.saglik_galeri_rinoplasti_baslik,
+};
+
+// Düz galeri dizisi (ışık kutusu için) + her grubun bu dizideki başlangıç indeksi
+const tumGaleriGorselleri = SAGLIK_SONUC_GRUPLARI.flatMap((g) => g.gorseller);
+let ofset = 0;
+const galeriGruplari = SAGLIK_SONUC_GRUPLARI.map((g) => {
+  const baslangic = ofset;
+  ofset += g.gorseller.length;
+  return { ...g, baslik: galeriBasliklari[g.kod], baslangic };
+});
 
 const sayfaBaslik = `${s.saglik_baslik} | ${MARKA}`;
 ---
@@ -117,20 +135,20 @@ const sayfaBaslik = `${s.saglik_baslik} | ${MARKA}`;
         </div>
       </section>
 
-      <!-- Diş tedavisi sonuçları — tek galeri, ışık kutusu -->
-      {SAGLIK_GALERI.length > 0 && (
+      <!-- Sonuç galerileri (diş tedavisi, rinoplasti) — tek ışık kutusu, iki grup -->
+      {galeriGruplari.map((grup) => (
         <section class="saglik-bolum" data-galeri>
-          <h2>{s.saglik_galeri_baslik}</h2>
+          <h2>{grup.baslik}</h2>
           <div class="sonuc-grid">
-            {SAGLIK_GALERI.map((g, i) => (
-              <button type="button" class="sonuc-grid__ogr" data-galeri-ac={i} aria-label={s.saglik_galeri_alt}>
-                <img src={g} alt="" width="1600" height="1200" loading="lazy" decoding="async" />
+            {grup.gorseller.map((g, i) => (
+              <button type="button" class="sonuc-grid__ogr" data-galeri-ac={grup.baslangic + i} aria-label={s.saglik_galeri_alt}>
+                <img src={g} alt="" width="1100" height="1100" loading="lazy" decoding="async" />
               </button>
             ))}
           </div>
-          <p class="saglik-not">{s.saglik_galeri_not}</p>
         </section>
-      )}
+      ))}
+      {tumGaleriGorselleri.length > 0 && <p class="saglik-not">{s.saglik_galeri_not}</p>}
 
       <!-- Nasıl işliyor -->
       <section class="saglik-bolum">
@@ -171,7 +189,7 @@ const sayfaBaslik = `${s.saglik_baslik} | ${MARKA}`;
     </div>
   </div>
 
-  {SAGLIK_GALERI.length > 0 && (
+  {tumGaleriGorselleri.length > 0 && (
     <dialog class="isik" data-isik aria-label={s.saglik_galeri_alt}>
       <button type="button" class="isik__kapat" data-isik-kapat aria-label={s.galeri_kapat}>
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -181,7 +199,7 @@ const sayfaBaslik = `${s.saglik_baslik} | ${MARKA}`;
       </button>
 
       <figure class="isik__cerceve">
-        <img data-isik-gorsel src={SAGLIK_GALERI[0]} alt={s.saglik_galeri_alt} width="1600" height="1200" />
+        <img data-isik-gorsel src={tumGaleriGorselleri[0]} alt={s.saglik_galeri_alt} width="1100" height="1100" />
         <figcaption class="isik__sayac" data-isik-sayac></figcaption>
       </figure>
 
@@ -314,7 +332,7 @@ const sayfaBaslik = `${s.saglik_baslik} | ${MARKA}`;
   }
   .sonuc-grid__ogr{
     position: relative;
-    aspect-ratio: 4 / 3;
+    aspect-ratio: 3 / 4;
     overflow: hidden;
     border-radius: var(--r-media);
     background: var(--surface-strong);
@@ -420,11 +438,11 @@ const sayfaBaslik = `${s.saglik_baslik} | ${MARKA}`;
   }
 </style>
 
-<script is:inline define:vars={{ fotograflar: SAGLIK_GALERI, altMetin: s.saglik_galeri_alt }}>
+<script is:inline define:vars={{ fotograflar: tumGaleriGorselleri, altMetin: s.saglik_galeri_alt }}>
   (function () {
-    var kap = document.querySelector('[data-galeri]');
+    var kaplar = document.querySelectorAll('[data-galeri]');
     var isik = document.querySelector('[data-isik]');
-    if (!kap || !isik || !isik.showModal) return;
+    if (!kaplar.length || !isik || !isik.showModal) return;
 
     var gorsel = isik.querySelector('[data-isik-gorsel]');
     var sayac = isik.querySelector('[data-isik-sayac]');
@@ -437,11 +455,13 @@ const sayfaBaslik = `${s.saglik_baslik} | ${MARKA}`;
       if (sayac) sayac.textContent = (indeks + 1) + ' / ' + fotograflar.length;
     }
 
-    kap.addEventListener('click', function (e) {
-      var dugme = e.target.closest('[data-galeri-ac]');
-      if (!dugme) return;
-      goster(parseInt(dugme.getAttribute('data-galeri-ac'), 10) || 0);
-      isik.showModal();
+    kaplar.forEach(function (kap) {
+      kap.addEventListener('click', function (e) {
+        var dugme = e.target.closest('[data-galeri-ac]');
+        if (!dugme) return;
+        goster(parseInt(dugme.getAttribute('data-galeri-ac'), 10) || 0);
+        isik.showModal();
+      });
     });
 
     isik.addEventListener('click', function (e) {

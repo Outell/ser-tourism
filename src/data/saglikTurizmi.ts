@@ -3,24 +3,49 @@
 // aynı desen — bkz. ramsesInk.ts). Fiyat/iptal alanı kasıtlı olarak yok
 // (MASTER-PROMPT §11 "boş alan sessizdir"); tek aksiyon WhatsApp.
 //
-// Galeri yalnızca diş tedavisi öncesi/sonrası görsellerinden oluşuyor:
-// saç ekimi galerisindeki kaynak fotoğraflar gerçek, tanınabilir hastaların
-// kişisel/mahrem ortamlarda çekilmiş selfie'leriydi (banyo, araba, ev) —
-// klinik izni verilmiş olsa bile üçüncü bir işletmenin sitesinde tekrar
-// yayınlamak hasta mahremiyeti açısından uygun görülmedi, kullanılmadı.
-// Diş görselleri ise yalnızca ağız bölgesini gösteren, kimliği belli etmeyen
-// profesyonel klinik fotoğrafları olduğu için kullanıldı.
+// Sonuç galerisi iki gruptan oluşuyor: diş tedavisi ve rinoplasti — ikisi de
+// yalnızca kimliği belli etmeyen (ağız/burun bölgesine kırpılmış veya yüz
+// çevrilmiş) öncesi/sonrası kompozit fotoğrafları. Saç ekimi galerisi
+// kasıtlı olarak yok: o kaynak fotoğraflar gerçek, tanınabilir hastaların
+// kişisel/mahrem ortamlarda (banyo, araba, ev) çektiği selfie'lerdi — klinik
+// izni verilmiş olsa bile üçüncü bir işletmenin sitesinde tekrar yayınlamak
+// hasta mahremiyeti açısından uygun görülmedi.
 
 const G = '/gorseller/saglik-turizmi/saglik-turizmi-';
 
 export const SAGLIK_KART_GORSEL = G + '00-kart.webp';
 
-export const SAGLIK_GALERI = [
-  G + '01-galeri.webp',
-  G + '02-galeri.webp',
-  G + '03-galeri.webp',
-  G + '04-galeri.webp',
-  G + '05-galeri.webp',
+export type SaglikSonucGrubuKod = 'dis' | 'rinoplasti';
+
+export interface SaglikSonucGrubu {
+  kod: SaglikSonucGrubuKod;
+  gorseller: string[];
+}
+
+// Kompozit fotoğraflar kare/dikey oranlı (önce üstte, sonra altta) —
+// 4:3 yatay kutuya zorlamak "sonrası" yarısını kesiyordu, bu yüzden ızgara
+// artık 3:4 dikey kutu kullanıyor (SaglikTurizmi.astro .sonuc-grid__ogr).
+export const SAGLIK_SONUC_GRUPLARI: SaglikSonucGrubu[] = [
+  {
+    kod: 'dis',
+    gorseller: [
+      G + 'dis-01-galeri.webp',
+      G + 'dis-02-galeri.webp',
+      G + 'dis-03-galeri.webp',
+      G + 'dis-04-galeri.webp',
+      G + 'dis-05-galeri.webp',
+      G + 'dis-06-galeri.webp',
+    ],
+  },
+  {
+    kod: 'rinoplasti',
+    gorseller: [
+      G + 'rino-01-galeri.webp',
+      G + 'rino-02-galeri.webp',
+      G + 'rino-03-galeri.webp',
+      G + 'rino-04-galeri.webp',
+    ],
+  },
 ];
 
 export type SaglikKategoriKod = 'sac' | 'dis' | 'goz' | 'estetik';

@@ -9,6 +9,20 @@ güncellemesi) tarihli olarak kaydeder. Şartname dosyaları değişmez; burası
 
 ## 2026-08-30
 
+### Düzeltme — Sağlık turizmi galerisindeki diş fotoğrafları "sonrası" yarısını kesiyordu
+Web'den indirilen diş öncesi/sonrası kompozit fotoğrafları kareydi (1:1); sitedeki
+4:3 galeri kutusuna zorlanınca kompozitin alt yarısı ("sonrası") kırpılıyordu.
+Kullanıcı `D:\Side Hustle\Images\Health` altına kendi topladığı, tam çözünürlüklü
+6 diş + 4 rinoplasti fotoğrafını koydu; bunlar kırpılmadan (`fit:'cover'` yerine
+gerçek oranı koruyacak şekilde) yeniden işlendi. Galeri artık iki ayrı başlıklı
+gruba ayrıldı: "Diş Tedavisi Sonuçları" (6 görsel) ve "Rinoplasti Sonuçları"
+(4 görsel, önceden hiç yoktu) — tek ışık kutusu ikisini de düz bir dizi üzerinden
+geziyor. Kategori kartındaki diş fotoğrafı da artık tam kompozit yerine yalnızca
+"sonrası" kısmından kırpılan tek, temiz bir gülüş görseli.
+`src/data/saglikTurizmi.ts` (`SAGLIK_SONUC_GRUPLARI`), `src/sablonlar/SaglikTurizmi.astro`,
+`src/i18n/sozluk.ts` (`saglik_galeri_rinoplasti_baslik`), `gorseller/saglik-turizmi/`
+ve `public/gorseller/saglik-turizmi/` (10 yeni görsel, 5 hatalı kırpılmış görsel silindi).
+
 ### Yeni — "Sağlık Turizmi" ortak hizmeti eklendi (Ramses Ink ile aynı desen)
 Dövme/piercing stüdyosuna ek olarak ikinci bağımsız ortak: anlaşmalı bir sağlık
 turizmi kliniği (saç ekimi, diş tedavisi, göz tedavileri, estetik işlemler).

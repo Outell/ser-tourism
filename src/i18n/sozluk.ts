@@ -377,6 +377,7 @@ interface Sozluk {
   saglik_kat_estetik_baslik: string;
   saglik_kat_estetik_metin: string;
   saglik_galeri_baslik: string;
+  saglik_galeri_rinoplasti_baslik: string;
   saglik_galeri_alt: string;
   saglik_galeri_not: string;
   saglik_surec_baslik: string;
@@ -739,6 +740,7 @@ export const sozluk: Record<Dil, Sozluk> = {
     saglik_kat_estetik_baslik: 'Estetik İşlemler',
     saglik_kat_estetik_metin: 'Liposuction, rinoplasti, meme ve vücut estetiği. Kapsam ve süreç ön görüşmede kişiye özel netleştirilir.',
     saglik_galeri_baslik: 'Diş Tedavisi Sonuçları',
+    saglik_galeri_rinoplasti_baslik: 'Rinoplasti Sonuçları',
     saglik_galeri_alt: 'Diş tedavisi öncesi ve sonrası',
     saglik_galeri_not: 'Görseller, anlaştığımız kliniğin hasta izniyle paylaştığı sonuçlardır.',
     saglik_surec_baslik: 'Nasıl İşliyor',
@@ -1097,6 +1099,7 @@ export const sozluk: Record<Dil, Sozluk> = {
     saglik_kat_estetik_baslik: 'Aesthetic Procedures',
     saglik_kat_estetik_metin: 'Liposuction, rhinoplasty, breast and body aesthetics. Scope and process are clarified for you personally in the initial consultation.',
     saglik_galeri_baslik: 'Dental Treatment Results',
+    saglik_galeri_rinoplasti_baslik: 'Rhinoplasty Results',
     saglik_galeri_alt: 'Dental treatment before and after',
     saglik_galeri_not: 'These images are results shared by our partner clinic with patient consent.',
     saglik_surec_baslik: 'How It Works',
@@ -1455,6 +1458,7 @@ export const sozluk: Record<Dil, Sozluk> = {
     saglik_kat_estetik_baslik: 'Эстетические процедуры',
     saglik_kat_estetik_metin: 'Липосакция, ринопластика, эстетика груди и тела. Объём и процесс уточняются лично на первичной консультации.',
     saglik_galeri_baslik: 'Результаты стоматологического лечения',
+    saglik_galeri_rinoplasti_baslik: 'Результаты ринопластики',
     saglik_galeri_alt: 'Лечение зубов до и после',
     saglik_galeri_not: 'Изображения предоставлены партнёрской клиникой с согласия пациентов.',
     saglik_surec_baslik: 'Как это работает',
@@ -1813,6 +1817,7 @@ export const sozluk: Record<Dil, Sozluk> = {
     saglik_kat_estetik_baslik: 'Ästhetische Eingriffe',
     saglik_kat_estetik_metin: 'Fettabsaugung, Nasenkorrektur, Brust- und Körperästhetik. Umfang und Ablauf werden im Erstgespräch persönlich geklärt.',
     saglik_galeri_baslik: 'Ergebnisse der Zahnbehandlung',
+    saglik_galeri_rinoplasti_baslik: 'Ergebnisse der Nasenkorrektur',
     saglik_galeri_alt: 'Zahnbehandlung vorher und nachher',
     saglik_galeri_not: 'Diese Bilder wurden von unserer Partnerklinik mit Einverständnis der Patienten zur Verfügung gestellt.',
     saglik_surec_baslik: 'So läuft es ab',
@@ -2174,6 +2179,7 @@ export const sozluk: Record<Dil, Sozluk> = {
     saglik_kat_estetik_baslik: 'Zabiegi estetyczne',
     saglik_kat_estetik_metin: 'Liposukcja, rynoplastyka, estetyka piersi i ciała. Zakres i przebieg ustalane są indywidualnie podczas wstępnej konsultacji.',
     saglik_galeri_baslik: 'Efekty leczenia stomatologicznego',
+    saglik_galeri_rinoplasti_baslik: 'Efekty rynoplastyki',
     saglik_galeri_alt: 'Leczenie zębów przed i po',
     saglik_galeri_not: 'Zdjęcia zostały udostępnione przez naszą klinikę partnerską za zgodą pacjentów.',
     saglik_surec_baslik: 'Jak to przebiega',
@@ -2540,6 +2546,7 @@ export const sozluk: Record<Dil, Sozluk> = {
     saglik_kat_estetik_baslik: 'Proceduri estetice',
     saglik_kat_estetik_metin: 'Liposucție, rinoplastie, estetică a sânilor și a corpului. Domeniul și procesul se clarifică personal la consultația inițială.',
     saglik_galeri_baslik: 'Rezultate tratamente stomatologice',
+    saglik_galeri_rinoplasti_baslik: 'Rezultate rinoplastie',
     saglik_galeri_alt: 'Tratament stomatologic înainte și după',
     saglik_galeri_not: 'Aceste imagini sunt rezultate puse la dispoziție de clinica noastră parteneră, cu acordul pacienților.',
     saglik_surec_baslik: 'Cum funcționează',
