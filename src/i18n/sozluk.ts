@@ -376,6 +376,7 @@ interface Sozluk {
   saglik_kat_goz_metin: string;
   saglik_kat_estetik_baslik: string;
   saglik_kat_estetik_metin: string;
+  saglik_galeri_sac_baslik: string;
   saglik_galeri_baslik: string;
   saglik_galeri_rinoplasti_baslik: string;
   saglik_galeri_alt: string;
@@ -739,6 +740,7 @@ export const sozluk: Record<Dil, Sozluk> = {
     saglik_kat_goz_metin: 'Lasik ve katarakt ameliyatı dahil göz tedavileri. Uygunluk için önce göz muayenesi kaydı istenir.',
     saglik_kat_estetik_baslik: 'Estetik İşlemler',
     saglik_kat_estetik_metin: 'Liposuction, rinoplasti, meme ve vücut estetiği. Kapsam ve süreç ön görüşmede kişiye özel netleştirilir.',
+    saglik_galeri_sac_baslik: 'Saç Ekimi Sonuçları',
     saglik_galeri_baslik: 'Diş Tedavisi Sonuçları',
     saglik_galeri_rinoplasti_baslik: 'Rinoplasti Sonuçları',
     saglik_galeri_alt: 'Diş tedavisi öncesi ve sonrası',
@@ -1098,6 +1100,7 @@ export const sozluk: Record<Dil, Sozluk> = {
     saglik_kat_goz_metin: 'Eye treatments including LASIK and cataract surgery. An eye exam record is requested first to assess suitability.',
     saglik_kat_estetik_baslik: 'Aesthetic Procedures',
     saglik_kat_estetik_metin: 'Liposuction, rhinoplasty, breast and body aesthetics. Scope and process are clarified for you personally in the initial consultation.',
+    saglik_galeri_sac_baslik: 'Hair Transplant Results',
     saglik_galeri_baslik: 'Dental Treatment Results',
     saglik_galeri_rinoplasti_baslik: 'Rhinoplasty Results',
     saglik_galeri_alt: 'Dental treatment before and after',
@@ -1457,6 +1460,7 @@ export const sozluk: Record<Dil, Sozluk> = {
     saglik_kat_goz_metin: 'Лечение глаз, включая LASIK и операцию по удалению катаракты. Сначала запрашивается заключение офтальмолога.',
     saglik_kat_estetik_baslik: 'Эстетические процедуры',
     saglik_kat_estetik_metin: 'Липосакция, ринопластика, эстетика груди и тела. Объём и процесс уточняются лично на первичной консультации.',
+    saglik_galeri_sac_baslik: 'Результаты трансплантации волос',
     saglik_galeri_baslik: 'Результаты стоматологического лечения',
     saglik_galeri_rinoplasti_baslik: 'Результаты ринопластики',
     saglik_galeri_alt: 'Лечение зубов до и после',
@@ -1816,6 +1820,7 @@ export const sozluk: Record<Dil, Sozluk> = {
     saglik_kat_goz_metin: 'Augenbehandlungen inklusive LASIK und Katarakt-Operation. Zunächst wird ein augenärztlicher Befund benötigt.',
     saglik_kat_estetik_baslik: 'Ästhetische Eingriffe',
     saglik_kat_estetik_metin: 'Fettabsaugung, Nasenkorrektur, Brust- und Körperästhetik. Umfang und Ablauf werden im Erstgespräch persönlich geklärt.',
+    saglik_galeri_sac_baslik: 'Ergebnisse der Haartransplantation',
     saglik_galeri_baslik: 'Ergebnisse der Zahnbehandlung',
     saglik_galeri_rinoplasti_baslik: 'Ergebnisse der Nasenkorrektur',
     saglik_galeri_alt: 'Zahnbehandlung vorher und nachher',
@@ -2178,6 +2183,7 @@ export const sozluk: Record<Dil, Sozluk> = {
     saglik_kat_goz_metin: 'Zabiegi okulistyczne, w tym LASIK i operacja zaćmy. Najpierw wymagane jest badanie okulistyczne.',
     saglik_kat_estetik_baslik: 'Zabiegi estetyczne',
     saglik_kat_estetik_metin: 'Liposukcja, rynoplastyka, estetyka piersi i ciała. Zakres i przebieg ustalane są indywidualnie podczas wstępnej konsultacji.',
+    saglik_galeri_sac_baslik: 'Efekty przeszczepu włosów',
     saglik_galeri_baslik: 'Efekty leczenia stomatologicznego',
     saglik_galeri_rinoplasti_baslik: 'Efekty rynoplastyki',
     saglik_galeri_alt: 'Leczenie zębów przed i po',
@@ -2545,6 +2551,7 @@ export const sozluk: Record<Dil, Sozluk> = {
     saglik_kat_goz_metin: 'Tratamente oftalmologice, inclusiv LASIK și operație de cataractă. Se solicită întâi un consult oftalmologic.',
     saglik_kat_estetik_baslik: 'Proceduri estetice',
     saglik_kat_estetik_metin: 'Liposucție, rinoplastie, estetică a sânilor și a corpului. Domeniul și procesul se clarifică personal la consultația inițială.',
+    saglik_galeri_sac_baslik: 'Rezultate transplant de păr',
     saglik_galeri_baslik: 'Rezultate tratamente stomatologice',
     saglik_galeri_rinoplasti_baslik: 'Rezultate rinoplastie',
     saglik_galeri_alt: 'Tratament stomatologic înainte și după',

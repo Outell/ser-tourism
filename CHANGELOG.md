@@ -9,6 +9,14 @@ güncellemesi) tarihli olarak kaydeder. Şartname dosyaları değişmez; burası
 
 ## 2026-08-30
 
+### Yeni — Sağlık turizmi galerisine "Saç Ekimi Sonuçları" grubu eklendi
+Kullanıcı `D:\Side Hustle\Images\Health` altına, yalnızca ense/saç çizgisi
+açısından çekilmiş (yüz göstermeyen) 2 gerçek öncesi/sonrası fotoğrafı koydu.
+Sonuç galerisi artık üç gruplu: Saç Ekimi Sonuçları (2) → Diş Tedavisi
+Sonuçları (6) → Rinoplasti Sonuçları (4), tek ışık kutusu üçünü de gezebiliyor.
+`src/data/saglikTurizmi.ts`, `src/sablonlar/SaglikTurizmi.astro`,
+`src/i18n/sozluk.ts` (`saglik_galeri_sac_baslik`), 2 yeni görsel.
+
 ### Düzeltme — Sağlık turizmi galerisindeki diş fotoğrafları "sonrası" yarısını kesiyordu
 Web'den indirilen diş öncesi/sonrası kompozit fotoğrafları kareydi (1:1); sitedeki
 4:3 galeri kutusuna zorlanınca kompozitin alt yarısı ("sonrası") kırpılıyordu.
