@@ -66,8 +66,11 @@
   --r-rozet:     999px;
 
   /* --- Tipografi ------------------------------------------ */
+  /* Golos Text'in ğ glyph'i breve işaretsizdi (g ile piksel piksel aynı
+     render oluyordu) — Inter ile değiştirildi, Türkçe + Kiril'de (ru
+     locale) doğrulanmış tam glyph desteği var. */
   --font-baslik: 'Spectral', Georgia, serif;
-  --font-govde:  'Golos Text', system-ui, sans-serif;
+  --font-govde:  'Inter', system-ui, sans-serif;
 
   /* --- Tarayıcı teması (EK-4 §10) --------------------------- */
   /* Sistem karanlık moddayken form ögelerini kendi kendine
