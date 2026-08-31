@@ -28,14 +28,6 @@ Fiyat, süre ve dahil olanlar sayfada ne yazıyorsa odur. Turda sürpriz ek ücr
 
 Bir tur size uygun değilse — yol çok uzunsa, deniz o gün dalgalıysa, program küçük çocuklar için yorucuysa — satmadan önce söyleriz.
 
-## Söz vermediklerimiz
-
-En ucuz olduğumuzu iddia etmiyoruz. Bazı turları başka yerde daha ucuza bulabilirsiniz.
-
-Her turu her gün yapamayız. Bazı turların belirli günleri ve en az katılımcı sayısı vardır.
-
-*Sorunuz mu var?* → **WhatsApp'tan yazın** [buton]
-
 ═══════════════════════ EN ═══════════════════════
 
 ## We live in Antalya
@@ -61,14 +53,6 @@ We're available every day from 08:00 to 22:00 and reply the same day.
 The price, duration and inclusions are exactly what the page says. No surprise extras on the day.
 
 If a tour isn't right for you — the drive is long, the sea is rough that day, the programme is tiring for small children — we'll tell you before you book.
-
-## What we don't promise
-
-We don't claim to be the cheapest. You may find some tours for less elsewhere.
-
-We can't run every tour every day. Some tours have fixed days and minimum group sizes.
-
-*Questions?* → **Write on WhatsApp** [button]
 
 ═══════════════════════ RU ═══════════════════════
 
@@ -96,14 +80,6 @@ LIMYRA — небольшая команда из Антальи. Часть т�
 
 Если тур вам не подходит — дорога слишком длинная, море в этот день неспокойное, программа утомительна для маленьких детей, — мы скажем об этом до бронирования.
 
-## Чего мы не обещаем
-
-Мы не утверждаем, что мы самые дешёвые. Некоторые туры вы можете найти дешевле в другом месте.
-
-Мы не можем проводить каждый тур каждый день. У некоторых туров есть фиксированные дни и минимальное количество участников.
-
-*Остались вопросы?* → **Напишите в WhatsApp** [кнопка]
-
 ═══════════════════════ DE ═══════════════════════
 
 ## Wir leben in Antalya
@@ -129,14 +105,6 @@ Wir sind täglich von 08:00 bis 22:00 Uhr erreichbar und antworten am selben Tag
 Preis, Dauer und Leistungen entsprechen genau den Angaben auf der Seite. Keine überraschenden Zusatzkosten vor Ort.
 
 Wenn eine Tour nicht zu Ihnen passt — die Fahrt zu lang ist, das Meer an dem Tag unruhig, das Programm für kleine Kinder ermüdend —, sagen wir es Ihnen vor der Buchung.
-
-## Was wir nicht versprechen
-
-Wir behaupten nicht, die Günstigsten zu sein. Manche Touren finden Sie anderswo billiger.
-
-Wir können nicht jede Tour an jedem Tag durchführen. Manche Touren haben feste Tage und eine Mindestteilnehmerzahl.
-
-*Fragen?* → **Schreiben Sie uns auf WhatsApp** [Button]
 
 ═══════════════════════ PL ═══════════════════════
 
@@ -164,10 +132,3 @@ Cena, czas trwania i to, co w cenie — dokładnie tak, jak na stronie. Żadnych
 
 Jeśli wycieczka nie jest dla Ciebie — dojazd jest długi, morze tego dnia niespokojne, program męczący dla małych dzieci — powiemy o tym przed rezerwacją.
 
-## Czego nie obiecujemy
-
-Nie twierdzimy, że jesteśmy najtańsi. Niektóre wycieczki znajdziesz gdzie indziej taniej.
-
-Nie każdą wycieczkę robimy codziennie. Niektóre mają stałe dni i minimalną liczbę uczestników.
-
-*Masz pytania?* → **Napisz na WhatsAppie** [przycisk]

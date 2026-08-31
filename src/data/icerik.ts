@@ -31,10 +31,6 @@ export const SABIT_SAYFALAR: Record<SabitSayfaKodu, Record<Dil, SayfaBolum[]>> =
         baslik: 'Söz verdiklerimiz',
         metin: 'Her gün 08:00–22:00 arasında ulaşılabiliriz ve mesajınıza aynı gün döneriz.\n\nFiyat, süre ve dahil olanlar sayfada ne yazıyorsa odur. Turda sürpriz ek ücret çıkmaz.\n\nBir tur size uygun değilse — yol çok uzunsa, deniz o gün dalgalıysa, program küçük çocuklar için yorucuysa — satmadan önce söyleriz.',
       },
-      {
-        baslik: 'Söz vermediklerimiz',
-        metin: 'En ucuz olduğumuzu iddia etmiyoruz. Bazı turları başka yerde daha ucuza bulabilirsiniz.\n\nHer turu her gün yapamayız. Bazı turların belirli günleri ve en az katılımcı sayısı vardır.\n\n*Sorunuz mu var?* → WhatsApp\'tan yazın [buton]',
-      },
     ],
     en: [
       {
@@ -48,10 +44,6 @@ export const SABIT_SAYFALAR: Record<SabitSayfaKodu, Record<Dil, SayfaBolum[]>> =
       {
         baslik: 'What we promise',
         metin: 'We\'re available every day from 08:00 to 22:00 and reply the same day.\n\nThe price, duration and inclusions are exactly what the page says. No surprise extras on the day.\n\nIf a tour isn\'t right for you — the drive is long, the sea is rough that day, the programme is tiring for small children — we\'ll tell you before you book.',
-      },
-      {
-        baslik: 'What we don\'t promise',
-        metin: 'We don\'t claim to be the cheapest. You may find some tours for less elsewhere.\n\nWe can\'t run every tour every day. Some tours have fixed days and minimum group sizes.\n\n*Questions?* → Write on WhatsApp [button]',
       },
     ],
     ru: [
@@ -67,10 +59,6 @@ export const SABIT_SAYFALAR: Record<SabitSayfaKodu, Record<Dil, SayfaBolum[]>> =
         baslik: 'Что мы обещаем',
         metin: 'Мы на связи каждый день с 08:00 до 22:00 и отвечаем в тот же день.\n\nЦена, длительность и то, что включено, — ровно то, что написано на странице тура. Никаких неожиданных доплат на месте.\n\nЕсли тур вам не подходит — дорога слишком длинная, море в этот день неспокойное, программа утомительна для маленьких детей, — мы скажем об этом до бронирования.',
       },
-      {
-        baslik: 'Чего мы не обещаем',
-        metin: 'Мы не утверждаем, что мы самые дешёвые. Некоторые туры вы можете найти дешевле в другом месте.\n\nМы не можем проводить каждый тур каждый день. У некоторых туров есть фиксированные дни и минимальное количество участников.\n\n*Остались вопросы?* → Напишите в WhatsApp [кнопка]',
-      },
     ],
     de: [
       {
@@ -85,10 +73,6 @@ export const SABIT_SAYFALAR: Record<SabitSayfaKodu, Record<Dil, SayfaBolum[]>> =
         baslik: 'Was wir versprechen',
         metin: 'Wir sind täglich von 08:00 bis 22:00 Uhr erreichbar und antworten am selben Tag.\n\nPreis, Dauer und Leistungen entsprechen genau den Angaben auf der Seite. Keine überraschenden Zusatzkosten vor Ort.\n\nWenn eine Tour nicht zu Ihnen passt — die Fahrt zu lang ist, das Meer an dem Tag unruhig, das Programm für kleine Kinder ermüdend —, sagen wir es Ihnen vor der Buchung.',
       },
-      {
-        baslik: 'Was wir nicht versprechen',
-        metin: 'Wir behaupten nicht, die Günstigsten zu sein. Manche Touren finden Sie anderswo billiger.\n\nWir können nicht jede Tour an jedem Tag durchführen. Manche Touren haben feste Tage und eine Mindestteilnehmerzahl.\n\n*Fragen?* → Schreiben Sie uns auf WhatsApp [Button]',
-      },
     ],
     pl: [
       {
@@ -102,10 +86,6 @@ export const SABIT_SAYFALAR: Record<SabitSayfaKodu, Record<Dil, SayfaBolum[]>> =
       {
         baslik: 'Co obiecujemy',
         metin: 'Jesteśmy dostępni codziennie od 08:00 do 22:00 i odpowiadamy tego samego dnia.\n\nCena, czas trwania i to, co w cenie — dokładnie tak, jak na stronie. Żadnych niespodziewanych dopłat na miejscu.\n\nJeśli wycieczka nie jest dla Ciebie — dojazd jest długi, morze tego dnia niespokojne, program męczący dla małych dzieci — powiemy o tym przed rezerwacją.',
-      },
-      {
-        baslik: 'Czego nie obiecujemy',
-        metin: 'Nie twierdzimy, że jesteśmy najtańsi. Niektóre wycieczki znajdziesz gdzie indziej taniej.\n\nNie każdą wycieczkę robimy codziennie. Niektóre mają stałe dni i minimalną liczbę uczestników.\n\n*Masz pytania?* → Napisz na WhatsAppie [przycisk]',
       },
     ],
     ro: [
@@ -124,10 +104,6 @@ export const SABIT_SAYFALAR: Record<SabitSayfaKodu, Record<Dil, SayfaBolum[]>> =
       {
         baslik: 'Ce promitem',
         metin: 'Suntem disponibili în fiecare zi între orele 08:00 și 22:00 și răspundem în aceeași zi.\n\nAnulare gratuită: excursiile de o zi până cu 24 de ore înainte, excursiile cu cazare până cu 72 de ore înainte. Este suficient un singur mesaj.\n\nDacă o excursie nu vi se potrivește — drumul este lung, marea este agitată în ziua respectivă, programul este obositor pentru copii mici — vă spunem înainte de rezervare.',
-      },
-      {
-        baslik: 'Ce nu promitem',
-        metin: 'Nu susținem că suntem cei mai ieftini. Unele excursii le puteți găsi mai ieftin în altă parte.\n\nNu putem organiza fiecare excursie în fiecare zi. Unele au zile fixe de plecare și un număr minim de participanți.\n\n*Aveți o întrebare?* → Scrieți-ne pe WhatsApp [buton]',
       },
     ],
   },
