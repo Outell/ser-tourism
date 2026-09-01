@@ -37,12 +37,19 @@ function bolgeWaLink(b: TransferBolgesi) {
 const G = '/gorseller/havalimani-transferi/havalimani-transferi-';
 
 // Araç seçenekleri: standart VIP (V-Class) + büyük grup VIP (Sprinter, 2026-08-26
-// eklendi). İkisi de tek [data-galeri]/[data-isik] çiftini paylaşır — dizinler
-// (ofset) araçlar arka arkaya eklenerek hesaplanır, script değişmez.
+// eklendi) + premium VIP (Sprinter, 2026-09-01 eklendi). Hepsi tek
+// [data-galeri]/[data-isik] çiftini paylaşır — dizinler (ofset) araçlar arka
+// arkaya eklenerek hesaplanır, script değişmez.
+const ARAC_METNI = {
+  standart: { ad: s.transfer_arac_standart_ad, aciklama: s.transfer_arac_standart_aciklama },
+  buyuk: { ad: s.transfer_arac_buyuk_ad, aciklama: s.transfer_arac_buyuk_aciklama },
+  premium: { ad: s.transfer_arac_premium_ad, aciklama: s.transfer_arac_premium_aciklama },
+} as const;
+
 const araclar = TRANSFER_ARACLARI.map((a, i, arr) => ({
   ...a,
-  ad: a.kod === 'standart' ? s.transfer_arac_standart_ad : s.transfer_arac_buyuk_ad,
-  aciklama: a.kod === 'standart' ? s.transfer_arac_standart_aciklama : s.transfer_arac_buyuk_aciklama,
+  ad: ARAC_METNI[a.kod].ad,
+  aciklama: ARAC_METNI[a.kod].aciklama,
   ofset: arr.slice(0, i).reduce((n, x) => n + x.galeri.length, 0),
 }));
 const galeri = araclar.flatMap((a) => a.galeri);
@@ -236,6 +243,9 @@ const baslik = `${s.transfer_baslik} | ${MARKA}`;
   }
   @media (min-width: 640px){
     .arac-secenekleri{ grid-template-columns: 1fr 1fr; }
+  }
+  @media (min-width: 960px){
+    .arac-secenekleri{ grid-template-columns: repeat(3, 1fr); }
   }
   .arac-kart{
     background: var(--surface-elevated);

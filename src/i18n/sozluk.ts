@@ -324,6 +324,8 @@ interface Sozluk {
   transfer_arac_standart_aciklama: string;
   transfer_arac_buyuk_ad: string;
   transfer_arac_buyuk_aciklama: string;
+  transfer_arac_premium_ad: string;
+  transfer_arac_premium_aciklama: string;
   transfer_arac_kapasite: string;
   transfer_fiyat_baslik: string;
   transfer_fiyat_alt: string;
@@ -692,6 +694,8 @@ export const sozluk: Record<Dil, Sozluk> = {
     transfer_arac_standart_aciklama: 'Küçük ve orta gruplar için deri koltuklu, konforlu VIP araç.',
     transfer_arac_buyuk_ad: 'Büyük Grup VIP — Mercedes Sprinter',
     transfer_arac_buyuk_aciklama: 'Kalabalık gruplar için TV, masa ve premium koltuklarla geniş VIP araç.',
+    transfer_arac_premium_ad: 'Premium VIP — Mercedes Sprinter',
+    transfer_arac_premium_aciklama: 'Bireysel koltuklar, yıldızlı tavan aydınlatması ve özel masasıyla en üst düzey konfor sunan ayrıcalıklı VIP araç.',
     transfer_arac_kapasite: '{n} kişiye kadar',
     transfer_fiyat_baslik: 'Bölgelere Göre Transfer Fiyatları',
     transfer_fiyat_alt: 'Tüm fiyatlar tek yön ve araç başınadır.',
@@ -1052,6 +1056,8 @@ export const sozluk: Record<Dil, Sozluk> = {
     transfer_arac_standart_aciklama: 'A comfortable VIP vehicle with leather seats for small and mid-sized groups.',
     transfer_arac_buyuk_ad: 'Large Group VIP — Mercedes Sprinter',
     transfer_arac_buyuk_aciklama: 'A spacious VIP vehicle with a TV, table and premium seats for larger groups.',
+    transfer_arac_premium_ad: 'Premium VIP — Mercedes Sprinter',
+    transfer_arac_premium_aciklama: 'An exclusive VIP vehicle with individual captain seats, starlit ceiling lighting and a private table for the ultimate comfort.',
     transfer_arac_kapasite: 'Up to {n} people',
     transfer_fiyat_baslik: 'Transfer Prices by Region',
     transfer_fiyat_alt: 'All prices are one-way and per vehicle.',
@@ -1412,6 +1418,8 @@ export const sozluk: Record<Dil, Sozluk> = {
     transfer_arac_standart_aciklama: 'Комфортный VIP-автомобиль с кожаными сиденьями для небольших и средних групп.',
     transfer_arac_buyuk_ad: 'VIP для больших групп — Mercedes Sprinter',
     transfer_arac_buyuk_aciklama: 'Просторный VIP-автомобиль с телевизором, столиком и премиальными сиденьями для больших групп.',
+    transfer_arac_premium_ad: 'Премиум VIP — Mercedes Sprinter',
+    transfer_arac_premium_aciklama: 'Эксклюзивный VIP-автомобиль с индивидуальными креслами, звёздным потолочным освещением и отдельным столиком для максимального комфорта.',
     transfer_arac_kapasite: 'До {n} человек',
     transfer_fiyat_baslik: 'Цены на трансфер по районам',
     transfer_fiyat_alt: 'Все цены указаны в одну сторону, за автомобиль.',
@@ -1772,6 +1780,8 @@ export const sozluk: Record<Dil, Sozluk> = {
     transfer_arac_standart_aciklama: 'Ein komfortables VIP-Fahrzeug mit Ledersitzen für kleine und mittlere Gruppen.',
     transfer_arac_buyuk_ad: 'Gruppen-VIP — Mercedes Sprinter',
     transfer_arac_buyuk_aciklama: 'Ein geräumiges VIP-Fahrzeug mit TV, Tisch und Premiumsitzen für größere Gruppen.',
+    transfer_arac_premium_ad: 'Premium VIP — Mercedes Sprinter',
+    transfer_arac_premium_aciklama: 'Ein exklusives VIP-Fahrzeug mit Einzelsitzen, Sternenhimmel-Beleuchtung und einem eigenen Tisch für höchsten Komfort.',
     transfer_arac_kapasite: 'Bis zu {n} Personen',
     transfer_fiyat_baslik: 'Transferpreise nach Region',
     transfer_fiyat_alt: 'Alle Preise gelten für eine einfache Fahrt, pro Fahrzeug.',
@@ -2135,6 +2145,8 @@ export const sozluk: Record<Dil, Sozluk> = {
     transfer_arac_standart_aciklama: 'Komfortowy pojazd VIP ze skórzanymi fotelami dla małych i średnich grup.',
     transfer_arac_buyuk_ad: 'VIP dla dużych grup — Mercedes Sprinter',
     transfer_arac_buyuk_aciklama: 'Przestronny pojazd VIP z telewizorem, stolikiem i fotelami premium dla większych grup.',
+    transfer_arac_premium_ad: 'Premium VIP — Mercedes Sprinter',
+    transfer_arac_premium_aciklama: 'Ekskluzywny pojazd VIP z indywidualnymi fotelami, oświetleniem sufitowym w gwiazdy i własnym stolikiem dla najwyższego komfortu.',
     transfer_arac_kapasite: 'Do {n} osób',
     transfer_fiyat_baslik: 'Ceny transferu według regionu',
     transfer_fiyat_alt: 'Wszystkie ceny dotyczą przejazdu w jedną stronę, za pojazd.',
@@ -2503,6 +2515,8 @@ export const sozluk: Record<Dil, Sozluk> = {
     transfer_arac_standart_aciklama: 'Un vehicul VIP confortabil, cu scaune din piele, pentru grupuri mici și medii.',
     transfer_arac_buyuk_ad: 'VIP pentru grupuri mari — Mercedes Sprinter',
     transfer_arac_buyuk_aciklama: 'Un vehicul VIP spațios cu televizor, măsuță și scaune premium pentru grupuri mai mari.',
+    transfer_arac_premium_ad: 'Premium VIP — Mercedes Sprinter',
+    transfer_arac_premium_aciklama: 'Un vehicul VIP exclusivist cu scaune individuale, iluminare de tavan cu efect de stele și o măsuță proprie, pentru un confort maxim.',
     transfer_arac_kapasite: 'Până la {n} persoane',
     transfer_fiyat_baslik: 'Prețuri transfer pe regiuni',
     transfer_fiyat_alt: 'Toate prețurile sunt pentru o cursă simplă, per vehicul.',

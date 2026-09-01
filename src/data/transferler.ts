@@ -33,12 +33,13 @@ export const TRANSFER_BATI: TransferBolgesi[] = [
   { kod: 'tekirova', ad: { tr: 'Tekirova', en: 'Tekirova', ru: 'Текирова', de: 'Tekirova', pl: 'Tekirova', ro: 'Tekirova' }, fiyat_eur: 65 },
 ];
 
-// Araç filosu — büyük grup talebi üzerine ikinci araç eklendi (2026-08-26).
-// İkisi de aynı bölge fiyatını kullanır (TRANSFER_DOGU/TRANSFER_BATI);
-// hangi aracın gönderileceği grup büyüklüğüne göre WhatsApp'ta belirlenir.
-// Adlar/açıklamalar sözlükte (`transfer_arac_standart_*`, `transfer_arac_buyuk_*`).
+// Araç filosu — büyük grup talebi üzerine ikinci araç eklendi (2026-08-26),
+// premium üçüncü araç eklendi (2026-09-01). Üçü de aynı bölge fiyatını kullanır
+// (TRANSFER_DOGU/TRANSFER_BATI); hangi aracın gönderileceği grup büyüklüğüne
+// göre WhatsApp'ta belirlenir. Adlar/açıklamalar sözlükte
+// (`transfer_arac_standart_*`, `transfer_arac_buyuk_*`, `transfer_arac_premium_*`).
 export interface TransferAraci {
-  kod: 'standart' | 'buyuk';
+  kod: 'standart' | 'buyuk' | 'premium';
   kapasite: number;
   kapak: string;
   galeri: string[];
@@ -46,6 +47,7 @@ export interface TransferAraci {
 
 const GV = '/gorseller/havalimani-transferi/havalimani-transferi-';
 const GB = '/gorseller/havalimani-transferi-buyuk-arac/havalimani-transferi-buyuk-arac-';
+const GP = '/gorseller/havalimani-transferi-premium-arac/havalimani-transferi-premium-arac-';
 
 export const TRANSFER_ARACLARI: TransferAraci[] = [
   {
@@ -59,5 +61,11 @@ export const TRANSFER_ARACLARI: TransferAraci[] = [
     kapasite: 12,
     kapak: GB + '01-kart.webp',
     galeri: [GB + '02-galeri.webp', GB + '03-galeri.webp', GB + '04-galeri.webp'],
+  },
+  {
+    kod: 'premium',
+    kapasite: 12,
+    kapak: GP + '01-kart.webp',
+    galeri: [GP + '02-galeri.webp', GP + '03-galeri.webp', GP + '04-galeri.webp'],
   },
 ];
