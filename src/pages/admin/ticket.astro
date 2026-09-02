@@ -1,0 +1,631 @@
+---
+// Transfer ticket oluşturucu — /admin/ index'inden linklenir.
+// Tamamen istemci taraflı: form → canlı önizleme → html2canvas + jsPDF ile PDF indirme.
+// Site statik (output:'static'), bu yüzden PDF üretimi sunucu değil tarayıcıda yapılır.
+import { MARKA } from '../../config/marka';
+---
+<html lang="tr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Ticket Oluştur — Admin — {MARKA}</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="icon" href="/favicon.png" />
+    <style>
+      :root{
+        --gece: #16122B;
+        --pirinc: #B8813F;
+        --kagit: #F7F3EC;
+        --beyaz: #FFFFFF;
+        --duman: #6E6680;
+        --cizgi: rgba(22,18,43,.14);
+      }
+      *{ box-sizing: border-box; }
+      body{
+        margin: 0;
+        background: var(--kagit);
+        color: var(--gece);
+        font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+      }
+      header{
+        background: var(--gece);
+        padding: 14px 24px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+      header img{ height: 32px; width: auto; display: block; }
+      header a{ color: var(--beyaz); opacity: .8; text-decoration: none; font-size: 13px; }
+      header a:hover{ opacity: 1; }
+      header span{ color: var(--beyaz); font-weight: 600; font-size: 14px; letter-spacing: .03em; }
+      .spacer{ flex: 1; }
+
+      .layout{
+        display: grid;
+        grid-template-columns: 440px 1fr;
+        gap: 20px;
+        padding: 20px;
+        align-items: start;
+        max-width: 1600px;
+        margin: 0 auto;
+      }
+      @media (max-width: 1000px){
+        .layout{ grid-template-columns: 1fr; }
+      }
+
+      /* --- Form paneli ------------------------------------------------ */
+      .panel{
+        background: var(--beyaz);
+        border: 1px solid var(--cizgi);
+        border-radius: 12px;
+        padding: 18px;
+      }
+      .panel h2{ font-size: 14px; margin: 0 0 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--duman); }
+      .field{ margin-bottom: 10px; }
+      .field label{ display: block; font-size: 12.5px; color: var(--duman); margin-bottom: 4px; }
+      .field input, .field textarea{
+        width: 100%;
+        padding: 8px 10px;
+        border: 1px solid var(--cizgi);
+        border-radius: 6px;
+        font-size: 13.5px;
+        font-family: inherit;
+        background: var(--beyaz);
+        color: var(--gece);
+      }
+      .field input:focus, .field textarea:focus{ outline: 2px solid var(--pirinc); outline-offset: 0; border-color: var(--pirinc); }
+      .grid2{ display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+      .grid3{ display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+      hr.ayrac{ border: none; border-top: 1px solid var(--cizgi); margin: 16px 0; }
+
+      .pax-row{
+        border: 1px solid var(--cizgi);
+        border-radius: 8px;
+        padding: 12px;
+        margin-bottom: 12px;
+        position: relative;
+        background: #FCFBF8;
+      }
+      .pax-row__head{ display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+      .pax-row__head b{ font-size: 12.5px; color: var(--gece); }
+      .pax-row__head button{
+        border: none; background: transparent; color: #B23A3A; font-size: 12px; cursor: pointer; padding: 4px 6px;
+      }
+      .pax-row__head button:hover{ text-decoration: underline; }
+
+      .buton{
+        display: inline-flex; align-items: center; gap: 8px;
+        border: none; cursor: pointer;
+        font-size: 13.5px; font-weight: 600; font-family: inherit;
+        padding: 10px 16px; border-radius: 8px;
+      }
+      .buton--koyu{ background: var(--gece); color: var(--beyaz); }
+      .buton--koyu:hover{ background: #241d43; }
+      .buton--acik{ background: transparent; color: var(--gece); border: 1px solid var(--cizgi); }
+      .buton--acik:hover{ background: var(--kagit); }
+      .buton:disabled{ opacity: .6; cursor: default; }
+      .buton--tam{ width: 100%; justify-content: center; }
+
+      .aksiyon-satir{ display: flex; gap: 10px; margin-top: 6px; }
+
+      /* --- Önizleme kolonu --------------------------------------------- */
+      .preview-col{ position: sticky; top: 20px; }
+      .preview-actions{ display: flex; gap: 10px; margin-bottom: 14px; }
+      .preview-scroll{
+        overflow-x: auto;
+        background: #ddd8cc;
+        border-radius: 12px;
+        padding: 24px;
+      }
+
+      /* --- Ticket belgesi (PDF'e dönüşecek kısım) ----------------------- */
+      .ticket{
+        width: 760px;
+        background: #fff;
+        color: #000;
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 12px;
+        padding: 22px 26px;
+        margin: 0 auto;
+      }
+      .ticket__header{
+        display: grid;
+        grid-template-columns: 150px 1fr 150px;
+        align-items: center;
+        gap: 10px;
+      }
+      .ticket__logo{
+        background: var(--gece);
+        border-radius: 6px;
+        padding: 8px 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .ticket__logo img{ width: 100%; height: auto; display: block; }
+      .ticket__title{ text-align: center; }
+      .ticket__title .t-name{ font-size: 15px; font-weight: 700; text-transform: uppercase; line-height: 1.3; }
+      .ticket__title .t-date{ font-size: 13px; font-weight: 700; margin-top: 2px; }
+      .ticket__title .t-region{ font-size: 13px; font-weight: 700; }
+      .ticket__title .t-listtype{ font-size: 15px; font-weight: 700; margin-top: 2px; letter-spacing: .03em; }
+
+      .ticket__meta{ margin-top: 14px; font-size: 12px; line-height: 1.9; }
+      .ticket__meta b{ font-weight: 700; }
+
+      table.ticket__table{
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 12px;
+        font-size: 11px;
+      }
+      table.ticket__table th, table.ticket__table td{
+        border: 1px solid #000;
+        padding: 4px 6px;
+        text-align: center;
+        vertical-align: middle;
+      }
+      table.ticket__table th{ font-weight: 700; background: #fff; }
+      table.ticket__table td.l, table.ticket__table th.l{ text-align: left; }
+      table.ticket__table td.note{ text-align: left; font-style: italic; font-size: 10.5px; }
+      table.ticket__table td.empty{ color: #777; font-style: italic; }
+
+      .ticket__totalpax{ text-align: center; font-weight: 700; margin-top: 12px; font-size: 12px; }
+
+      table.ticket__hotels th.hotel-hdr{ background: #ddd; }
+      table.ticket__hotels tr.total-row td{ font-weight: 700; }
+    </style>
+  </head>
+  <body>
+    <header>
+      <img src="/ser-logo.png" alt={MARKA} />
+      <span>ADMIN — TICKET OLUŞTUR</span>
+      <div class="spacer"></div>
+      <a href="/admin/">← Admin paneline dön</a>
+    </header>
+
+    <div class="layout">
+      <!-- ================= FORM ================= -->
+      <div class="panel" id="header-fields">
+        <h2>Başlık</h2>
+        <div class="field">
+          <label for="f-title">Ticket başlığı (kendin yaz)</label>
+          <input id="f-title" type="text" placeholder="ALM AKSU SWIMMING WITH DOLPHIN TRANSFER" />
+        </div>
+        <div class="grid2">
+          <div class="field">
+            <label for="f-date">Tarih</label>
+            <input id="f-date" type="date" />
+          </div>
+          <div class="field">
+            <label for="f-region">Bölge</label>
+            <input id="f-region" type="text" placeholder="Akdeniz" />
+          </div>
+        </div>
+
+        <hr class="ayrac" />
+        <h2>Genel Bilgiler</h2>
+        <div class="grid2">
+          <div class="field">
+            <label for="f-infno">Inf.No</label>
+            <input id="f-infno" type="text" />
+          </div>
+          <div class="field">
+            <label for="f-note">Note</label>
+            <input id="f-note" type="text" />
+          </div>
+        </div>
+        <div class="field">
+          <label for="f-guide">Guide</label>
+          <input id="f-guide" type="text" />
+        </div>
+        <div class="field">
+          <label for="f-leader">Tour leader</label>
+          <input id="f-leader" type="text" />
+        </div>
+        <div class="field">
+          <label for="f-routeinfo">Route info</label>
+          <input id="f-routeinfo" type="text" />
+        </div>
+
+        <hr class="ayrac" />
+        <h2>Araç / Güzergah</h2>
+        <div class="grid2">
+          <div class="field">
+            <label for="f-rt-number">Number</label>
+            <input id="f-rt-number" type="text" placeholder="AKSU EU" />
+          </div>
+          <div class="field">
+            <label for="f-rt-pickup">Pick-up time</label>
+            <input id="f-rt-pickup" type="text" placeholder="09:00" />
+          </div>
+        </div>
+        <div class="field">
+          <label for="f-rt-coach">Coach</label>
+          <input id="f-rt-coach" type="text" />
+        </div>
+        <div class="field">
+          <label for="f-rt-meeting">Meeting point</label>
+          <input id="f-rt-meeting" type="text" />
+        </div>
+        <div class="field">
+          <label for="f-rt-driver">Driver</label>
+          <input id="f-rt-driver" type="text" />
+        </div>
+      </div>
+
+      <div class="preview-col">
+        <div class="preview-actions">
+          <button class="buton buton--koyu" id="btn-pdf">PDF indir</button>
+          <button class="buton buton--acik" id="btn-clear">Formu temizle</button>
+        </div>
+        <div class="preview-scroll">
+          <div id="ticket-preview"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="layout" style="grid-template-columns: 1fr; padding-top: 0;">
+      <div class="panel">
+        <h2>Yolcular</h2>
+        <div id="pax-rows"></div>
+        <div class="aksiyon-satir">
+          <button class="buton buton--acik" id="btn-add-row">+ Yolcu satırı ekle</button>
+        </div>
+      </div>
+    </div>
+
+    <template id="row-template">
+      <div class="pax-row">
+        <div class="pax-row__head">
+          <b>Yolcu <span class="pax-row__index">1</span></b>
+          <button type="button" data-action="remove-row">Satırı sil</button>
+        </div>
+        <div class="grid2">
+          <div class="field">
+            <label>Voucher rehberi (isim)</label>
+            <input type="text" name="voucherGuide" />
+          </div>
+          <div class="field">
+            <label>Telefon</label>
+            <input type="text" name="voucherPhone" />
+          </div>
+        </div>
+        <div class="grid2">
+          <div class="field">
+            <label>Voucher no</label>
+            <input type="text" name="voucher" />
+          </div>
+          <div class="field">
+            <label>Rezervasyon no (Res No)</label>
+            <input type="text" name="resNo" />
+          </div>
+        </div>
+        <div class="field">
+          <label>Turist adı</label>
+          <input type="text" name="touristName" />
+        </div>
+        <div class="grid3">
+          <div class="field">
+            <label>Adl (yetişkin)</label>
+            <input type="number" name="adl" min="0" value="0" />
+          </div>
+          <div class="field">
+            <label>Chd (çocuk)</label>
+            <input type="number" name="chd" min="0" value="0" />
+          </div>
+          <div class="field">
+            <label>Inf (bebek)</label>
+            <input type="number" name="inf" min="0" value="0" />
+          </div>
+        </div>
+        <div class="grid2">
+          <div class="field">
+            <label>Otel</label>
+            <input type="text" name="hotel" />
+          </div>
+          <div class="field">
+            <label>Oda</label>
+            <input type="text" name="room" />
+          </div>
+        </div>
+        <div class="grid2">
+          <div class="field">
+            <label>Saat</label>
+            <input type="text" name="time" placeholder="00:00" />
+          </div>
+          <div class="field">
+            <label>Tur operatörü</label>
+            <input type="text" name="touroperator" />
+          </div>
+        </div>
+        <div class="field">
+          <label>Voucher notu (opsiyonel)</label>
+          <input type="text" name="note" />
+        </div>
+      </div>
+    </template>
+
+    <script>
+      import jsPDF from 'jspdf';
+      import html2canvas from 'html2canvas';
+
+      const byId = (id) => document.getElementById(id);
+
+      const headerForm = byId('header-fields');
+      const rowsContainer = byId('pax-rows');
+      const rowTemplate = byId('row-template');
+      const previewEl = byId('ticket-preview');
+
+      const HEADER_FIELDS = {
+        title: 'f-title', date: 'f-date', region: 'f-region',
+        infNo: 'f-infno', note: 'f-note', guide: 'f-guide', leader: 'f-leader', routeInfo: 'f-routeinfo',
+        rtNumber: 'f-rt-number', rtPickup: 'f-rt-pickup', rtCoach: 'f-rt-coach', rtMeeting: 'f-rt-meeting', rtDriver: 'f-rt-driver',
+      };
+
+      const DRAFT_KEY = 'ser-ticket-draft-v1';
+      let rowCount = 0;
+
+      function esc(v) {
+        return String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+      }
+
+      function formatDate(iso) {
+        if (!iso) return '';
+        const parts = iso.split('-');
+        if (parts.length !== 3) return iso;
+        const [y, m, d] = parts;
+        return `${d}.${m}.${y}`;
+      }
+
+      function collectHeader() {
+        const out = {};
+        for (const [key, id] of Object.entries(HEADER_FIELDS)) out[key] = byId(id).value;
+        return out;
+      }
+
+      function applyHeader(header) {
+        for (const [key, id] of Object.entries(HEADER_FIELDS)) {
+          if (header[key] != null) byId(id).value = header[key];
+        }
+      }
+
+      function renumberRows() {
+        rowsContainer.querySelectorAll('.pax-row').forEach((row, i) => {
+          row.querySelector('.pax-row__index').textContent = String(i + 1);
+        });
+      }
+
+      function addRow(data = {}) {
+        const frag = rowTemplate.content.cloneNode(true);
+        const row = frag.querySelector('.pax-row');
+        for (const [key, val] of Object.entries(data)) {
+          const input = row.querySelector(`[name="${key}"]`);
+          if (input) input.value = val;
+        }
+        rowsContainer.appendChild(row);
+        rowCount += 1;
+        renumberRows();
+      }
+
+      function collectRows() {
+        return [...rowsContainer.querySelectorAll('.pax-row')].map((row) => ({
+          voucherGuide: row.querySelector('[name="voucherGuide"]').value.trim(),
+          voucherPhone: row.querySelector('[name="voucherPhone"]').value.trim(),
+          voucher: row.querySelector('[name="voucher"]').value.trim(),
+          touristName: row.querySelector('[name="touristName"]').value.trim(),
+          adl: parseInt(row.querySelector('[name="adl"]').value, 10) || 0,
+          chd: parseInt(row.querySelector('[name="chd"]').value, 10) || 0,
+          inf: parseInt(row.querySelector('[name="inf"]').value, 10) || 0,
+          hotel: row.querySelector('[name="hotel"]').value.trim(),
+          room: row.querySelector('[name="room"]').value.trim(),
+          time: row.querySelector('[name="time"]').value.trim(),
+          touroperator: row.querySelector('[name="touroperator"]').value.trim(),
+          resNo: row.querySelector('[name="resNo"]').value.trim(),
+          note: row.querySelector('[name="note"]').value.trim(),
+        }));
+      }
+
+      function computeHotelTotals(rows) {
+        const map = new Map();
+        for (const r of rows) {
+          if (!r.hotel) continue;
+          const key = r.hotel;
+          if (!map.has(key)) map.set(key, { adl: 0, chd: 0, inf: 0, time: '' });
+          const g = map.get(key);
+          g.adl += r.adl;
+          g.chd += r.chd;
+          g.inf += r.inf;
+          if (!g.time && r.time) g.time = r.time;
+        }
+        return map;
+      }
+
+      function saveDraft(header, rows) {
+        try {
+          localStorage.setItem(DRAFT_KEY, JSON.stringify({ header, rows }));
+        } catch (e) {}
+      }
+
+      function loadDraft() {
+        try {
+          const raw = localStorage.getItem(DRAFT_KEY);
+          return raw ? JSON.parse(raw) : null;
+        } catch (e) {
+          return null;
+        }
+      }
+
+      function renderPreview() {
+        const h = collectHeader();
+        const rows = collectRows();
+        const totals = rows.reduce((a, r) => { a.adl += r.adl; a.chd += r.chd; a.inf += r.inf; return a; }, { adl: 0, chd: 0, inf: 0 });
+        const totalPax = totals.adl + totals.chd + totals.inf;
+        const hotelMap = computeHotelTotals(rows);
+
+        const paxRowsHtml = rows.map((r) => {
+          const guideLines = [r.voucherGuide, r.voucherPhone].filter(Boolean).map(esc).join('<br>');
+          let html = `<tr>
+            <td class="l">${guideLines}</td>
+            <td>${esc(r.voucher)}</td>
+            <td class="l">${esc(r.touristName)}</td>
+            <td>${r.adl || ''}</td>
+            <td>${r.chd || ''}</td>
+            <td>${r.inf || ''}</td>
+            <td class="l">${esc(r.hotel)}</td>
+            <td>${esc(r.room)}</td>
+            <td>${esc(r.time)}</td>
+            <td class="l">${esc(r.touroperator)}</td>
+            <td>${esc(r.resNo)}</td>
+          </tr>`;
+          if (r.note) {
+            html += `<tr><td colspan="11" class="note">Voucher notes: ${esc(r.note)}</td></tr>`;
+          }
+          return html;
+        }).join('') || '<tr><td colspan="11" class="empty">Henüz yolcu eklenmedi</td></tr>';
+
+        const hotelRowsHtml = [...hotelMap.entries()].map(([hotel, g]) => `
+          <tr>
+            <td class="l">${esc(hotel)}</td>
+            <td>${g.adl}</td>
+            <td>${g.chd}</td>
+            <td>${g.inf}</td>
+            <td>${esc(g.time)}</td>
+          </tr>
+        `).join('');
+
+        previewEl.innerHTML = `
+          <div class="ticket">
+            <div class="ticket__header">
+              <div class="ticket__logo"><img src="/ser-logo.png" alt="SER Tourism" /></div>
+              <div class="ticket__title">
+                <div class="t-name">${esc(h.title) || 'BAŞLIK BURAYA GELECEK'}</div>
+                <div class="t-date">${esc(formatDate(h.date))}</div>
+                <div class="t-region">${esc(h.region)}</div>
+                <div class="t-listtype">TRANSFER LIST</div>
+              </div>
+              <div></div>
+            </div>
+
+            <div class="ticket__meta">
+              <div><b>Inf.No:</b> ${esc(h.infNo)} &nbsp;&nbsp;&nbsp; <b>Note:</b> ${esc(h.note)}</div>
+              <div><b>Guide:</b> ${esc(h.guide)}</div>
+              <div><b>Tour leader:</b> ${esc(h.leader)}</div>
+              <div><b>Route info:</b> ${esc(h.routeInfo)}</div>
+            </div>
+
+            <table class="ticket__table ticket__route">
+              <thead><tr><th>Number</th><th>Pick-up time</th><th>Coach</th><th>Meeting point</th><th>Driver</th></tr></thead>
+              <tbody>
+                <tr>
+                  <td>${esc(h.rtNumber)}</td>
+                  <td>${esc(h.rtPickup)}</td>
+                  <td>${esc(h.rtCoach)}</td>
+                  <td>${esc(h.rtMeeting)}</td>
+                  <td>${esc(h.rtDriver)}</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <table class="ticket__table ticket__pax">
+              <thead>
+                <tr>
+                  <th>Voucher guide</th><th>Voucher</th><th>Tourist name</th><th>Adl</th><th>Chd</th><th>Inf</th><th>Hotel</th><th>Room</th><th>Time</th><th>Touroperator</th><th>Res No</th>
+                </tr>
+              </thead>
+              <tbody>${paxRowsHtml}</tbody>
+            </table>
+
+            <div class="ticket__totalpax">Total pax: ${totalPax} Pax (${totals.adl} Adult, ${totals.chd} Child, ${totals.inf} Inf)</div>
+
+            <table class="ticket__table ticket__hotels">
+              <thead>
+                <tr><th colspan="5" class="hotel-hdr">HOTEL TOTALS</th></tr>
+                <tr><th class="l">Hotel</th><th>Adl</th><th>Chd</th><th>Inf</th><th>Time</th></tr>
+              </thead>
+              <tbody>
+                ${hotelRowsHtml}
+                <tr class="total-row"><td class="l">Total:</td><td>${totals.adl}</td><td>${totals.chd}</td><td>${totals.inf}</td><td></td></tr>
+              </tbody>
+            </table>
+          </div>
+        `;
+
+        saveDraft(h, rows);
+      }
+
+      rowsContainer.addEventListener('input', renderPreview);
+      rowsContainer.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-action="remove-row"]');
+        if (!btn) return;
+        const row = btn.closest('.pax-row');
+        if (rowsContainer.querySelectorAll('.pax-row').length <= 1) {
+          row.querySelectorAll('input').forEach((i) => { i.value = i.type === 'number' ? '0' : ''; });
+        } else {
+          row.remove();
+          renumberRows();
+        }
+        renderPreview();
+      });
+
+      headerForm.addEventListener('input', renderPreview);
+
+      byId('btn-add-row').addEventListener('click', () => { addRow(); renderPreview(); });
+
+      byId('btn-clear').addEventListener('click', () => {
+        if (!confirm('Formu temizlemek istediğine emin misin? Kaydedilen taslak silinecek.')) return;
+        try { localStorage.removeItem(DRAFT_KEY); } catch (e) {}
+        applyHeader(Object.fromEntries(Object.keys(HEADER_FIELDS).map((k) => [k, ''])));
+        rowsContainer.innerHTML = '';
+        rowCount = 0;
+        addRow();
+        renderPreview();
+      });
+
+      byId('btn-pdf').addEventListener('click', async () => {
+        const btn = byId('btn-pdf');
+        const original = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = 'Oluşturuluyor...';
+        try {
+          const ticketEl = previewEl.querySelector('.ticket');
+          const canvas = await html2canvas(ticketEl, { scale: 2, backgroundColor: '#ffffff', useCORS: true });
+          const imgData = canvas.toDataURL('image/png');
+          const pdf = new jsPDF('p', 'mm', 'a4');
+          const pageWidth = 210;
+          const pageHeight = 297;
+          const imgWidth = pageWidth;
+          const imgHeight = (canvas.height * imgWidth) / canvas.width;
+          let heightLeft = imgHeight;
+          let position = 0;
+          pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+          heightLeft -= pageHeight;
+          while (heightLeft > 0) {
+            position = heightLeft - imgHeight;
+            pdf.addPage();
+            pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+            heightLeft -= pageHeight;
+          }
+          const h = collectHeader();
+          const slug = (h.title || 'transfer-ticket').toLowerCase()
+            .replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '').slice(0, 60) || 'transfer-ticket';
+          const datePart = h.date || new Date().toISOString().slice(0, 10);
+          pdf.save(`${slug}-${datePart}.pdf`);
+        } catch (err) {
+          alert('PDF oluşturulamadı: ' + (err && err.message ? err.message : err));
+        } finally {
+          btn.disabled = false;
+          btn.textContent = original;
+        }
+      });
+
+      const draft = loadDraft();
+      if (draft && Array.isArray(draft.rows) && draft.rows.length) {
+        applyHeader(draft.header || {});
+        draft.rows.forEach((r) => addRow(r));
+      } else {
+        addRow();
+      }
+      renderPreview();
+    </script>
+  </body>
+</html>

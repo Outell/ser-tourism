@@ -1,0 +1,104 @@
+---
+// Admin paneli — herkese açık markadan bağımsız iç araç. i18n rota sistemine
+// dahil değil (tumSayfalar() dışında), tek sayfa: /admin/.
+import { MARKA } from '../../config/marka';
+---
+<html lang="tr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Admin — {MARKA}</title>
+    <meta name="robots" content="noindex, nofollow" />
+    <link rel="icon" href="/favicon.png" />
+    <style>
+      :root{
+        --gece: #16122B;
+        --pirinc: #B8813F;
+        --kagit: #F7F3EC;
+        --beyaz: #FFFFFF;
+        --duman: #6E6680;
+        --cizgi: rgba(22,18,43,.12);
+      }
+      *{ box-sizing: border-box; }
+      body{
+        margin: 0;
+        min-height: 100vh;
+        background: var(--kagit);
+        color: var(--gece);
+        font-family: -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+      header{
+        width: 100%;
+        background: var(--gece);
+        padding: 18px 24px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+      header img{ height: 40px; width: auto; display: block; }
+      header span{
+        color: var(--beyaz);
+        font-weight: 600;
+        letter-spacing: .04em;
+        font-size: 15px;
+      }
+      main{
+        width: 100%;
+        max-width: 720px;
+        padding: 48px 24px;
+      }
+      h1{ font-size: 22px; margin: 0 0 6px; }
+      p.alt{ color: var(--duman); margin: 0 0 32px; font-size: 14px; }
+      .kart{
+        background: var(--beyaz);
+        border: 1px solid var(--cizgi);
+        border-radius: 12px;
+        padding: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        flex-wrap: wrap;
+      }
+      .kart h2{ font-size: 16px; margin: 0 0 4px; }
+      .kart p{ margin: 0; color: var(--duman); font-size: 13.5px; }
+      .buton{
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: var(--gece);
+        color: var(--beyaz);
+        text-decoration: none;
+        font-size: 14.5px;
+        font-weight: 600;
+        padding: 12px 20px;
+        border-radius: 8px;
+        white-space: nowrap;
+        transition: background .15s ease;
+      }
+      .buton:hover{ background: #241d43; }
+    </style>
+  </head>
+  <body>
+    <header>
+      <img src="/ser-logo.png" alt={MARKA} />
+      <span>ADMIN PANEL</span>
+    </header>
+    <main>
+      <h1>Transfer Ticket Aracı</h1>
+      <p class="alt">Transfer listesi bilgilerini gir, SER Tourism marka başlığıyla PDF olarak indir.</p>
+      <div class="kart">
+        <div>
+          <h2>Yeni Transfer Ticket</h2>
+          <p>Başlık, tarih, rehber ve yolcu bilgilerini doldurarak PDF oluştur.</p>
+        </div>
+        <a class="buton" href="/admin/ticket/">
+          + Ticket Oluştur
+        </a>
+      </div>
+    </main>
+  </body>
+</html>
